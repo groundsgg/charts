@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "common.fullname" . }}-server
+  name: {{ .Release.Name }}-server
   labels:
     {{- include "common.deploymentLabels" . | nindent 4 }}
     app.kubernetes.io/component: server

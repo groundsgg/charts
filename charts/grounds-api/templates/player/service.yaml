@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "common.fullname" . }}-player-http-service
+  name: {{ .Release.Name }}-player-http-service
   labels:
     {{- include "common.serviceLabels" . | nindent 4 }}
     app.kubernetes.io/component: player
