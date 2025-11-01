@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/groundsgg/charts/compare/grounds-api-v0.1.0...grounds-api-v0.1.1) (2025-11-01)
+
+
+### Bug Fixes
+
+* remove dynamic naming via nameOverride ([40d8885](https://github.com/groundsgg/charts/commit/40d8885b69c310592082f809ce3af6b1960b5671))
+
 ## [0.1.0](https://github.com/groundsgg/charts/compare/grounds-api-v0.0.1...grounds-api-v0.1.0) (2025-11-01)
 
 
