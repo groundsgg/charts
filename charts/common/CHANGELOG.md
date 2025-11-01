@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.2.0](https://github.com/groundsgg/charts/compare/common-v0.1.4...common-v0.2.0) (2025-11-01)
+
+
+### Features
+
+* add grounds-api chart ([cdbcd6c](https://github.com/groundsgg/charts/commit/cdbcd6c8d8072ecb1ad7af97bd46918137879e10))
+
+
+### Bug Fixes
+
+* **common:** remove appVersion ([1652cae](https://github.com/groundsgg/charts/commit/1652cae8ae7bd9ea9f7477909cc83cc834e783e3))
+* **common:** remove unused templates and make ci conditional ([9ffd661](https://github.com/groundsgg/charts/commit/9ffd661fe2cf72cc942bc59c3496f0d143c07158))
+* remove dynamic naming via nameOverride ([40d8885](https://github.com/groundsgg/charts/commit/40d8885b69c310592082f809ce3af6b1960b5671))
+* update release workflow ([fe534d3](https://github.com/groundsgg/charts/commit/fe534d3ff1f776a5cf8ba835059300801fa2da76))
+
 ## [0.1.4](https://github.com/groundsgg/charts/compare/common-v0.1.3...common-v0.1.4) (2025-11-01)
 
 
