@@ -1,0 +1,164 @@
+# Default values for grounds-api
+# This is a multi-service chart supporting player and server services
+# Each service can be enabled/disabled and configured independently
+
+## @section Global configuration options
+##
+global:
+  ## @param nameOverride String to partially override common.names.fullname
+  ##
+  nameOverride: ""
+  ## @param commonLabels Labels to add to all deployed objects
+  ##
+  commonLabels: {}
+  ## @param commonAnnotations Annotations to add to all deployed objects
+  ##
+  commonAnnotations: {}
+
+## @section Ingress configuration
+
+## @param ingress.enabled Enable ingress resource
+## @param ingress.hostname Ingress hostname
+## @param ingress.className Ingress class name for ingress controller
+## @param ingress.annotations Ingress annotations (e.g., for path rewrites, SSL redirect)
+## @param ingress.tls TLS configuration for ingress
+## @param ingress.entryPoints Traefik entry points (default: ["web", "websecure"])
+##
+
+ingress:
+  enabled: true
+  hostname: "api.grounds.gg"
+  className: ""
+  annotations: {}
+    # Example for nginx ingress controller (path rewriting):
+    # nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # nginx.ingress.kubernetes.io/use-regex: "true"
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # Example for traefik:
+    # traefik.ingress.kubernetes.io/rule: PathPrefix(`/player`) || PathPrefix(`/server`)
+  tls: []
+    # Example:
+    # - hosts:
+    #     - api.grounds.gg
+    #   secretName: api-tls
+  entryPoints: []
+    # Traefik entry points (defaults to ["web", "websecure"] if empty)
+    # Example:
+    # entryPoints:
+    #   - web
+    #   - websecure
+
+## @section Player Service Configuration
+## @param player.enabled Enable player service deployment
+## @param player.replicaCount Number of player pods to deploy
+##
+player:
+  enabled: true
+  replicaCount: 1
+  
+  ## @section Image configuration
+  ## @param player.image.registry Docker image registry
+  ## @param player.image.repository Docker image repository
+  ## @param player.image.tag Docker image tag
+  ## @param player.image.pullPolicy Docker image pull policy
+  ##
+  image:
+    registry: "ghcr.io/groundsgg"
+    repository: "grounds-api/player"
+    tag: "edge"
+    pullPolicy: IfNotPresent
+  
+  ## @section Resource configuration
+  ## @param player.resources CPU and memory resource requests and limits
+  ##
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  
+  ## @section Environment configuration
+  ## @param player.env Environment variables as key-value pairs
+  ##
+  env: {}
+  # Example:
+  # env:
+  #   NODE_ENV: "production"
+  #   PORT: "3000"
+  
+  ## @param player.envFrom Environment variables from external sources (secrets, configmaps)
+  ##
+  envFrom: []
+  # Example:
+  # envFrom:
+  #   - secretRef:
+  #       name: player-secrets
+  
+  ## @section Pod configuration
+  ## @param player.podLabels Additional labels to add to player pods
+  ## @param player.podSecurityContext Pod-level security context
+  ## @param player.containerSecurityContext Container-level security context
+  ##
+  podLabels: {}
+  podSecurityContext: {}
+  containerSecurityContext: {}
+
+## @section Server Service Configuration
+## @param server.enabled Enable server service deployment
+## @param server.replicaCount Number of server pods to deploy
+##
+server:
+  enabled: true
+  replicaCount: 1
+  
+  ## @section Image configuration
+  ## @param server.image.registry Docker image registry
+  ## @param server.image.repository Docker image repository
+  ## @param server.image.tag Docker image tag
+  ## @param server.image.pullPolicy Docker image pull policy
+  ##
+  image:
+    registry: "ghcr.io/groundsgg"
+    repository: "grounds-api/server"
+    tag: "edge"
+    pullPolicy: IfNotPresent
+  
+  ## @section Resource configuration
+  ## @param server.resources CPU and memory resource requests and limits
+  ##
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  
+  ## @section Environment configuration
+  ## @param server.env Environment variables as key-value pairs
+  ##
+  env: {}
+  # Example:
+  # env:
+  #   NODE_ENV: "production"
+  #   PORT: "3001"
+  
+  ## @param server.envFrom Environment variables from external sources (secrets, configmaps)
+  ##
+  envFrom: []
+  # Example:
+  # envFrom:
+  #   - secretRef:
+  #       name: server-secrets
+  
+  ## @section Pod configuration
+  ## @param server.podLabels Additional labels to add to server pods
+  ## @param server.podSecurityContext Pod-level security context
+  ## @param server.containerSecurityContext Container-level security context
+  ##
+  podLabels: {}
+  podSecurityContext: {}
+  containerSecurityContext: {}
+

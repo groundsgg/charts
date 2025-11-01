@@ -1,0 +1,4 @@
+# Default values for common library chart
+# This is a library chart and values are typically not used directly,
+# but can be referenced by dependent charts
+

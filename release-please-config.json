@@ -1,0 +1,12 @@
+{
+  "separate-pull-requests": true,
+  "include-component-in-tag": true,
+  "packages": {
+    "charts/common": {
+      "release-type": "helm"
+    },
+    "charts/grounds-api": {
+      "release-type": "helm"
+    }
+  }
+}

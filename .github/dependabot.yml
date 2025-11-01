@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # GitHub Actions (directory immer "/")
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      actions-minor-and-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+
+  # Helm Charts
+  - package-ecosystem: "helm"
+    directory: "/charts/common"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "helm"
+    directory: "/charts/grounds-api"
+    schedule:
+      interval: "weekly"

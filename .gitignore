@@ -1,0 +1,58 @@
+# Helm
+.helm/
+*.tgz
+charts/*/charts/
+charts/*/*.tgz
+.helmignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editor backups
+*.bak
+*.tmp
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.secret
+secrets.yaml
+secrets.yml
+
+# Test and temporary files
+*.test.yaml
+*.test.yml
+test-values/
+tmp/
+temp/
+
+# Build artifacts
+dist/
+build/
+*.orig
+
+# Package files
+*.tar
+*.tar.gz
+

@@ -1,0 +1,60 @@
+{{- if and .Values.ingress.enabled .Values.player.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "common.fullname" . }}-strip-player
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  stripPrefix:
+    prefixes:
+      - /player
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "common.fullname" . }}-headers-player
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Prefix: /player
+---
+{{- end }}
+{{- if and .Values.ingress.enabled .Values.server.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "common.fullname" . }}-strip-server
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  stripPrefix:
+    prefixes:
+      - /server
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "common.fullname" . }}-headers-server
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Prefix: /server
+{{- end }}
+

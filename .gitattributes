@@ -1,0 +1,22 @@
+# Auto detect text files and perform LF normalization
+*       text=auto
+
+# Shell scripts (Unix/Linux/Mac)
+*.sh    text eol=lf
+
+# Windows batch files
+*.bat   text eol=crlf
+*.conf  text eol=lf
+
+# Helm and Kubernetes files
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.tpl   text eol=lf
+
+# JSON files
+*.json  text eol=lf
+
+# Text files
+*.md    text eol=lf
+*.txt   text eol=lf
+*.log   text eol=lf

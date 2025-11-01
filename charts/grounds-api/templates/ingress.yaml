@@ -1,0 +1,71 @@
+{{- if and .Values.ingress.enabled .Values.player.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "common.fullname" . }}-player
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: player
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  entryPoints:
+    {{- if .Values.ingress.entryPoints }}
+    {{- range .Values.ingress.entryPoints }}
+    - {{ . | quote }}
+    {{- end }}
+    {{- else }}
+    - web
+    - websecure
+    {{- end }}
+  routes:
+    - match: Host(`{{ .Values.ingress.hostname }}`) && PathPrefix(`/player`)
+      kind: Rule
+      middlewares:
+        - name: {{ include "common.fullname" . }}-strip-player
+        - name: {{ include "common.fullname" . }}-headers-player
+      services:
+        - name: {{ include "common.fullname" . }}-player-http-service
+          port: 3000
+{{- end }}
+---
+{{- if and .Values.ingress.enabled .Values.server.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "common.fullname" . }}-server
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: server
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  entryPoints:
+    {{- if .Values.ingress.entryPoints }}
+    {{- range .Values.ingress.entryPoints }}
+    - {{ . | quote }}
+    {{- end }}
+    {{- else }}
+    - web
+    - websecure
+    {{- end }}
+  routes:
+    - match: Host(`{{ .Values.ingress.hostname }}`) && PathPrefix(`/server`)
+      kind: Rule
+      middlewares:
+        - name: {{ include "common.fullname" . }}-strip-server
+        - name: {{ include "common.fullname" . }}-headers-server
+      services:
+        - name: {{ include "common.fullname" . }}-server-http-service
+          port: 3001
+{{- end }}
