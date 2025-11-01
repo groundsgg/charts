@@ -24,7 +24,6 @@ global:
 ## @param ingress.tls TLS configuration for ingress
 ## @param ingress.entryPoints Traefik entry points (default: ["web", "websecure"])
 ##
-
 ingress:
   enabled: true
   hostname: "api.grounds.gg"
