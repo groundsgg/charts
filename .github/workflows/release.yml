@@ -37,6 +37,13 @@ jobs:
         with:
           version: ${{ env.HELM_VERSION }}
 
+      - name: 🔐 Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: 📦 Package Common Chart
         if: steps.extract-chart.outputs.chart-name == 'common'
         run: |
@@ -55,13 +62,6 @@ jobs:
             exit 1
           fi
           ls -lh .output/*.tgz
-
-      - name: 🔐 Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📦 Push Common Chart
         if: steps.extract-chart.outputs.chart-name == 'common'

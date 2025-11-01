@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: read
+  packages: read
 
 env:
   HELM_VERSION: "3.19.0"
@@ -82,6 +83,14 @@ jobs:
         with:
           version: ${{ env.HELM_VERSION }}
 
+      - name: 🔐 Login to GitHub Container Registry
+        if: needs.detect-changes.outputs.grounds-api-changed == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: 🔍 Lint Common Chart
         if: needs.detect-changes.outputs.common-changed == 'true'
         run: |
@@ -113,6 +122,14 @@ jobs:
         run: |
           curl -L https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-amd64.tar.gz | tar xz
           sudo mv kubeconform /usr/local/bin/
+
+      - name: 🔐 Login to GitHub Container Registry
+        if: needs.detect-changes.outputs.grounds-api-changed == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🧪 Test Common Chart
         if: needs.detect-changes.outputs.common-changed == 'true'
@@ -152,6 +169,14 @@ jobs:
 
       - name: 📁 Create output directory
         run: mkdir -p .output
+
+      - name: 🔐 Login to GitHub Container Registry
+        if: needs.detect-changes.outputs.grounds-api-changed == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📦 Package Common Chart
         if: needs.detect-changes.outputs.common-changed == 'true'
