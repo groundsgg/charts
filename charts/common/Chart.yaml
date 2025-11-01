@@ -2,4 +2,4 @@ apiVersion: v2
 name: common
 description: A Helm library chart for common templates and functions
 type: library
-version: 0.1.0
+version: 0.1.1
