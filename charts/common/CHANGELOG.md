@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/groundsgg/charts/compare/common-v0.1.2...common-v0.1.3) (2025-11-01)
+
+
+### Bug Fixes
+
+* update release workflow ([fe534d3](https://github.com/groundsgg/charts/commit/fe534d3ff1f776a5cf8ba835059300801fa2da76))
+
 ## [0.1.2](https://github.com/groundsgg/charts/compare/common-v0.1.1...common-v0.1.2) (2025-11-01)
 
 
