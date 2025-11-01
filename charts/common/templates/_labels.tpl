@@ -19,20 +19,6 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Service labels
-*/}}
-{{- define "common.serviceLabels" -}}
-{{ include "common.labels" . }}
-{{- end }}
-
-{{/*
-Deployment labels
-*/}}
-{{- define "common.deploymentLabels" -}}
-{{ include "common.labels" . }}
-{{- end }}
-
-{{/*
 Pod labels
 */}}
 {{- define "common.podLabels" -}}

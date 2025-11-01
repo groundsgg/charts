@@ -2,9 +2,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-server
+  name: {{ .Chart.Name }}-server
   labels:
-    {{- include "common.deploymentLabels" . | nindent 4 }}
+    {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: server
     {{- with .Values.global.commonLabels }}
     {{- toYaml . | nindent 4 }}

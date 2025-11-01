@@ -2,9 +2,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-player
+  name: {{ .Chart.Name }}-player
   labels:
-    {{- include "common.deploymentLabels" . | nindent 4 }}
+    {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: player
     {{- with .Values.global.commonLabels }}
     {{- toYaml . | nindent 4 }}

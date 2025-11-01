@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-server-http-service
+  name: {{ .Chart.Name }}-server-http-service
   labels:
-    {{- include "common.serviceLabels" . | nindent 4 }}
+    {{- include "common.labels" . | nindent 4 }}
     app.kubernetes.io/component: server
     {{- with .Values.global.commonLabels }}
     {{- toYaml . | nindent 4 }}
