@@ -16,11 +16,9 @@ env:
   CHART_REGISTRY: ghcr.io/groundsgg/charts
 
 jobs:
-  package:
-    name: 📦 Package Charts
+  release:
+    name: 📦 Package and Publish Charts
     runs-on: ubuntu-latest
-    outputs:
-      chart-name: ${{ steps.extract-chart.outputs.chart-name }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v5
@@ -50,34 +48,13 @@ jobs:
           helm dependency update charts/grounds-api
           helm package charts/grounds-api --destination .output
 
-      - name: 📤 Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: chart-packages
-          path: .output/*.tgz
-          retention-days: 7
-
-  publish:
-    name: 📤 Publish Charts
-    runs-on: ubuntu-latest
-    needs: package
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v5
-
-      - name: 🔧 Setup Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: ${{ env.HELM_VERSION }}
-
-      - name: 📥 Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: chart-packages
-          path: .output
+      - name: 🔍 Verify packaged files
+        run: |
+          if ! ls .output/*.tgz 1> /dev/null 2>&1; then
+            echo "ERROR: No .tgz files found in .output directory"
+            exit 1
+          fi
+          ls -lh .output/*.tgz
 
       - name: 🔐 Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -87,18 +64,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📦 Push Common Chart
-        if: needs.package.outputs.chart-name == 'common'
+        if: steps.extract-chart.outputs.chart-name == 'common'
         run: |
-          chart_file=$(ls .output/common-*.tgz 2>/dev/null || echo "")
-          if [ -n "$chart_file" ] && [ -f "$chart_file" ]; then
-            helm push "$chart_file" oci://${{ env.CHART_REGISTRY }}
-          fi
+          chart_file=$(ls .output/common-*.tgz)
+          helm push "$chart_file" oci://${{ env.CHART_REGISTRY }}
 
       - name: 📦 Push grounds-api Chart
-        if: needs.package.outputs.chart-name == 'grounds-api'
+        if: steps.extract-chart.outputs.chart-name == 'grounds-api'
         run: |
-          chart_file=$(ls .output/grounds-api-*.tgz 2>/dev/null || echo "")
-          if [ -n "$chart_file" ] && [ -f "$chart_file" ]; then
-            helm push "$chart_file" oci://${{ env.CHART_REGISTRY }}
-          fi
+          chart_file=$(ls .output/grounds-api-*.tgz)
+          helm push "$chart_file" oci://${{ env.CHART_REGISTRY }}
 

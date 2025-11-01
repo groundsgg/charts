@@ -137,3 +137,39 @@ jobs:
           helm dependency update charts/grounds-api
           helm template test charts/grounds-api --set player.enabled=false --set server.enabled=true | kubeconform -summary -strict -skip IngressRoute,Middleware
 
+  package:
+    name: 📦 Package Charts
+    runs-on: ubuntu-latest
+    needs: [detect-changes, test]
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v5
+
+      - name: 🔧 Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: 📁 Create output directory
+        run: mkdir -p .output
+
+      - name: 📦 Package Common Chart
+        if: needs.detect-changes.outputs.common-changed == 'true'
+        run: |
+          helm package charts/common --destination .output
+
+      - name: 📦 Package grounds-api Chart
+        if: needs.detect-changes.outputs.grounds-api-changed == 'true'
+        run: |
+          helm dependency update charts/grounds-api
+          helm package charts/grounds-api --destination .output
+
+      - name: 🔍 Verify packaged files
+        run: |
+          if ls .output/*.tgz 1> /dev/null 2>&1; then
+            echo "✅ Successfully packaged charts:"
+            ls -lh .output/*.tgz
+          else
+            echo "⚠️ No charts were packaged (expected if no charts changed)"
+          fi
+
