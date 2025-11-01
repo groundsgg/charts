@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/groundsgg/charts/compare/grounds-api-v0.1.1...grounds-api-v0.1.2) (2025-11-01)
+
+
+### Bug Fixes
+
+* **grounds-api:** update common chart version ([72aa565](https://github.com/groundsgg/charts/commit/72aa565addb116779fe15936ea7bd13dfca991e1))
+* **grounds-api:** use chart name instead of fullname in templates ([c7a4ae6](https://github.com/groundsgg/charts/commit/c7a4ae63253e94bc6b3c4bcf61d2d672959e7217))
+
 ## [0.1.1](https://github.com/groundsgg/charts/compare/grounds-api-v0.1.0...grounds-api-v0.1.1) (2025-11-01)
 
 
