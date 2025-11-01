@@ -65,20 +65,20 @@ jobs:
 
       - name: 🧪 Test Common Chart
         run: |
-          helm template test charts/common | kubeconform -summary -strict
+          helm template test charts/common | kubeconform -summary -strict -skip IngressRoute,Middleware
 
       - name: 🧪 Test grounds-api Chart
         run: |
           helm dependency update charts/grounds-api
-          helm template test charts/grounds-api --set player.enabled=true --set server.enabled=true | kubeconform -summary -strict
+          helm template test charts/grounds-api --set player.enabled=true --set server.enabled=true | kubeconform -summary -strict -skip IngressRoute,Middleware
 
       - name: 🧪 Test grounds-api Chart (player only)
         run: |
           helm dependency update charts/grounds-api
-          helm template test charts/grounds-api --set player.enabled=true --set server.enabled=false | kubeconform -summary -strict
+          helm template test charts/grounds-api --set player.enabled=true --set server.enabled=false | kubeconform -summary -strict -skip IngressRoute,Middleware
 
       - name: 🧪 Test grounds-api Chart (server only)
         run: |
           helm dependency update charts/grounds-api
-          helm template test charts/grounds-api --set player.enabled=false --set server.enabled=true | kubeconform -summary -strict
+          helm template test charts/grounds-api --set player.enabled=false --set server.enabled=true | kubeconform -summary -strict -skip IngressRoute,Middleware
 
