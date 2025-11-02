@@ -46,7 +46,7 @@ cockpit:
   ## @param cockpit.image.pullPolicy Docker image pull policy
   ##
   image:
-    registry: "ghcr.io/groundsgg"
+    registry: "ghcr.io/groundsgg/cockpit"
     repository: "cockpit"
     tag: "edge"
     pullPolicy: IfNotPresent
