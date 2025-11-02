@@ -34,11 +34,9 @@ ingress:
     #   - websecure
 
 ## @section Cockpit Service Configuration
-## @param cockpit.enabled Enable cockpit service deployment
 ## @param cockpit.replicaCount Number of cockpit pods to deploy
 ##
 cockpit:
-  enabled: true
   replicaCount: 1
   
   ## @section Image configuration
