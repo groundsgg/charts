@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/groundsgg/charts/compare/cockpit-v0.1.0...cockpit-v0.1.1) (2025-11-02)
+
+
+### Bug Fixes
+
+* use correct image registry ([ad6c308](https://github.com/groundsgg/charts/commit/ad6c30873b78a21ef23ffc5f6fd8a444d2f4cff5))
+
 ## [0.1.0](https://github.com/groundsgg/charts/compare/cockpit-v0.0.1...cockpit-v0.1.0) (2025-11-02)
 
 
