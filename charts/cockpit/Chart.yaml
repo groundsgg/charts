@@ -1,0 +1,10 @@
+apiVersion: v2
+name: cockpit
+description: A Helm chart for cockpit. grounds.gg dashboard and management interface
+type: application
+version: 0.0.1
+appVersion: "0.0.1"
+dependencies:
+  - name: common
+    version: "0.2.0"
+    repository: "oci://ghcr.io/groundsgg/charts"

@@ -5,6 +5,7 @@ on:
     tags:
       - 'common-v*'
       - 'grounds-api-v*'
+      - 'cockpit-v*'
 
 permissions:
   contents: read
@@ -55,6 +56,12 @@ jobs:
           helm dependency update charts/grounds-api
           helm package charts/grounds-api --destination .output
 
+      - name: 📦 Package cockpit Chart
+        if: steps.extract-chart.outputs.chart-name == 'cockpit'
+        run: |
+          helm dependency update charts/cockpit
+          helm package charts/cockpit --destination .output
+
       - name: 🔍 Verify packaged files
         run: |
           if ! ls .output/*.tgz 1> /dev/null 2>&1; then
@@ -73,5 +80,11 @@ jobs:
         if: steps.extract-chart.outputs.chart-name == 'grounds-api'
         run: |
           chart_file=$(ls .output/grounds-api-*.tgz)
+          helm push "$chart_file" oci://${{ env.CHART_REGISTRY }}
+
+      - name: 📦 Push cockpit Chart
+        if: steps.extract-chart.outputs.chart-name == 'cockpit'
+        run: |
+          chart_file=$(ls .output/cockpit-*.tgz)
           helm push "$chart_file" oci://${{ env.CHART_REGISTRY }}
 

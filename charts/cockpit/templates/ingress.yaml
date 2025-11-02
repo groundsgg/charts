@@ -1,0 +1,32 @@
+{{- if and .Values.ingress.enabled .Values.cockpit.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    app.kubernetes.io/component: cockpit
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  entryPoints:
+    {{- if .Values.ingress.entryPoints }}
+    {{- range .Values.ingress.entryPoints }}
+    - {{ . | quote }}
+    {{- end }}
+    {{- else }}
+    - web
+    - websecure
+    {{- end }}
+  routes:
+    - match: Host(`{{ .Values.ingress.hostname }}`)
+      kind: Rule
+      services:
+        - name: {{ .Chart.Name }}-http-service
+          port: 3000
+{{- end }}

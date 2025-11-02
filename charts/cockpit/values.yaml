@@ -1,0 +1,117 @@
+# Default values for cockpit
+# A Helm chart for cockpit. grounds.gg dashboard and management interface
+
+## @section Global configuration options
+##
+global:
+  ## @param commonLabels Labels to add to all deployed objects
+  ##
+  commonLabels: {}
+  ## @param commonAnnotations Annotations to add to all deployed objects
+  ##
+  commonAnnotations: {}
+
+## @section Ingress configuration
+
+## @param ingress.enabled Enable ingress resource
+## @param ingress.hostname Ingress hostname
+## @param ingress.className Ingress class name for ingress controller
+## @param ingress.annotations Ingress annotations (e.g., for path rewrites, SSL redirect)
+## @param ingress.tls TLS configuration for ingress
+## @param ingress.entryPoints Traefik entry points (default: ["web", "websecure"])
+##
+ingress:
+  enabled: true
+  hostname: "cockpit.grounds.services"
+  className: ""
+  annotations: {}
+  tls: []
+  entryPoints: []
+    # Traefik entry points (defaults to ["web", "websecure"] if empty)
+    # Example:
+    # entryPoints:
+    #   - web
+    #   - websecure
+
+## @section Cockpit Service Configuration
+## @param cockpit.enabled Enable cockpit service deployment
+## @param cockpit.replicaCount Number of cockpit pods to deploy
+##
+cockpit:
+  enabled: true
+  replicaCount: 1
+  
+  ## @section Image configuration
+  ## @param cockpit.image.registry Docker image registry
+  ## @param cockpit.image.repository Docker image repository
+  ## @param cockpit.image.tag Docker image tag
+  ## @param cockpit.image.pullPolicy Docker image pull policy
+  ##
+  image:
+    registry: "ghcr.io/groundsgg"
+    repository: "cockpit"
+    tag: "edge"
+    pullPolicy: IfNotPresent
+  
+  ## @section Resource configuration
+  ## @param cockpit.resources CPU and memory resource requests and limits
+  ##
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  
+  ## @section Environment configuration
+  ## @param cockpit.env Environment variables as key-value pairs
+  ##
+  env: {}
+  # Example:
+  # env:
+  #   NODE_ENV: "production"
+  
+  ## @param cockpit.envFrom Environment variables from external sources (secrets, configmaps)
+  ##
+  envFrom: []
+  # Example:
+  # envFrom:
+  #   - secretRef:
+  #       name: cockpit-secrets
+  #   - configMapRef:
+  #       name: cockpit-config
+  
+  ## @section Pod configuration
+  ## @param cockpit.podLabels Additional labels to add to cockpit pods
+  ## @param cockpit.podSecurityContext Pod-level security context
+  ## @param cockpit.containerSecurityContext Container-level security context
+  ##
+  podLabels: {}
+  podSecurityContext: {}
+  containerSecurityContext: {}
+
+## @section ConfigMap configuration
+## @param config.enabled Enable ConfigMap creation for non-sensitive environment variables
+## @param config.existingConfigMap Name of existing ConfigMap to use (if set, ConfigMap creation is skipped)
+## @param config.values Key-value pairs for ConfigMap (BETTER_AUTH_URL, NEXT_PUBLIC_BETTER_AUTH_URL, GOOGLE_CLIENT_ID)
+##
+config:
+  enabled: true
+  existingConfigMap: ""
+  values:
+    BETTER_AUTH_URL: "http://localhost:3000"
+    NEXT_PUBLIC_BETTER_AUTH_URL: "http://localhost:3000"
+    GOOGLE_CLIENT_ID: ""
+
+## @section Secret configuration
+## @param secret.enabled Enable Secret creation for sensitive environment variables
+## @param secret.existingSecret Name of existing Secret to use (if set, Secret creation is skipped)
+## @param secret.values Key-value pairs for Secret (BETTER_AUTH_SECRET, GOOGLE_CLIENT_SECRET)
+##
+secret:
+  enabled: true
+  existingSecret: ""
+  values:
+    BETTER_AUTH_SECRET: ""
+    GOOGLE_CLIENT_SECRET: ""

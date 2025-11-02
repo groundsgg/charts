@@ -19,3 +19,7 @@ updates:
     directory: "/charts/grounds-api"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "helm"
+    directory: "/charts/cockpit"
+    schedule:
+      interval: "weekly"
