@@ -31,7 +31,7 @@ jobs:
       cockpit-changed: ${{ steps.detect.outputs.cockpit-changed }}
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -83,7 +83,7 @@ jobs:
     needs: detect-changes
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Helm
         uses: azure/setup-helm@v4
@@ -121,7 +121,7 @@ jobs:
     needs: [detect-changes, lint]
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Helm
         uses: azure/setup-helm@v4
@@ -179,7 +179,7 @@ jobs:
     needs: [detect-changes, test]
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup Helm
         uses: azure/setup-helm@v4
