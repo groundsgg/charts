@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/groundsgg/charts/compare/grounds-api-v0.1.2...grounds-api-v0.2.0) (2025-12-03)
+
+
+### Features
+
+* add admin subapp to grounds-api chart ([#17](https://github.com/groundsgg/charts/issues/17)) ([ee222e5](https://github.com/groundsgg/charts/commit/ee222e5eec84eddd9a5798aef0da835fa9b66f38))
+
 ## [0.1.2](https://github.com/groundsgg/charts/compare/grounds-api-v0.1.1...grounds-api-v0.1.2) (2025-11-01)
 
 
