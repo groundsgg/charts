@@ -158,3 +158,59 @@ server:
   podSecurityContext: {}
   containerSecurityContext: {}
 
+## @section Admin Service Configuration
+## @param admin.enabled Enable admin service deployment
+## @param admin.replicaCount Number of admin pods to deploy
+##
+admin:
+  enabled: true
+  replicaCount: 1
+  
+  ## @section Image configuration
+  ## @param admin.image.registry Docker image registry
+  ## @param admin.image.repository Docker image repository
+  ## @param admin.image.tag Docker image tag
+  ## @param admin.image.pullPolicy Docker image pull policy
+  ##
+  image:
+    registry: "ghcr.io/groundsgg"
+    repository: "grounds-api/admin"
+    tag: "edge"
+    pullPolicy: IfNotPresent
+  
+  ## @section Resource configuration
+  ## @param admin.resources CPU and memory resource requests and limits
+  ##
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  
+  ## @section Environment configuration
+  ## @param admin.env Environment variables as key-value pairs
+  ##
+  env: {}
+  # Example:
+  # env:
+  #   NODE_ENV: "production"
+  #   PORT: "3001"
+  
+  ## @param admin.envFrom Environment variables from external sources (secrets, configmaps)
+  ##
+  envFrom: []
+  # Example:
+  # envFrom:
+  #   - secretRef:
+  #       name: admin-secrets
+  
+  ## @section Pod configuration
+  ## @param admin.podLabels Additional labels to add to admin pods
+  ## @param admin.podSecurityContext Pod-level security context
+  ## @param admin.containerSecurityContext Container-level security context
+  ##
+  podLabels: {}
+  podSecurityContext: {}
+  containerSecurityContext: {}
