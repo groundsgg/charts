@@ -1,0 +1,55 @@
+# Default values for grounds-service
+# This chart supports a single deployment and optional service.
+
+## @section Global configuration options
+##
+global:
+  ## @param commonLabels Labels to add to all deployed objects
+  ##
+  commonLabels: {}
+  ## @param commonAnnotations Annotations to add to all deployed objects
+  ##
+  commonAnnotations: {}
+
+## @section Deployment configuration
+deployment:
+  ## @param deployment.enabled Enable deployment
+  enabled: true
+  ## @param deployment.replicaCount Number of pods to deploy
+  replicaCount: 1
+  image:
+    ## @param deployment.image.registry Docker image registry (optional)
+    registry: ""
+    ## @param deployment.image.repository Docker image repository
+    repository: "grounds-service"
+    ## @param deployment.image.tag Docker image tag
+    tag: "latest"
+    ## @param deployment.image.pullPolicy Docker image pull policy
+    pullPolicy: IfNotPresent
+  ## @param deployment.containerPort Container port (optional)
+  containerPort: null
+  ## @param deployment.containerPortName Container port name (optional)
+  containerPortName: http
+  ## @param deployment.resources CPU and memory resource requests and limits
+  resources: {}
+  # Example:
+  # resources:
+  #   requests:
+  #     cpu: "100m"
+  #     memory: "128Mi"
+  #   limits:
+  #     cpu: "500m"
+  #     memory: "512Mi"
+
+## @section Service configuration
+service:
+  ## @param service.enabled Enable service
+  enabled: false
+  ## @param service.type Kubernetes service type
+  type: ClusterIP
+  ## @param service.port Service port
+  port: 9000
+  ## @param service.targetPort Service target port
+  targetPort: 9000
+  ## @param service.name Service port name
+  name: http

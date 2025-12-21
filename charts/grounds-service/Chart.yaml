@@ -1,0 +1,10 @@
+apiVersion: v2
+name: grounds-service
+description: A Helm chart for grounds-services deployments
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: common
+    version: "0.2.0"
+    repository: "oci://ghcr.io/groundsgg/charts"

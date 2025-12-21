@@ -1,0 +1,50 @@
+{{- if .Values.deployment.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.podLabels" . | nindent 8 }}
+        {{- with .Values.global.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.global.commonAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- $imageRepo := .Values.deployment.image.repository }}
+      {{- if .Values.deployment.image.registry }}
+      {{- $imageRepo = printf "%s/%s" .Values.deployment.image.registry .Values.deployment.image.repository }}
+      {{- end }}
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ $imageRepo }}:{{ .Values.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.deployment.image.pullPolicy }}
+          {{- if .Values.deployment.containerPort }}
+          ports:
+            - name: {{ .Values.deployment.containerPortName }}
+              containerPort: {{ .Values.deployment.containerPort }}
+              protocol: TCP
+          {{- end }}
+          {{- with .Values.deployment.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}
