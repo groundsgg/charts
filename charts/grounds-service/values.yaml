@@ -40,6 +40,12 @@ deployment:
   #   limits:
   #     cpu: "500m"
   #     memory: "512Mi"
+  ## @param deployment.env Environment variables for the container
+  env: {}
+  # Example:
+  # env:
+  #   - name: ENV_VAR_NAME
+  #     value: "value"
 
 ## @section Service configuration
 service:

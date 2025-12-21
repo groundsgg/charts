@@ -47,4 +47,8 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.deployment.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
 {{- end }}
