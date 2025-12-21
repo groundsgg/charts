@@ -5,6 +5,9 @@
     "charts/common": {
       "release-type": "helm"
     },
+    "charts/grounds-service": {
+      "release-type": "helm"
+    },
     "charts/grounds-api": {
       "release-type": "helm"
     },
