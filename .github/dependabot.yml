@@ -23,3 +23,7 @@ updates:
     directory: "/charts/cockpit"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "helm"
+    directory: "/charts/grounds-service"
+    schedule:
+      interval: "weekly"
