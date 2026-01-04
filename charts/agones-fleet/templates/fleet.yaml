@@ -1,0 +1,54 @@
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    grounds/server-type: {{ .Values.serverType }}
+spec:
+  replicas: {{ .Values.replicas }}
+  template:
+    metadata:
+      labels:
+        grounds/server-type: {{ .Values.serverType }}
+    spec:
+      container: {{ .Release.Name }}
+      sdkServer:
+        logLevel: Info
+        httpPort: 9358
+      health:
+        disabled: true
+      template:
+        metadata:
+          labels:
+            grounds/server-type: {{ .Values.serverType }}
+        spec:
+          {{- if eq .Values.serverType "velocity" }}
+          serviceAccountName: velocity
+          {{- end }}
+          containers:
+            - name: {{ .Release.Name }}
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              {{- with .Values.command }}
+              command:
+                {{ toYaml . | nindent 16 }}
+              {{- end }}
+              env:
+                {{- if eq .Values.serverType "velocity" }}
+                - name: VELOCITY_FORWARDING_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: velocity-forwarding-secret
+                      key: secret
+                {{- end }}
+                {{- if eq .Values.serverType "paper" }}
+                - name: PAPER_VELOCITY_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: velocity-forwarding-secret
+                      key: secret
+                {{- end }}
+              ports:
+                - name: http
+                  containerPort: 25565
+                  protocol: TCP

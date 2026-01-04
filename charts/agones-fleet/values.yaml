@@ -1,0 +1,12 @@
+image:
+  repository:
+  tag:
+  pullPolicy: Always
+
+replicas: 1
+
+# serverType is a label to identify the type of game server e.g. velocity, paper, etc.
+serverType:
+
+# command overrides the container entrypoint.
+command: []
