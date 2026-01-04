@@ -1,16 +1,19 @@
 version: 2
 updates:
-  # GitHub Actions (directory immer "/")
+  # Monitor GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
     groups:
-      actions-minor-and-patch:
-        patterns: ["*"]
-        update-types: ["minor", "patch"]
+      github-actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
-  # Helm Charts
+  # Monitor Helm dependencies
   - package-ecosystem: "helm"
     directory: "/charts/common"
     schedule:
@@ -25,5 +28,9 @@ updates:
       interval: "weekly"
   - package-ecosystem: "helm"
     directory: "/charts/grounds-service"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "helm"
+    directory: "/charts/agones-fleet"
     schedule:
       interval: "weekly"

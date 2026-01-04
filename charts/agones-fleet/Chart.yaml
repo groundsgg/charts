@@ -1,0 +1,5 @@
+apiVersion: v2
+name: agones-fleet
+description: Helm chart to deploy Agones Fleets for game servers (e.g., Velocity, Paper)
+type: application
+version: 0.1.0

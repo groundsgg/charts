@@ -13,6 +13,9 @@
     },
     "charts/cockpit": {
       "release-type": "helm"
+    },
+    "charts/agones-fleet": {
+      "release-type": "helm"
     }
   }
 }
