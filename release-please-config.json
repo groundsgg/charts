@@ -14,7 +14,7 @@
     "charts/cockpit": {
       "release-type": "helm"
     },
-    "charts/agones": {
+    "charts/agones-fleet": {
       "release-type": "helm"
     }
   }
