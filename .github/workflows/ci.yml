@@ -49,7 +49,7 @@ jobs:
 
       - name: 🔧 Setup Helm
         if: steps.changed-files.outputs.any_changed == 'true'
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v5
         with:
           version: ${{ env.HELM_VERSION }}
 
