@@ -38,7 +38,7 @@ jobs:
 
       - name: 🔧 Setup Helm
         if: ${{ env.MATCHES_REF == 'true' }}
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v5
         with:
           version: ${{ env.HELM_VERSION }}
 
