@@ -55,7 +55,7 @@ jobs:
 
       - name: 🔧 Setup kubectl
         if: steps.changed-files.outputs.any_changed == 'true'
-        uses: azure/setup-kubectl@v4
+        uses: azure/setup-kubectl@v5
 
       - name: 🔧 Setup Kubeconform
         if: steps.changed-files.outputs.any_changed == 'true'
