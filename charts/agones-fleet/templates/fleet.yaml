@@ -1,15 +1,17 @@
+{{- $serverPlatform := default .Values.serverType .Values.serverPlatform -}}
+{{- $serverRole := default .Values.serverType .Values.serverRole -}}
 apiVersion: agones.dev/v1
 kind: Fleet
 metadata:
   name: {{ .Release.Name }}
   labels:
-    grounds/server-type: {{ .Values.serverType }}
+    grounds/server-type: {{ $serverRole | quote }}
 spec:
   replicas: {{ .Values.replicas }}
   template:
     metadata:
       labels:
-        grounds/server-type: {{ .Values.serverType }}
+        grounds/server-type: {{ $serverRole | quote }}
     spec:
       container: {{ .Release.Name }}
       sdkServer:
@@ -20,9 +22,9 @@ spec:
       template:
         metadata:
           labels:
-            grounds/server-type: {{ .Values.serverType }}
+            grounds/server-type: {{ $serverRole | quote }}
         spec:
-          {{- if eq .Values.serverType "velocity" }}
+          {{- if eq $serverPlatform "velocity" }}
           serviceAccountName: velocity
           {{- end }}
           containers:
@@ -34,14 +36,14 @@ spec:
                 {{ toYaml . | nindent 16 }}
               {{- end }}
               env:
-                {{- if eq .Values.serverType "velocity" }}
+                {{- if eq $serverPlatform "velocity" }}
                 - name: VELOCITY_FORWARDING_SECRET
                   valueFrom:
                     secretKeyRef:
                       name: velocity-forwarding-secret
                       key: secret
                 {{- end }}
-                {{- if eq .Values.serverType "paper" }}
+                {{- if eq $serverPlatform "paper" }}
                 - name: PAPER_VELOCITY_SECRET
                   valueFrom:
                     secretKeyRef:
