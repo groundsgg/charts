@@ -5,8 +5,17 @@ image:
 
 replicas: 1
 
-# serverType is a label to identify the type of game server e.g. velocity, paper, etc.
+# serverType is deprecated. Use serverPlatform and serverRole instead.
+# It is retained as a fallback during migration.
 serverType:
+
+# serverPlatform controls platform-specific wiring such as secrets and service accounts.
+# Example values: velocity, paper.
+serverPlatform:
+
+# serverRole is written to the grounds/server-type label for Velocity discovery.
+# Example values: lobby, game, match.
+serverRole:
 
 # command overrides the container entrypoint.
 command: []
