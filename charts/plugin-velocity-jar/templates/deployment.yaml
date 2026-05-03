@@ -67,7 +67,6 @@ spec:
           volumeMounts:
             - name: shared
               mountPath: /shared
-              readOnly: true
       volumes:
         - name: shared
           emptyDir: {}

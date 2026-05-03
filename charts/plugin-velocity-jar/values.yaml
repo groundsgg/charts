@@ -10,11 +10,14 @@
 #     command: cp <jarPath> /shared/plugin.jar
 #   container "httpd"
 #     image: busybox httpd -f -h /shared -p 8080
-#     mounts /shared (emptyDir, read by httpd)
+#     mounts /shared (emptyDir, RW so DevSpace can sync new JARs)
 #
 # This indirection means the plugin image only needs to ship the JAR
-# at a known path — no httpd or entrypoint requirements. DevSpace can
-# sync new builds directly into /shared/plugin.jar to hot-swap.
+# at a known path — no httpd or entrypoint requirements. The DevSpace
+# `jar-sync-pod-restart` workflow targets this pod's /shared/plugin.jar
+# directly: sync a freshly-built JAR there, then `kubectl rollout
+# restart deployment/<velocity>` so the velocity pod's init-containers
+# re-fetch the updated JARs.
 
 global:
   commonLabels: {}
