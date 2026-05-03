@@ -1,0 +1,58 @@
+# Default values for grounds-velocity.
+#
+# Per-engineer Velocity proxy. Each plugin in `.plugins[]` corresponds
+# to a sibling `plugin-velocity-jar` Helm release in the same namespace
+# whose Service serves the JAR over HTTP at /plugin.jar. At pod start
+# Velocity runs one init-container per entry to fetch each JAR into the
+# emptyDir mounted at /app/plugins.
+
+global:
+  commonLabels: {}
+  commonAnnotations: {}
+
+replicas: 1
+
+image:
+  registry: "ghcr.io"
+  repository: "groundsgg/velocity"
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# Each entry is the Helm release name of a sibling plugin-velocity-jar
+# release. Velocity fetches `http://<name>:8080/plugin.jar` and writes
+# it to `/app/plugins/<name>.jar`. Order is preserved.
+plugins: []
+# Example:
+#   plugins:
+#     - plugin-social
+#     - plugin-chat
+
+# Image used for the per-plugin fetch init-containers.
+fetcher:
+  image: "curlimages/curl:8.18.0"
+  timeoutSeconds: 60
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "2"
+    memory: "2Gi"
+
+# Velocity exposes the player port (modern Minecraft proxy).
+ports:
+  minecraft: 25577
+
+service:
+  type: ClusterIP
+  externalTrafficPolicy: ""
+
+# velocity-forwarding-secret is provisioned out-of-band (Pulumi/sealed
+# secret) so all proxies + game-servers in the namespace share one
+# secret. The chart only references it.
+forwardingSecret:
+  name: "velocity-forwarding-secret"
+  key: "secret"
+
+env: []

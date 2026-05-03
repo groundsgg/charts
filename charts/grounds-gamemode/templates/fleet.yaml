@@ -1,0 +1,61 @@
+{{- if .Values.agones.enabled }}
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    grounds/component: gamemode
+    grounds/server-type: {{ .Values.kind }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.agones.fleet.minReplicas }}
+  template:
+    metadata:
+      labels:
+        grounds/component: gamemode
+        grounds/server-type: {{ .Values.kind }}
+    spec:
+      ports:
+        - name: minecraft
+          portPolicy: Dynamic
+          containerPort: {{ .Values.containerPort }}
+          protocol: TCP
+      container: {{ .Release.Name }}
+      sdkServer:
+        logLevel: Info
+        httpPort: 9358
+      health:
+        disabled: true
+      template:
+        metadata:
+          labels:
+            {{- include "common.podLabels" . | nindent 12 }}
+            grounds/component: gamemode
+            grounds/server-type: {{ .Values.kind }}
+        spec:
+          containers:
+            - name: {{ .Release.Name }}
+              image: {{ include "grounds-gamemode.image" . | quote }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              {{- with .Values.command }}
+              command:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              ports:
+                - name: minecraft
+                  containerPort: {{ .Values.containerPort }}
+                  protocol: TCP
+              env:
+                {{- include "grounds-gamemode.env" . | nindent 16 }}
+              {{- with .Values.resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+{{- end }}

@@ -34,6 +34,9 @@ jobs:
           - cockpit
           - grounds-service
           - agones-fleet
+          - grounds-velocity
+          - plugin-velocity-jar
+          - grounds-gamemode
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v6

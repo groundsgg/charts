@@ -1,0 +1,10 @@
+apiVersion: v2
+name: grounds-velocity
+description: Velocity Minecraft proxy with per-plugin JAR fetching for the platform-test environment
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: common
+    version: "0.2.0"
+    repository: "oci://ghcr.io/groundsgg/charts"

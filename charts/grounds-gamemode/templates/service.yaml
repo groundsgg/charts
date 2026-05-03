@@ -1,0 +1,25 @@
+{{- if not .Values.agones.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    grounds/server-type: {{ .Values.kind }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.containerPort }}
+      targetPort: minecraft
+      protocol: TCP
+      name: minecraft
+  selector:
+    {{- include "common.selectorLabels" . | nindent 4 }}
+{{- end }}

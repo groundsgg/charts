@@ -56,3 +56,6 @@ build/
 *.tar
 *.tar.gz
 
+# AI
+.codex
+.cursor
