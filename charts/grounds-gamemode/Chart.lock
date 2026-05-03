@@ -1,0 +1,6 @@
+dependencies:
+- name: common
+  repository: oci://ghcr.io/groundsgg/charts
+  version: 0.2.0
+digest: sha256:cc3072b8b38019dbcb82c3adde2774f0ade4c29ea47b961c49936a99d44556d2
+generated: "2026-05-03T20:27:15.738113+02:00"

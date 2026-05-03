@@ -1,0 +1,66 @@
+# Default values for grounds-gamemode.
+#
+# A grounds-gamemode release is one Minecraft game-server kind. The
+# chart picks between two backings:
+#   - `agones.enabled: true`  → Agones Fleet (autoscaled, dynamic ports)
+#   - `agones.enabled: false` → Deployment + Service (fixed port 25565)
+#
+# Used in the platform-test environment for both:
+#   - minestom-lobby      (kind: lobby,    Deployment, single replica)
+#   - paper-game          (kind: paper,    Agones Fleet, scales 0..N)
+#
+# kind drives which Velocity-secret env-var the container expects:
+#   - "lobby"   → GROUNDS_LOBBY_VELOCITY_SECRET
+#   - "paper"   → PAPER_VELOCITY_SECRET
+#   - "match"   → PAPER_VELOCITY_SECRET
+#   - "game"    → PAPER_VELOCITY_SECRET
+
+global:
+  commonLabels: {}
+  commonAnnotations: {}
+
+# Logical kind of the game-server. See note above.
+kind: "paper"
+
+image:
+  registry: "ghcr.io"
+  repository: "groundsgg/paper-game"
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# Agones Fleet mode — set agones.enabled=true to switch from Deployment
+# to a Fleet. Bundle.yaml's `helm.agones.fleet` map maps directly here.
+agones:
+  enabled: false
+  fleet:
+    minReplicas: 0
+    maxReplicas: 2
+
+# Deployment-mode config (ignored when agones.enabled).
+replicas: 1
+
+# velocity-forwarding-secret is provisioned out-of-band; the chart
+# only references it. Same convention as grounds-velocity.
+forwardingSecret:
+  name: "velocity-forwarding-secret"
+  key: "secret"
+
+# Container port. Minecraft default 25565.
+containerPort: 25565
+
+# Optional command override.
+command: []
+
+# extraEnv merges into env after the kind-specific velocity-secret.
+extraEnv: []
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "2Gi"
+  limits:
+    cpu: "2"
+    memory: "4Gi"
+
+service:
+  type: ClusterIP

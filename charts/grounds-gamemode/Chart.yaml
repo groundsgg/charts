@@ -1,0 +1,10 @@
+apiVersion: v2
+name: grounds-gamemode
+description: Minecraft game-server (Paper / Minestom) — Deployment by default, Agones Fleet when scaling
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: common
+    version: "0.2.0"
+    repository: "oci://ghcr.io/groundsgg/charts"

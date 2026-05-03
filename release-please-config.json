@@ -16,6 +16,15 @@
     },
     "charts/agones-fleet": {
       "release-type": "helm"
+    },
+    "charts/grounds-velocity": {
+      "release-type": "helm"
+    },
+    "charts/plugin-velocity-jar": {
+      "release-type": "helm"
+    },
+    "charts/grounds-gamemode": {
+      "release-type": "helm"
     }
   }
 }

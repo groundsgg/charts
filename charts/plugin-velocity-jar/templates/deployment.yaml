@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    grounds/component: plugin-velocity-jar
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.podLabels" . | nindent 8 }}
+        grounds/component: plugin-velocity-jar
+        {{- with .Values.global.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.global.commonAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- $imageRepo := .Values.image.repository }}
+      {{- if .Values.image.registry }}
+      {{- $imageRepo = printf "%s/%s" .Values.image.registry .Values.image.repository }}
+      {{- end }}
+      initContainers:
+        - name: copy-jar
+          image: "{{ $imageRepo }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - 'cp "{{ .Values.jarPath }}" /shared/plugin.jar && ls -la /shared/plugin.jar'
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+      containers:
+        - name: httpd
+          image: {{ .Values.httpd.image | quote }}
+          imagePullPolicy: IfNotPresent
+          command: ["httpd", "-f", "-p", "{{ .Values.httpd.port }}", "-h", "/shared"]
+          ports:
+            - name: http
+              containerPort: {{ .Values.httpd.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /plugin.jar
+              port: http
+            initialDelaySeconds: 1
+            periodSeconds: 5
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+              readOnly: true
+      volumes:
+        - name: shared
+          emptyDir: {}

@@ -27,6 +27,9 @@ jobs:
           - cockpit
           - grounds-service
           - agones-fleet
+          - grounds-velocity
+          - plugin-velocity-jar
+          - grounds-gamemode
     env:
       MATCHES_REF: ${{ startsWith(github.ref, format('refs/tags/{0}-v', matrix.chart)) }}
     steps:

@@ -1,0 +1,50 @@
+# Default values for plugin-velocity-jar.
+#
+# A plugin-velocity-jar release runs a tiny pod that exposes a single
+# Velocity-plugin JAR over HTTP at `/plugin.jar`. The grounds-velocity
+# proxy fetches it via init-containers at startup.
+#
+# Pod layout:
+#   initContainer "copy-jar"
+#     image: <plugin-image>            # carries the JAR at jarPath
+#     command: cp <jarPath> /shared/plugin.jar
+#   container "httpd"
+#     image: busybox httpd -f -h /shared -p 8080
+#     mounts /shared (emptyDir, read by httpd)
+#
+# This indirection means the plugin image only needs to ship the JAR
+# at a known path — no httpd or entrypoint requirements. DevSpace can
+# sync new builds directly into /shared/plugin.jar to hot-swap.
+
+global:
+  commonLabels: {}
+  commonAnnotations: {}
+
+# The plugin-image: must contain the JAR at `jarPath`. Entrypoint is
+# irrelevant — we override it to `cp` in the init-container.
+image:
+  registry: ""
+  repository: "plugin-velocity-jar"
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# Where the JAR lives inside the plugin-image.
+jarPath: "/jar/plugin.jar"
+
+# httpd image used to serve the JAR. Override only if you need a
+# pinned mirror.
+httpd:
+  image: "busybox:1.37"
+  port: 8080
+
+resources:
+  requests:
+    cpu: "10m"
+    memory: "16Mi"
+  limits:
+    cpu: "50m"
+    memory: "32Mi"
+
+service:
+  type: ClusterIP
+  port: 8080
