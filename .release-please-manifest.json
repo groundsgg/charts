@@ -4,7 +4,7 @@
   "charts/cockpit": "0.1.1",
   "charts/grounds-service": "0.1.0",
   "charts/agones-fleet": "0.2.0",
-  "charts/grounds-velocity": "0.0.1",
+  "charts/grounds-velocity": "0.1.0",
   "charts/plugin-velocity-jar": "0.0.1",
   "charts/grounds-gamemode": "0.0.1"
 }
