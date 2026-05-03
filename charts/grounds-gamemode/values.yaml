@@ -30,6 +30,8 @@ image:
 
 # Agones Fleet mode — set agones.enabled=true to switch from Deployment
 # to a Fleet. Bundle.yaml's `helm.agones.fleet` map maps directly here.
+# This chart currently uses only `minReplicas` as the Fleet `.spec.replicas`
+# value; it does not define a FleetAutoscaler.
 agones:
   enabled: false
   fleet:

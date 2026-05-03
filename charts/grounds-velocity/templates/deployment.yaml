@@ -34,8 +34,9 @@ spec:
       {{- if .Values.image.registry }}
       {{- $imageRepo = printf "%s/%s" .Values.image.registry .Values.image.repository }}
       {{- end }}
+      {{- with .Values.plugins }}
       initContainers:
-        {{- range $plugin := .Values.plugins }}
+        {{- range $plugin := . }}
         - name: fetch-{{ $plugin }}
           image: {{ $.Values.fetcher.image | quote }}
           imagePullPolicy: IfNotPresent
@@ -52,6 +53,7 @@ spec:
             - name: plugins
               mountPath: /plugins
         {{- end }}
+      {{- end }}
       containers:
         - name: velocity
           image: "{{ $imageRepo }}:{{ .Values.image.tag }}"
