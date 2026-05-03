@@ -1,6 +1,7 @@
 apiVersion: v2
 name: plugin-velocity-jar
-description: Hosts a Velocity-plugin JAR so the grounds-velocity proxy can fetch it at startup
+description: Hosts a Velocity-plugin JAR so the grounds-velocity proxy can fetch
+  it at startup
 type: application
 version: 0.1.0
 
