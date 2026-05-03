@@ -1,6 +1,7 @@
 apiVersion: v2
 name: grounds-gamemode
-description: Minecraft game-server (Paper / Minestom) — Deployment by default, Agones Fleet when scaling
+description: Minecraft game-server (Paper / Minestom) — Deployment by default,
+  Agones Fleet when scaling
 type: application
 version: 0.1.0
 
