@@ -32,6 +32,7 @@ novu:
     storeEncryptionKey: ""
     awsAccessKeyId: ""
     awsSecretAccessKey: ""
+    redisPassword: ""
 
 components:
   api:
