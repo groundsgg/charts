@@ -1,5 +1,8 @@
 {{- range $component, $componentValues := .Values.components }}
 {{- if and $componentValues.enabled $componentValues.service.enabled }}
+{{- if not $componentValues.containerPort }}
+{{- fail (printf "components.%s.containerPort is required when components.%s.service.enabled is true" $component $component) }}
+{{- end }}
 ---
 apiVersion: v1
 kind: Service

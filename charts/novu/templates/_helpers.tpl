@@ -96,12 +96,12 @@ MongoDB connection string.
 Redis host.
 */}}
 {{- define "novu.redisHost" -}}
-{{- if .Values.novu.redis.externalHost }}
+{{- if .Values.redis.auth.enabled }}
+{{- fail "Redis auth is not supported by this chart yet; set redis.auth.enabled=false or use an unauthenticated external Redis endpoint" }}
+{{- else if .Values.novu.redis.externalHost }}
 {{- .Values.novu.redis.externalHost }}
 {{- else if not .Values.redis.enabled }}
 {{- fail "novu.redis.externalHost is required when redis.enabled is false" }}
-{{- else if .Values.redis.auth.enabled }}
-{{- fail "Redis auth is not supported by this chart yet; set redis.auth.enabled=false or use an unauthenticated external Redis endpoint" }}
 {{- else }}
 {{- printf "%s-redis-master" .Release.Name }}
 {{- end }}
