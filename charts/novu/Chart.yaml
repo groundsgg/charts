@@ -1,0 +1,16 @@
+apiVersion: v2
+name: novu
+description: A Helm chart for self-hosted Novu notification center
+type: application
+version: 0.1.0
+appVersion: "2.1.0"
+
+dependencies:
+  - name: redis
+    version: "20.13.4"
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    condition: redis.enabled
+  - name: mongodb
+    version: "16.5.1"
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    condition: mongodb.enabled

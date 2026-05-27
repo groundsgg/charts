@@ -1,0 +1,118 @@
+# Default values for Novu.
+
+global:
+  commonLabels: {}
+  commonAnnotations: {}
+
+novu:
+  existingSecret:
+    name: ""
+
+  public:
+    apiUrl: "http://localhost:3000"
+    webUrl: "http://localhost:4200"
+    wsUrl: "ws://localhost:3002"
+    widgetEmbedPath: "http://localhost:4701/embed.umd.min.js"
+
+  config:
+    nodeEnv: "production"
+    disableUserRegistration: "true"
+    storageService: "local"
+
+  mongodb:
+    externalUri: ""
+
+  redis:
+    externalHost: ""
+    externalPort: 6379
+
+  secrets:
+    novuSecretKey: ""
+    jwtSecret: ""
+    storeEncryptionKey: ""
+    awsAccessKeyId: ""
+    awsSecretAccessKey: ""
+
+components:
+  api:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: "ghcr.io/novuhq/novu/api"
+      tag: ""
+      pullPolicy: IfNotPresent
+    command: []
+    args: []
+    containerPort: 3000
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3000
+    resources: {}
+    env: []
+
+  worker:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: "ghcr.io/novuhq/novu/worker"
+      tag: ""
+      pullPolicy: IfNotPresent
+    command: []
+    args: []
+    containerPort: null
+    service:
+      enabled: false
+      type: ClusterIP
+      port: 3000
+    resources: {}
+    env: []
+
+  ws:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: "ghcr.io/novuhq/novu/ws"
+      tag: ""
+      pullPolicy: IfNotPresent
+    command: []
+    args: []
+    containerPort: 3002
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3002
+    resources: {}
+    env: []
+
+  web:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: "ghcr.io/novuhq/novu/web"
+      tag: ""
+      pullPolicy: IfNotPresent
+    command:
+      - /bin/sh
+      - -c
+    args:
+      - pnpm run envsetup:docker && pnpm run start:static:build
+    containerPort: 4200
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 4200
+    resources: {}
+    env: []
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
+
+mongodb:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false

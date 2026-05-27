@@ -25,6 +25,9 @@
     },
     "charts/grounds-gamemode": {
       "release-type": "helm"
+    },
+    "charts/novu": {
+      "release-type": "helm"
     }
   }
 }

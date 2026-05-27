@@ -30,6 +30,7 @@ jobs:
           - grounds-velocity
           - plugin-velocity-jar
           - grounds-gamemode
+          - novu
     env:
       MATCHES_REF: ${{ startsWith(github.ref, format('refs/tags/{0}-v', matrix.chart)) }}
     steps:
