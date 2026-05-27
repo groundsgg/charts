@@ -37,6 +37,15 @@ jobs:
           - grounds-velocity
           - plugin-velocity-jar
           - grounds-gamemode
+          - novu
+        include:
+          - chart: novu
+            template_args: >-
+              --set novu.secrets.novuSecretKey=test
+              --set novu.secrets.jwtSecret=test
+              --set novu.secrets.storeEncryptionKey=test
+              --set novu.secrets.awsAccessKeyId=test
+              --set novu.secrets.awsSecretAccessKey=test
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v6
@@ -82,12 +91,12 @@ jobs:
       - name: 🔍 Lint chart
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          helm lint charts/${{ matrix.chart }}
+          helm lint charts/${{ matrix.chart }} ${{ matrix.template_args }}
 
       - name: 🧪 Test chart
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          helm template test charts/${{ matrix.chart }} | kubeconform -summary -strict -skip IngressRoute,Middleware,Fleet
+          helm template test charts/${{ matrix.chart }} ${{ matrix.template_args }} | kubeconform -summary -strict -skip IngressRoute,Middleware,Fleet
 
       - name: 📁 Create output directory
         if: steps.changed-files.outputs.any_changed == 'true'

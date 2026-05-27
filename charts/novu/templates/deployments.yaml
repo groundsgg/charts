@@ -1,0 +1,66 @@
+{{- range $component, $componentValues := .Values.components }}
+{{- if $componentValues.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "novu.componentName" (dict "root" $ "component" $component) }}
+  labels:
+    {{- include "novu.componentLabels" (dict "root" $ "component" $component) | nindent 4 }}
+    {{- with $.Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $.Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ $componentValues.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "novu.componentSelectorLabels" (dict "root" $ "component" $component) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "novu.componentSelectorLabels" (dict "root" $ "component" $component) | nindent 8 }}
+        {{- with $.Values.global.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with $.Values.global.commonAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+        - name: {{ $component }}
+          image: "{{ $componentValues.image.repository }}:{{ default $.Chart.AppVersion $componentValues.image.tag }}"
+          imagePullPolicy: {{ $componentValues.image.pullPolicy }}
+          {{- with $componentValues.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $componentValues.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if $componentValues.containerPort }}
+          ports:
+            - name: http
+              containerPort: {{ $componentValues.containerPort }}
+              protocol: TCP
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "novu.fullname" $ }}-config
+            - secretRef:
+                name: {{ include "novu.secretName" $ }}
+          {{- with $componentValues.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $componentValues.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}
+{{- end }}
