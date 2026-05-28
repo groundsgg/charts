@@ -2,6 +2,24 @@
 {{- $database := first .Values.mongodb.auth.databases | default "novu" -}}
 {{- $username := first .Values.mongodb.auth.usernames | default "novu" -}}
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-mongodb
+  labels:
+    app.kubernetes.io/name: mongodb
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: mongodb
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+automountServiceAccountToken: false
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-mongodb
@@ -127,6 +145,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      serviceAccountName: {{ .Release.Name }}-mongodb
+      automountServiceAccountToken: false
       containers:
         - name: mongodb
           image: "{{ .Values.mongodb.image.repository }}:{{ .Values.mongodb.image.tag }}"
