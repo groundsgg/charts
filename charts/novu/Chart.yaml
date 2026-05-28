@@ -2,7 +2,7 @@ apiVersion: v2
 name: novu
 description: A Helm chart for self-hosted Novu notification center
 type: application
-version: 0.1.1
+version: 1.0.0
 appVersion: "2.1.0"
 
 dependencies:

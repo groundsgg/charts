@@ -9,6 +9,17 @@
 * If MongoDB persistence was disabled, enabling it later does not migrate data previously stored in `emptyDir`.
 * If MongoDB auth was disabled on first install, enabling it later requires manually creating or migrating users on the existing database.
 
+## [1.0.0](https://github.com/groundsgg/charts/compare/novu-v0.1.1...novu-v1.0.0) (2026-05-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* **novu:** replace bitnami datastore dependencies ([#40](https://github.com/groundsgg/charts/issues/40))
+
+### Features
+
+* **novu:** replace bitnami datastore dependencies ([#40](https://github.com/groundsgg/charts/issues/40)) ([4545536](https://github.com/groundsgg/charts/commit/454553684ee872321b5b65d49ec6bcb8a55e7c01))
+
 ## [0.1.1](https://github.com/groundsgg/charts/compare/novu-v0.1.0...novu-v0.1.1) (2026-05-27)
 
 
