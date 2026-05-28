@@ -108,12 +108,33 @@ components:
 
 redis:
   enabled: true
-  architecture: standalone
+  dataStorage:
+    enabled: true
+    requestedSize: 2Gi
   auth:
     enabled: false
+    usersExistingSecret: ""
+    aclUsers: {}
 
 mongodb:
   enabled: true
-  architecture: standalone
+  image:
+    repository: mongo
+    tag: "8.0"
+    pullPolicy: IfNotPresent
   auth:
     enabled: false
+    rootPassword: ""
+    usernames:
+      - novu
+    passwords:
+      - ""
+    databases:
+      - novu
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClassName: ""
+    accessModes:
+      - ReadWriteOnce
+  resources: {}

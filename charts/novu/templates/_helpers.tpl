@@ -86,7 +86,10 @@ MongoDB connection string.
 {{- else if not .Values.mongodb.enabled }}
 {{- fail "novu.mongodb.externalUri is required when mongodb.enabled is false" }}
 {{- else if .Values.mongodb.auth.enabled }}
-{{- fail "novu.mongodb.externalUri is required when mongodb.auth.enabled is true" }}
+{{- $username := required "mongodb.auth.usernames[0] is required when mongodb.auth.enabled is true" (first .Values.mongodb.auth.usernames) -}}
+{{- $password := required "mongodb.auth.passwords[0] is required when mongodb.auth.enabled is true" (first .Values.mongodb.auth.passwords) -}}
+{{- $database := required "mongodb.auth.databases[0] is required when mongodb.auth.enabled is true" (first .Values.mongodb.auth.databases) -}}
+{{- printf "mongodb://%s:%s@%s-mongodb:27017/%s?authSource=%s" $username $password .Release.Name $database $database }}
 {{- else }}
 {{- printf "mongodb://%s-mongodb:27017/novu" .Release.Name }}
 {{- end }}
@@ -100,7 +103,9 @@ Redis host.
 {{- .Values.novu.redis.externalHost }}
 {{- else if not .Values.redis.enabled }}
 {{- fail "novu.redis.externalHost is required when redis.enabled is false" }}
+{{- else if .Values.redis.fullnameOverride }}
+{{- .Values.redis.fullnameOverride }}
 {{- else }}
-{{- printf "%s-redis-master" .Release.Name }}
+{{- printf "%s-redis" .Release.Name }}
 {{- end }}
 {{- end }}
