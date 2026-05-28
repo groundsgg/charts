@@ -20,6 +20,8 @@ novu:
     storageService: "local"
 
   mongodb:
+    # Stored in a generated Secret as MONGO_URL because MongoDB URIs commonly
+    # contain credentials. If set, provide an already percent-encoded URI.
     externalUri: ""
 
   redis:
@@ -108,12 +110,38 @@ components:
 
 redis:
   enabled: true
-  architecture: standalone
+  dataStorage:
+    enabled: true
+    requestedSize: 2Gi
   auth:
     enabled: false
+    usersExistingSecret: ""
+    aclUsers: {}
 
 mongodb:
   enabled: true
-  architecture: standalone
+  image:
+    repository: mongo
+    tag: "8.0"
+    pullPolicy: IfNotPresent
   auth:
+    # The official mongo image only runs /docker-entrypoint-initdb.d scripts
+    # when the data directory is empty. Enable auth before first install, or
+    # migrate/create users manually before enabling it on an existing PVC.
     enabled: false
+    rootPassword: ""
+    usernames:
+      - novu
+    passwords:
+      - ""
+    databases:
+      - novu
+  persistence:
+    # Disabling persistence uses emptyDir and loses MongoDB data whenever the pod
+    # is replaced. Enabling persistence later does not migrate previous emptyDir data.
+    enabled: true
+    size: 10Gi
+    storageClassName: ""
+    accessModes:
+      - ReadWriteOnce
+  resources: {}

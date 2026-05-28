@@ -53,6 +53,8 @@ spec:
             - configMapRef:
                 name: {{ include "novu.fullname" $ }}-config
             - secretRef:
+                name: {{ include "novu.connectionSecretName" $ }}
+            - secretRef:
                 name: {{ include "novu.secretName" $ }}
           {{- with $componentValues.env }}
           env:

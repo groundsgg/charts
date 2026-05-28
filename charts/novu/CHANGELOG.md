@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Migration Notes
+
+* Replaces the Bitnami Redis subchart with the official Valkey chart. Review Redis values before upgrading because the values schema and workload names changed.
+* Replaces the Bitnami MongoDB subchart with this chart's MongoDB workload using the official `mongo` image. Existing Bitnami MongoDB PVCs are not migrated automatically.
+* If MongoDB persistence was disabled, enabling it later does not migrate data previously stored in `emptyDir`.
+* If MongoDB auth was disabled on first install, enabling it later requires manually creating or migrating users on the existing database.
+
 ## [0.1.1](https://github.com/groundsgg/charts/compare/novu-v0.1.0...novu-v0.1.1) (2026-05-27)
 
 
