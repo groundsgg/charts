@@ -78,6 +78,13 @@ Secret name used for Novu sensitive configuration.
 {{- end }}
 
 {{/*
+Secret name used for generated connection strings.
+*/}}
+{{- define "novu.connectionSecretName" -}}
+{{- printf "%s-connection" (include "novu.fullname" .) }}
+{{- end }}
+
+{{/*
 MongoDB connection string.
 */}}
 {{- define "novu.mongodbUri" -}}
@@ -89,7 +96,7 @@ MongoDB connection string.
 {{- $username := required "mongodb.auth.usernames[0] is required when mongodb.auth.enabled is true" (first .Values.mongodb.auth.usernames) -}}
 {{- $password := required "mongodb.auth.passwords[0] is required when mongodb.auth.enabled is true" (first .Values.mongodb.auth.passwords) -}}
 {{- $database := required "mongodb.auth.databases[0] is required when mongodb.auth.enabled is true" (first .Values.mongodb.auth.databases) -}}
-{{- printf "mongodb://%s:%s@%s-mongodb:27017/%s?authSource=%s" $username $password .Release.Name $database $database }}
+{{- printf "mongodb://%s:%s@%s-mongodb:27017/%s?authSource=%s" ($username | urlquery) ($password | urlquery) .Release.Name $database $database }}
 {{- else }}
 {{- printf "mongodb://%s-mongodb:27017/novu" .Release.Name }}
 {{- end }}
