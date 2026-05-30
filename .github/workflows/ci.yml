@@ -37,6 +37,7 @@ jobs:
           - grounds-velocity
           - plugin-velocity-jar
           - grounds-gamemode
+          - service-notifications
           - novu
         include:
           - chart: novu
@@ -96,7 +97,7 @@ jobs:
       - name: 🧪 Test chart
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          helm template test charts/${{ matrix.chart }} ${{ matrix.template_args }} | kubeconform -summary -strict -skip IngressRoute,Middleware,Fleet
+          helm template test charts/${{ matrix.chart }} ${{ matrix.template_args }} | kubeconform -summary -strict -skip IngressRoute,Middleware,Fleet,HTTPRoute,ServiceMonitor
 
       - name: 📁 Create output directory
         if: steps.changed-files.outputs.any_changed == 'true'

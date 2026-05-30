@@ -1,0 +1,6 @@
+apiVersion: v2
+name: service-notifications
+description: Grounds notification source-of-truth service
+type: application
+version: 0.0.1
+appVersion: "0.1.1"
