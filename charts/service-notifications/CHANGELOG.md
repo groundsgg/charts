@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.1.0...service-notifications-v0.2.0) (2026-06-01)
+
+
+### Features
+
+* **service-notifications:** update image tag ([#46](https://github.com/groundsgg/charts/issues/46)) ([a4dd2bf](https://github.com/groundsgg/charts/commit/a4dd2bf97ec59d3248b9b6d67f07041e2b255ece))
+
 ## [0.1.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.0.1...service-notifications-v0.1.0) (2026-05-31)
 
 
