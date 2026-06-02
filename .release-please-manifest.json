@@ -8,6 +8,6 @@
   "charts/plugin-velocity-jar": "0.1.0",
   "charts/grounds-gamemode": "0.1.0",
   "charts/grounds-nats": "0.2.0",
-  "charts/service-notifications": "0.2.0",
+  "charts/service-notifications": "0.3.0",
   "charts/novu": "1.0.0"
 }
