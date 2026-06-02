@@ -29,6 +29,9 @@
     "charts/grounds-nats": {
       "release-type": "helm"
     },
+    "charts/grounds-postgres-dev": {
+      "release-type": "helm"
+    },
     "charts/service-notifications": {
       "release-type": "helm"
     },
