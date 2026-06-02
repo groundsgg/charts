@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "grounds-nats.fullname" . }}-config
+data:
+  nats.conf: |
+    port: 4222
+    http: 8222
+    jetstream {
+      store_dir: "/data/js"
+      max_memory_store: 268435456
+      max_file_store: 1073741824
+    }
+    operator: "{{ .Values.keys.operatorJwt | trim }}"
+    system_account: "{{ .Values.keys.systemAccountPub | trim }}"
+    resolver {
+      type: full
+      dir: "/data/resolver"
+      allow_delete: true
+      interval: "2m"
+    }
+    resolver_preload {
+      {{ .Values.keys.systemAccountPub | trim }}: "{{ .Values.keys.systemAccountJwt | trim }}"
+      {{ .Values.keys.authAccountPub | trim }}: "{{ .Values.keys.authAccountJwt | trim }}"
+    }
+    default_sentinel: "{{ .Values.keys.sentinelJwt | trim }}"

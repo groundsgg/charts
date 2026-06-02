@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: {{ .Release.Name }}-nats-authz }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: { name: {{ .Release.Name }}-nats-authz-sa-reader }
+rules:
+  - apiGroups: [""]
+    resources: ["serviceaccounts"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: { name: {{ .Release.Name }}-nats-authz-sa-reader }
+roleRef: { apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: {{ .Release.Name }}-nats-authz-sa-reader }
+subjects:
+  - { kind: ServiceAccount, name: {{ .Release.Name }}-nats-authz, namespace: {{ .Release.Namespace }} }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-nats-authz
+  labels: { app: {{ .Release.Name }}-nats-authz }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: {{ .Release.Name }}-nats-authz } }
+  template:
+    metadata: { labels: { app: {{ .Release.Name }}-nats-authz } }
+    spec:
+      serviceAccountName: {{ .Release.Name }}-nats-authz
+      {{- if .Values.imagePullSecret }}
+      imagePullSecrets: [{ name: {{ .Values.imagePullSecret }} }]
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile: { type: RuntimeDefault }
+      # The responder's auth-callout dispatcher subscribes once at startup; if the
+      # broker isn't yet serving, that one-shot init fails and is not retried. Block
+      # startup until the co-deployed broker reports healthy.
+      initContainers:
+        - name: wait-for-broker
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - until wget -q -T2 -O- http://{{ include "grounds-nats.fullname" . }}:8222/healthz >/dev/null 2>&1; do echo "waiting for broker"; sleep 2; done
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+      containers:
+        - name: service
+          image: {{ .Values.responder.image }}
+          ports: [{ containerPort: 9000, name: http }]
+          env:
+            - { name: NATS_URL, value: "nats://{{ include "grounds-nats.fullname" . }}:4222" }
+            - { name: NATS_CREDS_FILE, value: /var/run/secrets/nats/auth-service.creds }
+            - { name: GROUNDS_NATSAUTHZ_OPERATOR_XKEY_PRIVATE_FILE, value: /var/run/secrets/nats/operator-xkey-private }
+            - { name: GROUNDS_NATSAUTHZ_ACCOUNT_SIGNING_NKEY_FILE, value: /var/run/secrets/nats/account-signing-nkey }
+            - { name: GROUNDS_AUTH_JWKS_URL, value: "{{ .Values.responder.jwksUrl }}" }
+            - { name: NATSAUTHZ_DEFAULT_POLICY, value: "{{ .Values.responder.defaultPolicy }}" }
+            - { name: OTEL_SDK_DISABLED, value: "true" }
+          volumeMounts:
+            - { name: keys, mountPath: /var/run/secrets/nats, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+          readinessProbe: { httpGet: { path: /q/health/ready, port: 9000 }, initialDelaySeconds: 10, periodSeconds: 10 }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+      volumes:
+        - name: keys
+          secret: { secretName: {{ include "grounds-nats.fullname" . }}-keys, defaultMode: 0444 }
+        - { name: tmp, emptyDir: {} }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: {{ .Release.Name }}-nats-authz }
+spec:
+  selector: { app: {{ .Release.Name }}-nats-authz }
+  ports: [{ name: http, port: 9000, targetPort: 9000 }]

@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "grounds-nats.fullname" . }}
+  labels: { app: {{ include "grounds-nats.fullname" . }} }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: {{ include "grounds-nats.fullname" . }} } }
+  template:
+    metadata: { labels: { app: {{ include "grounds-nats.fullname" . }} } }
+    spec:
+      containers:
+        - name: nats
+          image: {{ .Values.broker.image }}
+          command: ["nats-server", "-c", "/etc/nats/nats.conf"]
+          ports: [{ containerPort: 4222, name: client }, { containerPort: 8222, name: monitor }]
+          volumeMounts:
+            - { name: config, mountPath: /etc/nats }
+            - { name: data, mountPath: /data }
+          readinessProbe: { httpGet: { path: /healthz, port: 8222 }, initialDelaySeconds: 5, periodSeconds: 5 }
+      volumes:
+        - { name: config, configMap: { name: {{ include "grounds-nats.fullname" . }}-config } }
+        - { name: data, emptyDir: {} }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: {{ include "grounds-nats.fullname" . }} }
+spec:
+  selector: { app: {{ include "grounds-nats.fullname" . }} }
+  ports: [{ name: client, port: 4222, targetPort: 4222 }, { name: monitor, port: 8222, targetPort: 8222 }]
