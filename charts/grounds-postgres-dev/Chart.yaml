@@ -8,5 +8,5 @@ description: >
   defaults. Self-contained per vCluster — mirrors the in-vCluster grounds-nats
   broker; no shared/host Postgres egress needed.
 type: application
-version: 0.1.0
+version: 0.2.0
 appVersion: "16"
