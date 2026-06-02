@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.3.0...service-notifications-v0.4.0) (2026-06-02)
+
+
+### Features
+
+* **service-notifications:** update app version to 0.3.1 ([5bbd93d](https://github.com/groundsgg/charts/commit/5bbd93d3de110962f81338423f8bb57c28f40595))
+
 ## [0.3.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.2.0...service-notifications-v0.3.0) (2026-06-02)
 
 
