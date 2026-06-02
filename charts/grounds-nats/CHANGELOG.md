@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/groundsgg/charts/compare/grounds-nats-v0.3.0...grounds-nats-v0.3.1) (2026-06-02)
+
+
+### Bug Fixes
+
+* **dev-charts:** Zot base images + memory limits for grounds-nats & grounds-postgres-dev ([#60](https://github.com/groundsgg/charts/issues/60)) ([6ee6a63](https://github.com/groundsgg/charts/commit/6ee6a636c87095aea5263112585115a3c51e358b))
+
 ## [0.3.0](https://github.com/groundsgg/charts/compare/grounds-nats-v0.2.0...grounds-nats-v0.3.0) (2026-06-02)
 
 
