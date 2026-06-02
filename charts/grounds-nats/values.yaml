@@ -1,9 +1,19 @@
+# Images must come from a platform-trusted registry (Zot / ghcr.io/groundsgg) —
+# the platform Kyverno `restrict-image-origin` policy blocks Docker Hub for
+# user-namespace (vCluster) pods. nats + busybox are mirrored into Zot.
 broker:
-  image: nats:2.12.6-alpine
+  image: zot.platform.grnds.io/nats:2.12.6-alpine
 responder:
   image: ghcr.io/groundsgg/service-nats-authz:edge
+  waitImage: zot.platform.grnds.io/busybox:1.36
   defaultPolicy: deny              # deny (secure default) | permit-any (rollout escape hatch)
   jwksUrl: https://kubernetes.default.svc/openid/v1/jwks
+# Per-container memory limits — the platform Kyverno `user-ns-memory-cap-2gi`
+# policy requires user-namespace containers to set a memory limit ≤ 2Gi.
+resources:
+  broker:   { requests: { cpu: 50m, memory: 64Mi },  limits: { memory: 256Mi } }
+  responder: { requests: { cpu: 50m, memory: 128Mi }, limits: { memory: 512Mi } }
+  wait:     { requests: { cpu: 10m, memory: 16Mi },  limits: { memory: 64Mi } }
 imagePullSecret: ""                  # set if the responder image is private
 # Operator-mode trust material (pass via --set-file at install). Public bits → nats.conf; private bits → responder Secret.
 keys:

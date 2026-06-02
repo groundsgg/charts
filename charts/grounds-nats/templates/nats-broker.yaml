@@ -18,6 +18,7 @@ spec:
             - { name: config, mountPath: /etc/nats }
             - { name: data, mountPath: /data }
           readinessProbe: { httpGet: { path: /healthz, port: 8222 }, initialDelaySeconds: 5, periodSeconds: 5 }
+          resources: {{ toYaml .Values.resources.broker | nindent 12 }}
       volumes:
         - { name: config, configMap: { name: {{ include "grounds-nats.fullname" . }}-config } }
         - { name: data, emptyDir: {} }
