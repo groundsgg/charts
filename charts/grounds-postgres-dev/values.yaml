@@ -1,5 +1,8 @@
 # Dev-only throwaway Postgres for a per-developer vCluster.
-image: postgres:16-alpine
+# Mirrored into Zot — the platform Kyverno restrict-image-origin policy blocks
+# Docker Hub for user-namespace (vCluster) pods. (Memory limit is already set
+# below, satisfying the user-ns-memory-cap-2gi policy.)
+image: zot.platform.grnds.io/postgres:16-alpine
 # Fixed dev credentials — must match the bundle services' datasource defaults
 # (POSTGRES_USER:app / POSTGRES_PASSWORD:app), so forge injects only POSTGRES_URL.
 db:
