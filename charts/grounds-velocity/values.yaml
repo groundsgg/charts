@@ -56,3 +56,21 @@ forwardingSecret:
   key: "secret"
 
 env: []
+
+# ServiceAccount for NATS auth-callout (B4): the broker resolves this pod's
+# SA and reads its gg.grounds/events annotation to scope the in-process
+# plugins' pub/sub. grounds-forge sets these from the bundle component's
+# events: declarations; defaults are inert.
+serviceAccount:
+  create: false
+  name: ""
+  annotations: {}
+
+# Grounds projected SA-token (NATS bearer). When enabled, projects a
+# short-lived token (audience grounds-services) and exposes GROUNDS_TOKEN_FILE
+# so the plugins present it as the NATS bearer. Inert by default.
+groundsToken:
+  enabled: false
+  audience: grounds-services
+  mountPath: /var/run/secrets/grounds
+  expirationSeconds: 3600

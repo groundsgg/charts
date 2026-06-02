@@ -59,3 +59,30 @@ service:
   targetPort: 9000
   ## @param service.name Service port name
   name: http
+
+## @section ServiceAccount configuration
+## A dedicated ServiceAccount is required for NATS auth-callout (B4): the
+## broker resolves the connecting pod's SA and reads its gg.grounds/events
+## annotation to scope pub/sub. grounds-forge sets these values from the
+## workload's events: declarations; defaults are inert (no SA created).
+serviceAccount:
+  ## @param serviceAccount.create Create a dedicated ServiceAccount for the pod
+  create: false
+  ## @param serviceAccount.name ServiceAccount name (defaults to the release name)
+  name: ""
+  ## @param serviceAccount.annotations Annotations on the ServiceAccount (e.g. gg.grounds/events)
+  annotations: {}
+
+## @section Grounds projected SA-token (NATS bearer)
+## When enabled, projects a short-lived SA-token (audience grounds-services)
+## and exposes its path as GROUNDS_TOKEN_FILE so the workload can present it
+## as the NATS bearer. Inert by default.
+groundsToken:
+  ## @param groundsToken.enabled Project the grounds-services SA-token into the pod
+  enabled: false
+  ## @param groundsToken.audience Token audience the NATS responder validates
+  audience: grounds-services
+  ## @param groundsToken.mountPath Directory the projected token is mounted at
+  mountPath: /var/run/secrets/grounds
+  ## @param groundsToken.expirationSeconds Requested token TTL (kubelet rotates)
+  expirationSeconds: 3600

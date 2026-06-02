@@ -29,6 +29,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name | default .Release.Name }}
+      {{- end }}
       {{- $imageRepo := .Values.deployment.image.repository }}
       {{- if .Values.deployment.image.registry }}
       {{- $imageRepo = printf "%s/%s" .Values.deployment.image.registry .Values.deployment.image.repository }}
@@ -47,8 +50,30 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.deployment.env }}
+          {{- if or .Values.deployment.env .Values.groundsToken.enabled }}
           env:
+            {{- with .Values.deployment.env }}
             {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- if .Values.groundsToken.enabled }}
+            - name: GROUNDS_TOKEN_FILE
+              value: {{ printf "%s/token" .Values.groundsToken.mountPath | quote }}
+            {{- end }}
           {{- end }}
+          {{- if .Values.groundsToken.enabled }}
+          volumeMounts:
+            - name: grounds-sa-token
+              mountPath: {{ .Values.groundsToken.mountPath }}
+              readOnly: true
+          {{- end }}
+      {{- if .Values.groundsToken.enabled }}
+      volumes:
+        - name: grounds-sa-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: {{ .Values.groundsToken.audience }}
+                  expirationSeconds: {{ .Values.groundsToken.expirationSeconds }}
+                  path: token
+      {{- end }}
 {{- end }}
