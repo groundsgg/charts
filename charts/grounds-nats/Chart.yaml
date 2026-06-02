@@ -3,5 +3,5 @@ name: grounds-nats
 description: Self-contained NATS broker (operator-mode + auth-callout) +
   service-nats-authz responder, for in-vCluster deployment (NATS B4 / Option 1).
 type: application
-version: 0.2.0
+version: 0.3.0
 appVersion: "edge"
