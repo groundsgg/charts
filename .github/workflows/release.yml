@@ -27,6 +27,7 @@ jobs:
           - cockpit
           - grounds-service
           - grounds-nats
+          - grounds-postgres-dev
           - agones-fleet
           - grounds-velocity
           - plugin-velocity-jar
