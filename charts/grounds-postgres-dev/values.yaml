@@ -1,0 +1,21 @@
+# Dev-only throwaway Postgres for a per-developer vCluster.
+image: postgres:16-alpine
+# Fixed dev credentials — must match the bundle services' datasource defaults
+# (POSTGRES_USER:app / POSTGRES_PASSWORD:app), so forge injects only POSTGRES_URL.
+db:
+  name: app
+  user: app
+  password: app
+# Throwaway storage by default (emptyDir). Set persistence.enabled=true for a
+# PVC that survives pod restarts (needs a default StorageClass in the vCluster).
+persistence:
+  enabled: false
+  size: 2Gi
+  storageClassName: ""
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi

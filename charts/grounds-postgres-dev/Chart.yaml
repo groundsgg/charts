@@ -1,0 +1,12 @@
+apiVersion: v2
+name: grounds-postgres-dev
+description: >
+  Throwaway single-instance Postgres for a per-developer vCluster (v2.2 dev
+  data-services). One `app` database; bundle gRPC services Flyway-migrate their
+  own per-service schemas (currentSchema=config/player/social/leaderboard) on
+  first connect. Dev-only fixed credentials (app/app) matching the services'
+  defaults. Self-contained per vCluster — mirrors the in-vCluster grounds-nats
+  broker; no shared/host Postgres egress needed.
+type: application
+version: 0.1.0
+appVersion: "16"
