@@ -2,7 +2,7 @@ broker:
   image: nats:2.12.6-alpine
 responder:
   image: ghcr.io/groundsgg/service-nats-authz:edge
-  defaultPolicy: permit-any        # deny|permit-any (rollout escape hatch)
+  defaultPolicy: deny              # deny (secure default) | permit-any (rollout escape hatch)
   jwksUrl: https://kubernetes.default.svc/openid/v1/jwks
 imagePullSecret: ""                  # set if the responder image is private
 # Operator-mode trust material (pass via --set-file at install). Public bits → nats.conf; private bits → responder Secret.
