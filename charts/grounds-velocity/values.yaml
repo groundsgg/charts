@@ -40,9 +40,13 @@ resources:
     cpu: "2"
     memory: "2Gi"
 
-# Velocity exposes the player port (modern Minecraft proxy).
+# Velocity exposes the player port (modern Minecraft proxy) and an
+# optional metrics port via the velocity-prometheus-exporter plugin.
 ports:
-  minecraft: 25577
+  # Match the velocity image's baked velocity.toml bind (0.0.0.0:25565). The
+  # chart does not template velocity.toml, so the container binds 25565
+  # regardless — the Service/probe/targetPort must agree or health + routing fail.
+  minecraft: 25565
 
 service:
   type: ClusterIP
@@ -56,21 +60,3 @@ forwardingSecret:
   key: "secret"
 
 env: []
-
-# ServiceAccount for NATS auth-callout (B4): the broker resolves this pod's
-# SA and reads its gg.grounds/events annotation to scope the in-process
-# plugins' pub/sub. grounds-forge sets these from the bundle component's
-# events: declarations; defaults are inert.
-serviceAccount:
-  create: false
-  name: ""
-  annotations: {}
-
-# Grounds projected SA-token (NATS bearer). When enabled, projects a
-# short-lived token (audience grounds-services) and exposes GROUNDS_TOKEN_FILE
-# so the plugins present it as the NATS bearer. Inert by default.
-groundsToken:
-  enabled: false
-  audience: grounds-services
-  mountPath: /var/run/secrets/grounds
-  expirationSeconds: 3600
