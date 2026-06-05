@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.2.0...grounds-velocity-v0.2.1) (2026-06-05)
+
+
+### Bug Fixes
+
+* **grounds-velocity:** bind/Service port 25565 to match the image ([#62](https://github.com/groundsgg/charts/issues/62)) ([cc4df3e](https://github.com/groundsgg/charts/commit/cc4df3eda435c9f63da0d8b3648e6dbd1d001a67))
+* **grounds-velocity:** restore inert serviceAccount/groundsToken values ([#64](https://github.com/groundsgg/charts/issues/64)) ([397216a](https://github.com/groundsgg/charts/commit/397216abacc8b6a3a2c92e132980828dedd9802a))
+
 ## [0.2.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.1.0...grounds-velocity-v0.2.0) (2026-06-02)
 
 
