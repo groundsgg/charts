@@ -17,7 +17,7 @@ env:
 jobs:
   release:
     name: 📦 Package and Publish ${{ matrix.chart }}
-    runs-on: ubuntu-latest
+    runs-on: arc-dind
     strategy:
       fail-fast: false
       matrix:
