@@ -1,7 +1,9 @@
 image:
   repository: ghcr.io/groundsgg/service-notifications
-  tag: "0.3.1"
+  tag: "0.6.1"
   pullPolicy: IfNotPresent
+
+imagePullSecrets: []
 
 replicaCount: 2
 
@@ -16,6 +18,28 @@ config:
 
 existingSecret:
   name: "service-notifications"
+
+nats:
+  url: ""
+  token:
+    value: ""
+    existingSecret:
+      name: ""
+      key: NATS_TOKEN
+  tokenFile:
+    enabled: false
+    path: ""
+
+serviceAccount:
+  create: false
+  name: ""
+  annotations: {}
+
+groundsToken:
+  enabled: false
+  audience: grounds-services
+  mountPath: /var/run/secrets/grounds
+  expirationSeconds: 3600
 
 database:
   jdbcUrlSecretName: "notifications-db-app"

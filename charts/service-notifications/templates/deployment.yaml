@@ -14,6 +14,13 @@ spec:
       labels:
         {{- include "service-notifications.selectorLabels" . | nindent 8 }}
     spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name | default (include "service-notifications.fullname" .) }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -37,7 +44,31 @@ spec:
               value: {{ required "config.forgeBaseUrl is required" .Values.config.forgeBaseUrl | quote }}
             - name: NOTIFICATIONS_FORGE_BASE_URL
               value: {{ required "config.forgeBaseUrl is required" .Values.config.forgeBaseUrl | quote }}
+            {{- if .Values.nats.url }}
+            - name: NATS_URL
+              value: {{ .Values.nats.url | quote }}
+            {{- end }}
+            {{- if .Values.nats.token.value }}
+            - name: NATS_TOKEN
+              value: {{ .Values.nats.token.value | quote }}
+            {{- else if .Values.nats.token.existingSecret.name }}
+            - name: NATS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.nats.token.existingSecret.name | quote }}
+                  key: {{ .Values.nats.token.existingSecret.key | quote }}
+            {{- end }}
+            {{- if .Values.nats.tokenFile.enabled }}
+            - name: NATS_TOKEN_FILE
+              value: {{ .Values.nats.tokenFile.path | default (printf "%s/token" .Values.groundsToken.mountPath) | quote }}
+            {{- end }}
             {{- include "service-notifications.secretEnv" . | nindent 12 }}
+          {{- if .Values.groundsToken.enabled }}
+          volumeMounts:
+            - name: grounds-sa-token
+              mountPath: {{ .Values.groundsToken.mountPath | quote }}
+              readOnly: true
+          {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -46,3 +77,13 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
             {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+      {{- if .Values.groundsToken.enabled }}
+      volumes:
+        - name: grounds-sa-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: {{ .Values.groundsToken.audience | quote }}
+                  expirationSeconds: {{ .Values.groundsToken.expirationSeconds }}
+                  path: token
+      {{- end }}
