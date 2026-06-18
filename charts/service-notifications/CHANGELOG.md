@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.4.0...service-notifications-v0.5.0) (2026-06-18)
+
+
+### Features
+
+* add notifications nats chart config ([#66](https://github.com/groundsgg/charts/issues/66)) ([2a7401b](https://github.com/groundsgg/charts/commit/2a7401b881d2fb90bf9c573e8f520f0b74b5906a))
+
 ## [0.4.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.3.0...service-notifications-v0.4.0) (2026-06-02)
 
 
