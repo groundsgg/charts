@@ -83,16 +83,26 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
+            {{- with .Values.plugins }}
+            # Only shadow /app/plugins with the fetch-init emptyDir when extra
+            # plugins are configured. With none (the default), this mount is
+            # omitted so the image's BAKED plugins (plugin-grounds-runtime /
+            # plugin-grounds-platform / plugin-agones-velocity) are used —
+            # otherwise an empty emptyDir hides them and velocity loads nothing
+            # (no routing/discovery → unreachable backends).
             - name: plugins
               mountPath: /app/plugins
+            {{- end }}
             {{- if .Values.groundsToken.enabled }}
             - name: grounds-sa-token
               mountPath: {{ .Values.groundsToken.mountPath }}
               readOnly: true
             {{- end }}
       volumes:
+        {{- with .Values.plugins }}
         - name: plugins
           emptyDir: {}
+        {{- end }}
         {{- if .Values.groundsToken.enabled }}
         - name: grounds-sa-token
           projected:
