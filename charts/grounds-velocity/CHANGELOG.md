@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.2.1...grounds-velocity-v0.2.2) (2026-06-30)
+
+
+### Bug Fixes
+
+* **grounds-velocity:** stop shadowing baked plugins with empty emptyDir ([#69](https://github.com/groundsgg/charts/issues/69)) ([732b531](https://github.com/groundsgg/charts/commit/732b531480b6af0bb879e3e3e9cdd3c8392fef9b))
+
 ## [0.2.1](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.2.0...grounds-velocity-v0.2.1) (2026-06-05)
 
 
