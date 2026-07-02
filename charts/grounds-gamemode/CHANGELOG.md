@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.1.0...grounds-gamemode-v0.1.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* **grounds-gamemode:** use runtime velocity env for lobby ([#71](https://github.com/groundsgg/charts/issues/71)) ([cfbacf8](https://github.com/groundsgg/charts/commit/cfbacf8bb9f5ca1114264375c1dd09e4ae8ef8b5))
+
 ## [0.1.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.0.1...grounds-gamemode-v0.1.0) (2026-05-03)
 
 
