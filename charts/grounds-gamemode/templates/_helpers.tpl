@@ -1,19 +1,23 @@
 {{/*
 Returns the env block for the game-server container, picking the right
-velocity-secret env-var name based on `.Values.kind`.
+Velocity forwarding env-vars based on `.Values.kind`.
 */}}
 {{- define "grounds-gamemode.env" -}}
-{{- $secretEnvName := "" -}}
 {{- if eq .Values.kind "lobby" -}}
-{{- $secretEnvName = "GROUNDS_LOBBY_VELOCITY_SECRET" -}}
-{{- else -}}
-{{- $secretEnvName = "PAPER_VELOCITY_SECRET" -}}
-{{- end -}}
-- name: {{ $secretEnvName }}
+- name: GROUNDS_PROXY_MODE
+  value: velocity
+- name: GROUNDS_VELOCITY_FORWARDING_SECRET
   valueFrom:
     secretKeyRef:
       name: {{ .Values.forwardingSecret.name }}
       key: {{ .Values.forwardingSecret.key }}
+{{- else -}}
+- name: PAPER_VELOCITY_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.forwardingSecret.name }}
+      key: {{ .Values.forwardingSecret.key }}
+{{- end -}}
 {{- with .Values.extraEnv }}
 {{ toYaml . }}
 {{- end }}
