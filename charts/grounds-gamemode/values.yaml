@@ -9,8 +9,8 @@
 #   - minestom-lobby      (kind: lobby,    Deployment, single replica)
 #   - paper-game          (kind: paper,    Agones Fleet, scales 0..N)
 #
-# kind drives which Velocity-secret env-var the container expects:
-#   - "lobby"   → GROUNDS_LOBBY_VELOCITY_SECRET
+# kind drives which Velocity forwarding env-vars the container expects:
+#   - "lobby"   → GROUNDS_PROXY_MODE + GROUNDS_VELOCITY_FORWARDING_SECRET
 #   - "paper"   → PAPER_VELOCITY_SECRET
 #   - "match"   → PAPER_VELOCITY_SECRET
 #   - "game"    → PAPER_VELOCITY_SECRET
