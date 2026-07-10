@@ -1,0 +1,46 @@
+# Dev-only throwaway ClickHouse for a per-developer vCluster.
+# Image via the Zot dockerhub mirror — the platform Kyverno restrict-image-origin
+# policy blocks Docker Hub for user-namespace (vCluster) pods. Requires
+# clickhouse-server in APPROVED_DOCKER_HUB_MIRROR_IMAGES (pulumi zot.ts).
+image: zot.platform.grnds.io/dockerhub/clickhouse-server:24.8
+
+# The one gamemode running in this vCluster. Stamped as a constant onto every
+# analytics row (in dev there is exactly one gamemode per vCluster, so there is
+# nothing to join from MatchStarted). forge overrides this per push.
+minigameId: "unknown"
+# Project id — stamped onto every row. forge injects the real Project.id.
+projectId: "dev"
+
+nats:
+  # In-vCluster NATS broker (the grounds-nats chart's Service).
+  url: "nats://grounds-nats-nats:4222"
+  # Subject the game servers publish flat per-player result events to.
+  subject: "match.results"
+  # Bearer token ClickHouse's native NATS engine presents to the deny-default
+  # auth-callout broker (rendered into the engine table's nats_token). forge
+  # mints a long-lived, sub-only SA-token scoped to the subject above (via a
+  # dedicated annotated ServiceAccount the broker's responder reads) and injects
+  # it here. Empty = no auth — only valid against a local/dev NATS with no
+  # auth-callout.
+  token: ""
+
+# Throwaway storage by default (emptyDir) — data is expected to die with the
+# vCluster. Set persistence.enabled=true for a small PVC that survives pod
+# restarts within the vCluster's life.
+persistence:
+  enabled: false
+  size: 5Gi
+  storageClassName: ""
+
+# Tuned small. Memory limit stays <=2Gi to satisfy the user-ns-memory-cap-2gi
+# Kyverno policy; max_server_memory_usage (in the config) is set below the limit
+# so ClickHouse throttles instead of being OOM-killed.
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+# Quoted so Helm renders the literal integer (a bare number becomes float sci-notation).
+maxServerMemoryBytes: "805306368" # 768Mi, under the 1Gi limit

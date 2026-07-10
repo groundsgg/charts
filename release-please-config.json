@@ -32,6 +32,9 @@
     "charts/grounds-postgres-dev": {
       "release-type": "helm"
     },
+    "charts/grounds-clickhouse-dev": {
+      "release-type": "helm"
+    },
     "charts/service-notifications": {
       "release-type": "helm"
     },
