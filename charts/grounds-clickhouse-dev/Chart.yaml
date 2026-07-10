@@ -6,9 +6,9 @@ description: >
   grounds-postgres-dev: a plain single-instance Deployment (no operator), fixed
   dev config, ephemeral by default (emptyDir), tiny footprint. It ingests
   directly from the in-vCluster NATS via ClickHouse's native NATS engine — no
-  writer service — and the vCluster boundary IS the tenant boundary (one
-  project per instance, so no row policies / RBAC). Data dies with the vCluster,
-  which is correct for ephemeral test systems.
+  writer service — and the vCluster boundary IS the tenant boundary (one project
+  per instance, so no row policies / RBAC). Data dies with the vCluster, which
+  is correct for ephemeral test systems.
 type: application
-version: 0.1.0
+version: 0.2.0
 appVersion: "24.8"

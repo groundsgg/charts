@@ -9,7 +9,7 @@
   "charts/grounds-gamemode": "0.1.1",
   "charts/grounds-nats": "0.3.1",
   "charts/grounds-postgres-dev": "0.2.0",
-  "charts/grounds-clickhouse-dev": "0.1.0",
+  "charts/grounds-clickhouse-dev": "0.2.0",
   "charts/service-notifications": "0.5.0",
   "charts/novu": "1.0.0"
 }
