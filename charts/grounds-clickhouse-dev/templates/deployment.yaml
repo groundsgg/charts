@@ -27,10 +27,24 @@ spec:
           ports:
             - { containerPort: 9000, name: native }
             - { containerPort: 8123, name: http }
+          # Readiness reflects actual function, not just an open port. The native
+          # NATS-engine table `nats_in` is created at first-boot init and ONLY if
+          # the broker accepted the token (its CREATE connects eagerly). If a
+          # failed first-boot — bad/expired token or an unreachable broker — left
+          # the data dir partially initialised, the official image skips init on
+          # the next in-pod restart: the server comes up and /ping passes, but
+          # ingestion is silently dead. Gating readiness on `nats_in` surfaces
+          # that as NotReady instead of a falsely-healthy pod. Recover by deleting
+          # the pod (a fresh emptyDir re-runs init against a now-valid broker).
           readinessProbe:
-            httpGet: { path: /ping, port: 8123 }
-            initialDelaySeconds: 10
+            exec:
+              command:
+                - clickhouse-client
+                - --query
+                - "SELECT throwIf(count() = 0) FROM system.tables WHERE database = 'analytics' AND name = 'nats_in'"
+            initialDelaySeconds: 15
             periodSeconds: 10
+            failureThreshold: 3
           resources: {{ toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - { name: data, mountPath: /var/lib/clickhouse }

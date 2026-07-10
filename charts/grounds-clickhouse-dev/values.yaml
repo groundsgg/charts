@@ -16,9 +16,12 @@ nats:
   url: "nats://grounds-nats-nats:4222"
   # Subject the game servers publish flat per-player result events to.
   subject: "match.results"
-  # Token for the deny-default auth-callout broker. forge injects the project's
-  # events token (same one bundle services get via withEventsValues). Empty =
-  # no auth (local/dev NATS without auth-callout).
+  # Bearer token ClickHouse's native NATS engine presents to the deny-default
+  # auth-callout broker (rendered into the engine table's nats_token). forge
+  # mints a long-lived, sub-only SA-token scoped to the subject above (via a
+  # dedicated annotated ServiceAccount the broker's responder reads) and injects
+  # it here. Empty = no auth — only valid against a local/dev NATS with no
+  # auth-callout.
   token: ""
 
 # Throwaway storage by default (emptyDir) — data is expected to die with the
