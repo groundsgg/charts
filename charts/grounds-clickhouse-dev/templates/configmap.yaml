@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "grounds-clickhouse-dev.fullname" . }}-config
+  labels: { app: {{ include "grounds-clickhouse-dev.fullname" . }} }
+data:
+  # Server hardening: cap memory below the pod limit so ClickHouse throttles
+  # instead of being OOM-killed.
+  00-memory.xml: |
+    <clickhouse>
+      <max_server_memory_usage>{{ .Values.maxServerMemoryBytes }}</max_server_memory_usage>
+    </clickhouse>
+  # Run once on first boot: the analytics table, the native NATS-engine queue,
+  # and a MV that stamps the per-vCluster constants and lands one row per event.
+  # Verified end-to-end (native NATS engine JSONEachRow -> MV -> match_events).
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS analytics;
+
+    CREATE TABLE IF NOT EXISTS analytics.match_events
+    (
+        project_id  String,
+        match_id    String,
+        minigame_id LowCardinality(String),
+        player_id   String,
+        team_id     String,
+        victorious  UInt8,
+        kills       UInt32,
+        stats_json  String,
+        event_time  DateTime64(3),
+        event_id    String
+    )
+    ENGINE = ReplacingMergeTree(event_time)
+    PARTITION BY toYYYYMM(event_time)
+    ORDER BY (match_id, player_id, event_id)
+    TTL toDateTime(event_time) + INTERVAL 30 DAY DELETE;
+
+    -- Native NATS engine: consumes flat per-player result events from the
+    -- in-vCluster broker. One gamemode per vCluster, so no join is needed.
+    CREATE TABLE IF NOT EXISTS analytics.nats_in
+    (
+        match_id   String,
+        player_id  String,
+        team_id    String,
+        victorious UInt8,
+        kills      UInt32,
+        stats_json String,
+        event_ms   Int64
+    )
+    ENGINE = NATS
+    SETTINGS
+        nats_url = '{{ .Values.nats.url }}',
+        nats_subjects = '{{ .Values.nats.subject }}',
+        nats_format = 'JSONEachRow',
+        nats_num_consumers = 1{{ if .Values.nats.token }},
+        nats_token = '{{ .Values.nats.token }}'{{ end }};
+
+    -- project_id + minigame_id are per-vCluster CONSTANTS (this instance serves
+    -- one project's one gamemode) — never trusted from the payload.
+    CREATE MATERIALIZED VIEW IF NOT EXISTS analytics.mv_nats TO analytics.match_events AS
+    SELECT
+        '{{ .Values.projectId }}'  AS project_id,
+        match_id,
+        '{{ .Values.minigameId }}' AS minigame_id,
+        player_id,
+        team_id,
+        victorious,
+        kills,
+        stats_json,
+        toDateTime64(event_ms / 1000.0, 3) AS event_time,
+        concat(match_id, ':', player_id)   AS event_id
+    FROM analytics.nats_in;
