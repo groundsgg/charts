@@ -23,8 +23,21 @@ spec:
         grounds/server-type: {{ .Values.kind }}
     spec:
       ports:
+        # `None`, not `Dynamic`: nothing ever dialled the allocated hostPort.
+        # Players reach a game server through Velocity (the only ingress), and
+        # Velocity is *inside* the cluster — plugin-agones registers backends as
+        # `PodIP:25565` (GROUNDS_AGONES_ADDRESS_TYPE=PodIP, ...PORT=25565), so
+        # the game server needs no host network at all.
+        #
+        # A hostPort is not free: it is bound on a *shared* platform node, but
+        # every dev vCluster runs its own Agones handing out the same 7000-8000
+        # range with no knowledge of the others. Two tenants get the same port,
+        # the scheduler refuses to co-place them, and the second GameServer
+        # sticks in `Pending` ("didn't have free ports for the requested pod
+        # ports") — a fleet that never goes Ready, for no visible reason. It
+        # also let a tenant squat host ports on nodes shared with everyone else.
         - name: minecraft
-          portPolicy: Dynamic
+          portPolicy: None
           containerPort: {{ .Values.containerPort }}
           protocol: TCP
       container: {{ .Release.Name }}
