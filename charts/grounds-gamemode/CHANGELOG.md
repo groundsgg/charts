@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.1.1...grounds-gamemode-v0.2.0) (2026-07-11)
+
+
+### Features
+
+* **grounds-gamemode:** stop allocating a hostPort per GameServer ([#75](https://github.com/groundsgg/charts/issues/75)) ([7a0fa72](https://github.com/groundsgg/charts/commit/7a0fa722a46ee1c223a795dfce16950012429b38))
+
 ## [0.1.1](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.1.0...grounds-gamemode-v0.1.1) (2026-07-02)
 
 
