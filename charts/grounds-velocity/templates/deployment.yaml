@@ -50,7 +50,10 @@ spec:
           command:
             - sh
             - -c
-            - cp -a /app/plugins/. /plugins/
+            {{/* -r, not -a: the velocity image runs as a non-root user and the
+                 emptyDir root is owned by root, so preserving timestamps on the
+                 destination directory fails with EPERM and the pod never inits. */}}
+            - cp -r /app/plugins/. /plugins/
           volumeMounts:
             - name: plugins
               mountPath: /plugins
