@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.4](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.2.3...grounds-velocity-v0.2.4) (2026-07-12)
+
+
+### Bug Fixes
+
+* **grounds-velocity:** copy baked plugins without preserving timestamps ([#79](https://github.com/groundsgg/charts/issues/79)) ([d8f8cd4](https://github.com/groundsgg/charts/commit/d8f8cd4e5a360a478a066551ffb2fe7dfdc2fb5d))
+
 ## [0.2.3](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.2.2...grounds-velocity-v0.2.3) (2026-07-12)
 
 
