@@ -39,6 +39,7 @@ jobs:
           - grounds-gamemode
           - service-notifications
           - novu
+          - grounds-valkey-dev
         include:
           - chart: novu
             template_args: >-

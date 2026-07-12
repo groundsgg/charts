@@ -28,6 +28,7 @@ jobs:
           - grounds-service
           - grounds-nats
           - grounds-postgres-dev
+          - grounds-valkey-dev
           - grounds-clickhouse-dev
           - agones-fleet
           - grounds-velocity

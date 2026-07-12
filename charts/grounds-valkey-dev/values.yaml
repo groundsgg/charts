@@ -1,0 +1,39 @@
+# Single-instance Valkey for a per-project vCluster — the queue spine for
+# service-match.
+#
+# Mirrored into Zot: the platform Kyverno policy (only-trusted-registry,
+# Enforce) blocks Docker Hub for user-namespace (vCluster) pods, and the
+# /dockerhub/ mirror has an explicit allowlist. This tag must be in
+# APPROVED_DOCKER_HUB_MIRROR_IMAGES (pulumi/platform/src/platform/zot.ts) or
+# the pod is rejected at admission.
+image: zot.platform.grnds.io/dockerhub/valkey:8-alpine
+
+# Throwaway by default. Queue state is deliberately losable: tickets, queues
+# and in-flight matches are not durable truth — if Valkey restarts, players
+# re-queue and the reaper cleans up any GameServer left stranded. An RWO volume
+# in a vCluster buys little here and brings its own failure modes.
+#
+# Note this is the *queue* store, not the rating store. Ratings live in
+# Postgres and are the thing that must not evaporate.
+persistence:
+  enabled: false
+  size: 1Gi
+  storageClassName: ""
+
+# Append-only file. Only meaningful with persistence.enabled=true — on an
+# emptyDir it just writes to a volume that dies with the pod.
+#
+# `everysec` is the usual trade: a crash can lose up to a second of writes.
+# That is acceptable here by design (a lost claim leaves an orphan GameServer,
+# which the reaper collects), and the alternative (`always`) costs an fsync on
+# every mutation.
+appendonly: false
+appendfsync: everysec
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi

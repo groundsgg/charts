@@ -1,0 +1,15 @@
+apiVersion: v2
+name: grounds-valkey-dev
+description: >
+  Single-instance Valkey for a per-project vCluster. Backs service-match's
+  queue spine: tickets, per-queue sorted sets, the one-live-ticket guard, the
+  in-flight match journal and the allocation stream all live here, and every
+  multi-key mutation runs as a Lua script so Valkey serialises it.
+
+  Deliberately losable. Queue state is not durable truth — if it goes, players
+  simply re-queue and the reaper cleans up any GameServer left behind. That is
+  why emptyDir is the default: an RWO volume in a vCluster buys little here and
+  brings its own failure modes.
+type: application
+version: 0.1.0
+appVersion: "8.1"
