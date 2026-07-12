@@ -40,6 +40,9 @@
     },
     "charts/novu": {
       "release-type": "helm"
+    },
+    "charts/grounds-valkey-dev": {
+      "release-type": "helm"
     }
   }
 }
