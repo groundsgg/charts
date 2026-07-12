@@ -6,7 +6,12 @@
 # /dockerhub/ mirror has an explicit allowlist. This tag must be in
 # APPROVED_DOCKER_HUB_MIRROR_IMAGES (pulumi/platform/src/platform/zot.ts) or
 # the pod is rejected at admission.
-image: zot.platform.grnds.io/dockerhub/valkey:8-alpine
+image:
+  # Split into repository/tag because that is what the platform bundle injects:
+  # forge passes a component's `image` as image.repository and its `version` as
+  # image.tag. A single string here would silently ignore both.
+  repository: zot.platform.grnds.io/dockerhub/valkey
+  tag: 8-alpine
 
 # Throwaway by default. Queue state is deliberately losable: tickets, queues
 # and in-flight matches are not durable truth — if Valkey restarts, players

@@ -11,5 +11,5 @@ description: >
   why emptyDir is the default: an RWO volume in a vCluster buys little here and
   brings its own failure modes.
 type: application
-version: 0.1.0
+version: 0.2.0
 appVersion: "8.1"
