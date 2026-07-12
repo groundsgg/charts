@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.2.2...grounds-velocity-v0.2.3) (2026-07-12)
+
+
+### Bug Fixes
+
+* **grounds-velocity:** keep image-baked plugins when fetching extra JARs ([#77](https://github.com/groundsgg/charts/issues/77)) ([1caa5dc](https://github.com/groundsgg/charts/commit/1caa5dcae4b62ce8b8f74220dcfe0f4ca0b1707e))
+
 ## [0.2.2](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.2.1...grounds-velocity-v0.2.2) (2026-06-30)
 
 
