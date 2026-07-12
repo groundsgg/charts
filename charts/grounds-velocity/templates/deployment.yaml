@@ -39,6 +39,21 @@ spec:
       {{- end }}
       {{- with .Values.plugins }}
       initContainers:
+        {{- /* The plugins emptyDir is mounted over /app/plugins, hiding the JARs
+             baked into the velocity image (plugin-agones-velocity,
+             plugin-grounds-runtime, plugin-grounds-platform). Seed the volume
+             from the image before the per-plugin fetches so the proxy keeps its
+             discovery + platform plugins alongside the fetched ones. */}}
+        - name: copy-baked-plugins
+          image: "{{ $imageRepo }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - cp -a /app/plugins/. /plugins/
+          volumeMounts:
+            - name: plugins
+              mountPath: /plugins
         {{- range $plugin := . }}
         - name: fetch-{{ $plugin }}
           image: {{ $.Values.fetcher.image | quote }}
@@ -84,12 +99,13 @@ spec:
           {{- end }}
           volumeMounts:
             {{- with .Values.plugins }}
-            # Only shadow /app/plugins with the fetch-init emptyDir when extra
-            # plugins are configured. With none (the default), this mount is
-            # omitted so the image's BAKED plugins (plugin-grounds-runtime /
-            # plugin-grounds-platform / plugin-agones-velocity) are used —
-            # otherwise an empty emptyDir hides them and velocity loads nothing
-            # (no routing/discovery → unreachable backends).
+            # Only mount the init-container emptyDir over /app/plugins when
+            # extra plugins are configured. With none (the default), the mount
+            # is omitted and the image's BAKED plugins (plugin-grounds-runtime /
+            # plugin-grounds-platform / plugin-agones-velocity) are used as-is.
+            # When it IS mounted, copy-baked-plugins seeds it from the image
+            # first — otherwise the volume hides the baked JARs and velocity
+            # loses routing/discovery (unreachable backends).
             - name: plugins
               mountPath: /app/plugins
             {{- end }}
