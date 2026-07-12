@@ -65,6 +65,29 @@ service:
 ## broker resolves the connecting pod's SA and reads its gg.grounds/events
 ## annotation to scope pub/sub. grounds-forge sets these values from the
 ## workload's events: declarations; defaults are inert (no SA created).
+## @section RBAC
+##
+## A namespaced Role + RoleBinding for the pod's ServiceAccount. Off by default:
+## most services only talk to Postgres and NATS and have no business reading the
+## Kubernetes API at all.
+##
+## Needed by service-match, which allocates Agones GameServers in its own
+## namespace. Keep the rules as tight as the service actually needs — this binds
+## to a Role, not a ClusterRole, so it cannot reach beyond this namespace.
+##
+## Example:
+##   rbac:
+##     create: true
+##     rules:
+##       - apiGroups: ["allocation.agones.dev"]
+##         resources: ["gameserverallocations"]
+##         verbs: ["create"]
+rbac:
+  ## @param rbac.create Create a Role + RoleBinding for the ServiceAccount
+  create: false
+  ## @param rbac.rules Policy rules for the Role
+  rules: []
+
 serviceAccount:
   ## @param serviceAccount.create Create a dedicated ServiceAccount for the pod
   create: false
