@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.2.0...grounds-service-v0.3.0) (2026-07-12)
+
+
+### Features
+
+* **grounds-service:** optional Role + RoleBinding for the pod ([#83](https://github.com/groundsgg/charts/issues/83)) ([6538655](https://github.com/groundsgg/charts/commit/6538655fe7749467b86ded6679803c377df82f08))
+
 ## [0.2.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.1.0...grounds-service-v0.2.0) (2026-06-02)
 
 
