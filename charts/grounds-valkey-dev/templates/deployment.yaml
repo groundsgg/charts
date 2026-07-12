@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: valkey
-          image: {{ .Values.image }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           args:
             - --appendonly
             - {{ .Values.appendonly | ternary "yes" "no" | quote }}
