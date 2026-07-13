@@ -8,5 +8,5 @@ description: >
 
   Deliberately losable. Queue state is not durable truth — if it goes, players simply re-queue and the reaper cleans up any GameServer left behind. That is why emptyDir is the default: an RWO volume in a vCluster buys little here and brings its own failure modes.
 type: application
-version: 0.2.0
+version: 0.2.1
 appVersion: "8.1"
