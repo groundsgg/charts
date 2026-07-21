@@ -6,9 +6,19 @@ metadata:
 data:
   # Server hardening: cap memory below the pod limit so ClickHouse throttles
   # instead of being OOM-killed.
+  #
+  # The cache sizes are NOT optional at this footprint. ClickHouse periodically
+  # corrects its global memory tracker to the process RSS, and the stock caches
+  # (5 GiB marks + 5 GiB index marks + 8 GiB uncompressed) push RSS past
+  # max_server_memory_usage on an idle server — after which EVERY query, the
+  # readiness probe included, dies with MEMORY_LIMIT_EXCEEDED and the pod never
+  # goes ready. Trimmed, an idle server sits at ~520 MiB RSS instead of ~940.
   00-memory.xml: |
     <clickhouse>
       <max_server_memory_usage>{{ .Values.maxServerMemoryBytes }}</max_server_memory_usage>
+      <mark_cache_size>134217728</mark_cache_size>
+      <index_mark_cache_size>134217728</index_mark_cache_size>
+      <uncompressed_cache_size>0</uncompressed_cache_size>
     </clickhouse>
   # Run once on first boot: the analytics table, the native NATS-engine queue,
   # and a MV that stamps the per-vCluster constants and lands one row per event.
