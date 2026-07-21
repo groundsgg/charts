@@ -10,5 +10,5 @@ description: >
   per instance, so no row policies / RBAC). Data dies with the vCluster, which
   is correct for ephemeral test systems.
 type: application
-version: 0.2.0
+version: 0.2.1
 appVersion: "24.8"
