@@ -50,8 +50,18 @@ forwardingSecret:
 # Container port. Minecraft default 25565.
 containerPort: 25565
 
-# Optional command override.
+# Optional entrypoint override. This REPLACES the image's ENTRYPOINT — it does
+# not add to it. Every image these charts run is `ENTRYPOINT ["java","-jar",…]`,
+# so passing a flag here (`command: ["--port","25565"]`) makes the runtime try
+# to exec `--port` as the binary and the container dies before it starts:
+#   exec: "--port": executable file not found in $PATH
+# Use `args` below for flags; reach for this only to run a different binary.
 command: []
+
+# Arguments appended to the image's ENTRYPOINT. This is what flags belong in —
+# `args: ["--port","25565"]` reaches the jar as an argument, which is almost
+# always the intent.
+args: []
 
 # extraEnv merges into env after the kind-specific velocity-secret.
 extraEnv: []
