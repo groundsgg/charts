@@ -61,6 +61,10 @@ spec:
               command:
                 {{- toYaml . | nindent 16 }}
               {{- end }}
+              {{- with .Values.args }}
+              args:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
               ports:
                 - name: minecraft
                   containerPort: {{ .Values.containerPort }}
