@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.2.0...grounds-gamemode-v0.2.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* **grounds-gamemode:** add an args passthrough so flags reach the entrypoint ([#91](https://github.com/groundsgg/charts/issues/91)) ([881d25f](https://github.com/groundsgg/charts/commit/881d25f1cda8796b5e7279fe0336835d4836df08))
+
 ## [0.2.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.1.1...grounds-gamemode-v0.2.0) (2026-07-11)
 
 
