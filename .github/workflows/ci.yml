@@ -74,7 +74,16 @@ jobs:
       - name: 🔧 Setup Kubeconform
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          curl -L https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-amd64.tar.gz | tar xz
+          # Match the runner. This job runs on an arm64 Blacksmith runner, and a
+          # hardcoded amd64 binary fails as `cannot execute binary file`
+          # (exit 126) — which only surfaces when a chart actually changes,
+          # because unchanged charts skip this step entirely.
+          case "$(uname -m)" in
+            x86_64)        ARCH=amd64 ;;
+            aarch64|arm64) ARCH=arm64 ;;
+            *) echo "unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+          esac
+          curl -fsSL "https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-${ARCH}.tar.gz" | tar xz
           sudo mv kubeconform /usr/local/bin/
 
       - name: 🔐 Login to GitHub Container Registry
