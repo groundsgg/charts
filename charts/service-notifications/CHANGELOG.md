@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.5.0...service-notifications-v0.6.0) (2026-07-24)
+
+
+### Features
+
+* allow pull secrets on a chart-created ServiceAccount ([#97](https://github.com/groundsgg/charts/issues/97)) ([429d02a](https://github.com/groundsgg/charts/commit/429d02a917b06606aabb6695a809e5a076bb015e))
+
 ## [0.5.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.4.0...service-notifications-v0.5.0) (2026-06-18)
 
 
