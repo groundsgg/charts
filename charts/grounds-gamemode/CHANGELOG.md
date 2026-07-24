@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.4.0...grounds-gamemode-v0.5.0) (2026-07-24)
+
+
+### Features
+
+* **velocity,gamemode:** let a cluster declare which region it is ([#100](https://github.com/groundsgg/charts/issues/100)) ([39bc470](https://github.com/groundsgg/charts/commit/39bc470b2a167cc8a8febf216051d0c47a521ad8))
+
 ## [0.4.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.3.0...grounds-gamemode-v0.4.0) (2026-07-24)
 
 
