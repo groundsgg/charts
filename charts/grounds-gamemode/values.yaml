@@ -9,11 +9,25 @@
 #   - minestom-lobby      (kind: lobby,    Deployment, single replica)
 #   - paper-game          (kind: paper,    Agones Fleet, scales 0..N)
 #
-# kind drives which Velocity forwarding env-vars the container expects:
-#   - "lobby"   → GROUNDS_PROXY_MODE + GROUNDS_VELOCITY_FORWARDING_SECRET
-#   - "paper"   → PAPER_VELOCITY_SECRET
-#   - "match"   → PAPER_VELOCITY_SECRET
-#   - "game"    → PAPER_VELOCITY_SECRET
+# Two independent things, which `kind` alone used to conflate:
+#
+#   engine — which server binary, and therefore which forwarding env-vars it
+#            reads. `minestom` gets GROUNDS_PROXY_MODE +
+#            GROUNDS_VELOCITY_FORWARDING_SECRET, `paper` gets
+#            PAPER_VELOCITY_SECRET.
+#
+#   kind   — what role it plays. It becomes the `grounds/server-type` label,
+#            which is how Velocity's plugin-agones decides what to discover and
+#            which of those are lobbies (its lobby value is literally "lobby").
+#
+# They were the same field, so a Minestom *game* had no correct value: `game`
+# handed it Paper's variable, and `lobby` gave it the right variables but told
+# Velocity to send players straight to it.
+#
+# Leave `engine` empty to keep the old behaviour — it is then inferred as
+# minestom for kind=lobby and paper for everything else, which is exactly what
+# the single field used to do.
+engine: ""
 
 global:
   commonLabels: {}
