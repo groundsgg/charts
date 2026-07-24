@@ -1,0 +1,29 @@
+{{- if and .Values.agones.enabled .Values.agones.fleet.autoscaler.enabled }}
+apiVersion: autoscaling.agones.dev/v1
+kind: FleetAutoscaler
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    grounds/component: gamemode
+    grounds/server-type: {{ .Values.kind }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  fleetName: {{ .Release.Name }}
+  policy:
+    # Buffer, not Webhook: keep a fixed number of servers *ready* on top of
+    # whatever is allocated. That is exactly the property a lobby needs — the
+    # next player must find somewhere to go without waiting for a container to
+    # start, and a Minecraft server takes seconds to become joinable.
+    type: Buffer
+    buffer:
+      bufferSize: {{ .Values.agones.fleet.autoscaler.bufferSize }}
+      minReplicas: {{ .Values.agones.fleet.minReplicas }}
+      maxReplicas: {{ .Values.agones.fleet.maxReplicas }}
+  sync:
+    type: FixedInterval
+    fixedInterval:
+      seconds: {{ .Values.agones.fleet.autoscaler.syncSeconds }}
+{{- end }}

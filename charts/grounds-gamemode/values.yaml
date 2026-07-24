@@ -30,13 +30,31 @@ image:
 
 # Agones Fleet mode — set agones.enabled=true to switch from Deployment
 # to a Fleet. Bundle.yaml's `helm.agones.fleet` map maps directly here.
-# This chart currently uses only `minReplicas` as the Fleet `.spec.replicas`
-# value; it does not define a FleetAutoscaler.
+#
+# Without `autoscaler.enabled`, `minReplicas` is the Fleet's fixed
+# `.spec.replicas` and `maxReplicas` does nothing at all — a Fleet of 1 whose
+# only server gets allocated leaves the next player with nowhere to go, and
+# nothing grows it back.
+#
+# With it, a Buffer-policy FleetAutoscaler keeps `bufferSize` servers *ready*
+# on top of whatever is allocated, between min and max. `minReplicas` then
+# becomes the floor rather than the count.
 agones:
   enabled: false
   fleet:
     minReplicas: 0
     maxReplicas: 2
+    autoscaler:
+      # Off by default: turning this on for every existing release would start
+      # changing replica counts on fleets nobody asked to autoscale.
+      enabled: false
+      # Servers kept ready beyond those allocated. An absolute count, so it
+      # must not exceed maxReplicas; Agones also requires minReplicas to be at
+      # least this when minReplicas is non-zero.
+      bufferSize: 2
+      # How often Agones re-evaluates. The default 30s is a long time to wait
+      # for a lobby when the buffer just emptied.
+      syncSeconds: 15
 
 # Deployment-mode config (ignored when agones.enabled).
 replicas: 1
