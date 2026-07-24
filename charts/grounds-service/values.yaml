@@ -93,6 +93,19 @@ serviceAccount:
   create: false
   ## @param serviceAccount.name ServiceAccount name (defaults to the release name)
   name: ""
+  ## @param serviceAccount.imagePullSecrets Pull secrets attached to the ServiceAccount
+  ##
+  ## Needed whenever the image is not public AND this chart creates its own
+  ## ServiceAccount. A cluster-wide pull secret is normally attached to the
+  ## namespace's `default` account — a pod running as any other account does not
+  ## inherit it, and the failure is an ImagePullBackOff that says nothing about
+  ## ServiceAccounts.
+  ##
+  ## Example:
+  ##   serviceAccount:
+  ##     imagePullSecrets:
+  ##       - name: ghcr-pull
+  imagePullSecrets: []
   ## @param serviceAccount.annotations Annotations on the ServiceAccount (e.g. gg.grounds/events)
   annotations: {}
 

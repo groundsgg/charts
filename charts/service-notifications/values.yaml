@@ -34,6 +34,12 @@ serviceAccount:
   create: false
   name: ""
   annotations: {}
+  # Pull secrets attached to the ServiceAccount. Needed whenever the image is
+  # not public AND this chart creates its own account: a cluster-wide pull
+  # secret normally hangs on the namespace's `default` account, and a pod
+  # running as any other account does not inherit it. The failure is an
+  # ImagePullBackOff that says nothing about ServiceAccounts.
+  imagePullSecrets: []
 
 groundsToken:
   enabled: false
