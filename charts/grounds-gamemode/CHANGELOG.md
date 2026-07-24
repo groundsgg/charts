@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.2.1...grounds-gamemode-v0.3.0) (2026-07-24)
+
+
+### Features
+
+* **grounds-gamemode:** add an optional Buffer FleetAutoscaler ([#93](https://github.com/groundsgg/charts/issues/93)) ([fe02b47](https://github.com/groundsgg/charts/commit/fe02b47a29d66ed139344d04668f488a1748b33b))
+
 ## [0.2.1](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.2.0...grounds-gamemode-v0.2.1) (2026-07-23)
 
 

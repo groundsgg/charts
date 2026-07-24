@@ -3,7 +3,7 @@ name: grounds-gamemode
 description: Minecraft game-server (Paper / Minestom) — Deployment by default,
   Agones Fleet when scaling
 type: application
-version: 0.2.1
+version: 0.3.0
 
 dependencies:
   - name: common
