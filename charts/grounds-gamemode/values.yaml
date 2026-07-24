@@ -32,6 +32,15 @@ engine: ""
 global:
   commonLabels: {}
   commonAnnotations: {}
+  # Which region this cluster is. When set, it is appended to the Fleet name and
+  # exposed to the game server as the REGION environment variable; when empty
+  # both are omitted and the chart behaves exactly as before.
+  #
+  # A `global` scalar on purpose: it belongs in a per-cluster values overlay,
+  # and Helm merges maps while it *replaces* lists — so carrying it in
+  # `extraEnv` would force every overlay to repeat the whole list to add one
+  # entry.
+  region: ""
 
 # Logical kind of the game-server. See note above.
 kind: "paper"

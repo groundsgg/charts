@@ -39,6 +39,10 @@ Velocity forwarding env-vars for the engine.
       name: {{ .Values.forwardingSecret.name }}
       key: {{ .Values.forwardingSecret.key }}
 {{- end -}}
+{{- with .Values.global.region }}
+- name: REGION
+  value: {{ . | quote }}
+{{- end }}
 {{- with .Values.extraEnv }}
 {{ toYaml . }}
 {{- end }}
@@ -53,4 +57,23 @@ Resolves the fully-qualified image reference.
 {{- $repo = printf "%s/%s" .Values.image.registry .Values.image.repository -}}
 {{- end -}}
 {{ printf "%s:%s" $repo .Values.image.tag }}
+{{- end -}}
+
+{{/*
+The Fleet's name, region-qualified when the cluster declares one.
+
+Every region runs a release called `lobby`, so an unqualified Fleet produces
+GameServers called `lobby-<hash>` everywhere — and those names are what a player
+sees in /server and an operator sees in /agones. The suffix is what makes
+"which lobby" answerable without also knowing which cluster you were looking at.
+
+Note this is the *name*, not the source of truth for a player's region: that
+travels in their session. A name is for reading, not for parsing.
+*/}}
+{{- define "grounds-gamemode.fleetName" -}}
+{{- with .Values.global.region -}}
+{{ $.Release.Name }}-{{ . }}
+{{- else -}}
+{{ $.Release.Name }}
+{{- end -}}
 {{- end -}}

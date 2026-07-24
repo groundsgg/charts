@@ -2,7 +2,7 @@
 apiVersion: agones.dev/v1
 kind: Fleet
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ include "grounds-gamemode.fleetName" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
     grounds/component: gamemode

@@ -9,6 +9,14 @@
 global:
   commonLabels: {}
   commonAnnotations: {}
+  # Which region this cluster is. Rendered as the REGION environment variable
+  # when set, and omitted entirely when empty.
+  #
+  # A `global` value, and a scalar, on purpose: it belongs in a per-cluster
+  # values overlay, and Helm merges maps while it *replaces* lists — so putting
+  # it in `env` would mean every overlay repeating the whole env list to add one
+  # entry, and drifting from it over time.
+  region: ""
 
 replicas: 1
 
