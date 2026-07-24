@@ -6,7 +6,7 @@
   "charts/agones-fleet": "0.2.0",
   "charts/grounds-velocity": "0.2.4",
   "charts/plugin-velocity-jar": "0.1.0",
-  "charts/grounds-gamemode": "0.3.0",
+  "charts/grounds-gamemode": "0.4.0",
   "charts/grounds-nats": "0.3.1",
   "charts/grounds-postgres-dev": "0.2.0",
   "charts/grounds-clickhouse-dev": "0.2.1",
