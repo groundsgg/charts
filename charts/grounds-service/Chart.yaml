@@ -2,7 +2,7 @@ apiVersion: v2
 name: grounds-service
 description: A Helm chart for grounds-services deployments
 type: application
-version: 0.3.0
+version: 0.4.0
 
 dependencies:
   - name: common
