@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.3.0...grounds-gamemode-v0.4.0) (2026-07-24)
+
+
+### Features
+
+* **grounds-gamemode:** separate the engine from the server role ([#95](https://github.com/groundsgg/charts/issues/95)) ([88fdbbe](https://github.com/groundsgg/charts/commit/88fdbbebaa4e36030d7bb8fc793c677eac075067))
+
 ## [0.3.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.2.1...grounds-gamemode-v0.3.0) (2026-07-24)
 
 
