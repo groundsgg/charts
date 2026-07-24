@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.3.0...grounds-service-v0.4.0) (2026-07-24)
+
+
+### Features
+
+* allow pull secrets on a chart-created ServiceAccount ([#97](https://github.com/groundsgg/charts/issues/97)) ([429d02a](https://github.com/groundsgg/charts/commit/429d02a917b06606aabb6695a809e5a076bb015e))
+
+
+### Bug Fixes
+
+* **grounds-valkey-dev:** split image into repository/tag ([#85](https://github.com/groundsgg/charts/issues/85)) ([b470862](https://github.com/groundsgg/charts/commit/b47086242fb007169b75af4a964debd0876087b2))
+
 ## [0.3.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.2.0...grounds-service-v0.3.0) (2026-07-12)
 
 
