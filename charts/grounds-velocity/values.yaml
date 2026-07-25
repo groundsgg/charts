@@ -17,6 +17,17 @@ global:
   # it in `env` would mean every overlay repeating the whole env list to add one
   # entry, and drifting from it over time.
   region: ""
+  # The continent this region belongs to (`eu`, `na`) — the coarse choice a
+  # player makes with /region, as opposed to `region` which names a datacentre.
+  continent: ""
+  # Which environment this release serves (`stage`). Together with the two
+  # domains below it is what lets the chart build its own mc-router names
+  # instead of every cluster carrying a hand-written list.
+  environment: ""
+  # `grounds.gg` — the name players type.
+  publicDomain: ""
+  # `grnds.io` — the internal zone that carries the geo and per-instance names.
+  domain: ""
 
 replicas: 1
 
