@@ -89,6 +89,10 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.forwardingSecret.name }}
                   key: {{ .Values.forwardingSecret.key }}
+            {{- with .Values.global.regions }}
+            - name: REGIONS
+              value: {{ . | quote }}
+            {{- end }}
             {{- with .Values.global.region }}
             # Before .Values.env, not after: duplicate names resolve to the last
             # one, so an explicit entry can still override this.

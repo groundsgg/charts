@@ -28,6 +28,13 @@ global:
   publicDomain: ""
   # `grnds.io` — the internal zone that carries the geo and per-instance names.
   domain: ""
+  # Every region a player can be sent to, `<code>=<host>:<port>` comma
+  # separated, rendered as the REGIONS environment variable.
+  #
+  # Passed by the ApplicationSet from the one file that lists regions, not
+  # written here: a catalogue kept in this repo has to be edited in step with
+  # that file, and when it drifts /region offers a region that does not exist.
+  regions: ""
 
 replicas: 1
 
