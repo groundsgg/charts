@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.5.2...grounds-velocity-v0.6.0) (2026-07-25)
+
+
+### Features
+
+* **velocity:** take the region catalogue from a global value ([#110](https://github.com/groundsgg/charts/issues/110)) ([82aa503](https://github.com/groundsgg/charts/commit/82aa5039e3ed14d7b820233d77fa659335ca582a))
+
 ## [0.5.2](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.5.1...grounds-velocity-v0.5.2) (2026-07-25)
 
 
