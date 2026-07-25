@@ -10,7 +10,9 @@ node, then mc-router dropped the handshake because nobody had added the name.
 Four names, and they answer different questions:
   <env>.<publicDomain>            what a player types
   <env>.geo.<domain>              the same, latency-steered (the SRV target)
-  <continent>.geo.<domain>        "this continent, not the nearest one" — /region
+  <continent>.<env>.<domain>      "this continent, not the nearest one" — /region
+  <continent>.geo.<domain>        what that name's SRV points at, and therefore
+                                  what the client puts in the handshake
   <release>.<region>.<env>.<domain>   one specific proxy, for multi-proxy testing
 
 Each is emitted only when its inputs are set, so a single-region or local
@@ -27,6 +29,9 @@ install renders a shorter list rather than a broken one.
 {{- end -}}
 {{- if and $g.continent $g.domain -}}
 {{- $names = append $names (printf "%s.geo.%s" $g.continent $g.domain) -}}
+{{- end -}}
+{{- if and $g.continent $g.environment $g.domain -}}
+{{- $names = append $names (printf "%s.%s.%s" $g.continent $g.environment $g.domain) -}}
 {{- end -}}
 {{- if and $g.region $g.environment $g.domain -}}
 {{- $names = append $names (printf "%s.%s.%s.%s" .Release.Name $g.region $g.environment $g.domain) -}}
