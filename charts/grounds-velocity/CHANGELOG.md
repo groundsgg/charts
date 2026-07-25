@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.3.0...grounds-velocity-v0.4.0) (2026-07-25)
+
+
+### Features
+
+* **velocity:** derive the mc-router names from the region's identity ([#102](https://github.com/groundsgg/charts/issues/102)) ([8500584](https://github.com/groundsgg/charts/commit/8500584040e15d3fda053657e703163cfedcb854))
+
 ## [0.3.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.2.4...grounds-velocity-v0.3.0) (2026-07-24)
 
 
