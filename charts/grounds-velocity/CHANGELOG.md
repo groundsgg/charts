@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.5.1...grounds-velocity-v0.5.2) (2026-07-25)
+
+
+### Bug Fixes
+
+* **velocity:** drop the flat continent name ([#108](https://github.com/groundsgg/charts/issues/108)) ([31fefe4](https://github.com/groundsgg/charts/commit/31fefe406fcba4a63c23b95bec0a576b2d3e40e6))
+
 ## [0.5.1](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.5.0...grounds-velocity-v0.5.1) (2026-07-25)
 
 
