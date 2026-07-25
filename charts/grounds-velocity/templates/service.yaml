@@ -7,9 +7,19 @@ metadata:
     {{- with .Values.global.commonLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.global.commonAnnotations }}
+  {{- $derived := include "grounds-velocity.mcRouterNames" . }}
+  {{- $explicit := hasKey (.Values.global.commonAnnotations | default dict) "mc-router.itzg.me/externalServerName" }}
+  {{- if or .Values.global.commonAnnotations $derived }}
   annotations:
+    {{- with .Values.global.commonAnnotations }}
     {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if and $derived (not $explicit) }}
+    # Derived from the region's own identity — see the helper. An explicit
+    # entry in commonAnnotations wins, so a cluster still carrying a
+    # hand-written list keeps it and the two never collide.
+    mc-router.itzg.me/externalServerName: {{ $derived | quote }}
+    {{- end }}
   {{- end }}
 spec:
   type: {{ .Values.service.type }}
