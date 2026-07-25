@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.4.0...grounds-velocity-v0.5.0) (2026-07-25)
+
+
+### Features
+
+* **velocity:** answer to the continent's typed name as well ([#104](https://github.com/groundsgg/charts/issues/104)) ([7cd3025](https://github.com/groundsgg/charts/commit/7cd3025fe38b4e19371be819a3011880075fd52e))
+
 ## [0.4.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.3.0...grounds-velocity-v0.4.0) (2026-07-25)
 
 
