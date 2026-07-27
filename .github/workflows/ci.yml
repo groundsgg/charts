@@ -22,62 +22,61 @@ env:
   HELM_VERSION: "3.19.0"
 
 jobs:
-  charts:
-    name: 🧪 Lint/Test/Package ${{ matrix.chart }}
+  detect-changed-charts:
+    name: 🔎 Detect changed charts
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        chart:
-          - common
-          - grounds-api
-          - cockpit
-          - grounds-service
-          - agones-fleet
-          - grounds-velocity
-          - plugin-velocity-jar
-          - grounds-gamemode
-          - service-notifications
-          - novu
-        include:
-          - chart: novu
-            template_args: >-
-              --set novu.secrets.novuSecretKey=test
-              --set novu.secrets.jwtSecret=test
-              --set novu.secrets.storeEncryptionKey=test
-              --set novu.secrets.awsAccessKeyId=test
-              --set novu.secrets.awsSecretAccessKey=test
+    outputs:
+      charts: ${{ steps.matrix.outputs.charts }}
+      has-changed-charts: ${{ steps.matrix.outputs.has-changed-charts }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: 🔍 Detect changes
-        id: changed-files
-        uses: tj-actions/changed-files@v47
+      - name: 🔎 Build chart matrix
+        id: matrix
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          charts=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
+            | awk -F/ '/^charts\/[^/]+\// { print $2 }' \
+            | sort -u \
+            | jq -Rsc 'split("\n") | map(select(length > 0))')
+
+          echo "charts=$charts" >> "$GITHUB_OUTPUT"
+          echo "has-changed-charts=$([[ "$charts" == "[]" ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
+
+  charts:
+    name: 🧪 Lint/Test/Package ${{ matrix.chart }}
+    runs-on: ubuntu-latest
+    needs: detect-changed-charts
+    if: needs.detect-changed-charts.outputs.has-changed-charts == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        chart: ${{ fromJSON(needs.detect-changed-charts.outputs.charts) }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v6
         with:
-          files: |
-            charts/${{ matrix.chart }}/**
+          fetch-depth: 0
 
       - name: 🔧 Setup Helm
-        if: steps.changed-files.outputs.any_changed == 'true'
         uses: azure/setup-helm@v5
         with:
           version: ${{ env.HELM_VERSION }}
 
       - name: 🔧 Setup kubectl
-        if: steps.changed-files.outputs.any_changed == 'true'
         uses: azure/setup-kubectl@v5
 
       - name: 🔧 Setup Kubeconform
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           curl -L https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-amd64.tar.gz | tar xz
           sudo mv kubeconform /usr/local/bin/
 
       - name: 🔐 Login to GitHub Container Registry
-        if: steps.changed-files.outputs.any_changed == 'true'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -85,31 +84,34 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📦 Update chart dependencies
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           helm dependency update charts/${{ matrix.chart }}
 
-      - name: 🔍 Lint chart
-        if: steps.changed-files.outputs.any_changed == 'true'
+      - name: 🔧 Set template arguments
+        id: template-args
         run: |
-          helm lint charts/${{ matrix.chart }} ${{ matrix.template_args }}
+          if [[ "${{ matrix.chart }}" == "novu" ]]; then
+            echo 'args=--set novu.secrets.novuSecretKey=test --set novu.secrets.jwtSecret=test --set novu.secrets.storeEncryptionKey=test --set novu.secrets.awsAccessKeyId=test --set novu.secrets.awsSecretAccessKey=test' >> "$GITHUB_OUTPUT"
+          else
+            echo 'args=' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 🔍 Lint chart
+        run: |
+          helm lint charts/${{ matrix.chart }} ${{ steps.template-args.outputs.args }}
 
       - name: 🧪 Test chart
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          helm template test charts/${{ matrix.chart }} ${{ matrix.template_args }} | kubeconform -summary -strict -skip IngressRoute,Middleware,Fleet,HTTPRoute,ServiceMonitor
+          helm template test charts/${{ matrix.chart }} ${{ steps.template-args.outputs.args }} | kubeconform -summary -strict -skip IngressRoute,Middleware,Fleet,HTTPRoute,ServiceMonitor
 
       - name: 📁 Create output directory
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: mkdir -p .output
 
       - name: 📦 Package chart
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           helm package charts/${{ matrix.chart }} --destination .output
 
       - name: 🔍 Verify packaged files
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           if ls .output/${{ matrix.chart }}-*.tgz 1> /dev/null 2>&1; then
             echo "✅ Successfully packaged chart:"
