@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.6.0...grounds-velocity-v0.7.0) (2026-07-27)
+
+
+### Features
+
+* **charts:** add permissions REST runtime identity ([#112](https://github.com/groundsgg/charts/issues/112)) ([590b8a4](https://github.com/groundsgg/charts/commit/590b8a44cefad10259b2df27612304a92111f814))
+
 ## [0.6.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.5.2...grounds-velocity-v0.6.0) (2026-07-25)
 
 
