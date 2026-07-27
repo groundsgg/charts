@@ -30,8 +30,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .Values.serviceAccount.create }}
-      serviceAccountName: {{ .Values.serviceAccount.name | default .Release.Name }}
+      {{- if or .Values.serviceAccount.create .Values.permissions.enabled }}
+      serviceAccountName: {{ include "grounds-velocity.serviceAccountName" . }}
+      automountServiceAccountToken: false
       {{- end }}
       {{- $imageRepo := .Values.image.repository }}
       {{- if .Values.image.registry }}
@@ -106,6 +107,12 @@ spec:
             - name: GROUNDS_TOKEN_FILE
               value: {{ printf "%s/token" .Values.groundsToken.mountPath | quote }}
             {{- end }}
+            {{- if .Values.permissions.enabled }}
+            - name: PERMISSIONS_SERVICE_URL
+              value: {{ required "permissions.serviceUrl is required when permissions are enabled" .Values.permissions.serviceUrl | quote }}
+            - name: PERMISSIONS_TOKEN_FILE
+              value: {{ .Values.permissions.token.mountPath | quote }}
+            {{- end }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -122,9 +129,9 @@ spec:
             - name: plugins
               mountPath: /app/plugins
             {{- end }}
-            {{- if .Values.groundsToken.enabled }}
+            {{- if or .Values.groundsToken.enabled .Values.permissions.enabled }}
             - name: grounds-sa-token
-              mountPath: {{ .Values.groundsToken.mountPath }}
+              mountPath: {{ if .Values.groundsToken.enabled }}{{ .Values.groundsToken.mountPath }}{{ else }}{{ dir .Values.permissions.token.mountPath }}{{ end }}
               readOnly: true
             {{- end }}
       volumes:
@@ -132,12 +139,20 @@ spec:
         - name: plugins
           emptyDir: {}
         {{- end }}
-        {{- if .Values.groundsToken.enabled }}
+        {{- if or .Values.groundsToken.enabled .Values.permissions.enabled }}
         - name: grounds-sa-token
           projected:
             sources:
+              {{- if .Values.groundsToken.enabled }}
               - serviceAccountToken:
                   audience: {{ .Values.groundsToken.audience }}
                   expirationSeconds: {{ .Values.groundsToken.expirationSeconds }}
                   path: token
+              {{- end }}
+              {{- if .Values.permissions.enabled }}
+              - serviceAccountToken:
+                  audience: {{ .Values.permissions.token.audience }}
+                  expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
+                  path: {{ base .Values.permissions.token.mountPath }}
+              {{- end }}
         {{- end }}

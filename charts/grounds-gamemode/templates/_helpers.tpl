@@ -46,6 +46,12 @@ Velocity forwarding env-vars for the engine.
 {{- with .Values.extraEnv }}
 {{ toYaml . }}
 {{- end }}
+{{- if .Values.permissions.enabled }}
+- name: PERMISSIONS_SERVICE_URL
+  value: {{ required "permissions.serviceUrl is required when permissions are enabled" .Values.permissions.serviceUrl | quote }}
+- name: PERMISSIONS_TOKEN_FILE
+  value: {{ .Values.permissions.token.mountPath | quote }}
+{{- end }}
 {{- end -}}
 
 {{/*
@@ -56,7 +62,19 @@ Resolves the fully-qualified image reference.
 {{- if .Values.image.registry -}}
 {{- $repo = printf "%s/%s" .Values.image.registry .Values.image.repository -}}
 {{- end -}}
+
 {{ printf "%s:%s" $repo .Values.image.tag }}
+{{- end -}}
+
+{{- define "grounds-gamemode.serviceAccountName" -}}
+{{- .Values.serviceAccount.name | default .Release.Name -}}
+{{- end -}}
+
+{{- define "grounds-gamemode.permissionsRbacName" -}}
+{{- $hash := printf "%s/%s" .Release.Namespace .Release.Name | sha256sum | trunc 8 -}}
+{{- $base := printf "grounds-permissions-%s" .Release.Name -}}
+{{- $prefix := $base | trunc (int (sub 63 (add (len $hash) 1))) | trimSuffix "-" -}}
+{{- printf "%s-%s" $prefix $hash -}}
 {{- end -}}
 
 {{/*

@@ -33,6 +33,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      {{- if or .Values.serviceAccount.create .Values.permissions.enabled }}
+      serviceAccountName: {{ include "grounds-gamemode.serviceAccountName" . }}
+      automountServiceAccountToken: false
+      {{- end }}
       containers:
         - name: {{ .Release.Name }}
           image: {{ include "grounds-gamemode.image" . | quote }}
@@ -55,4 +59,20 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- if .Values.permissions.enabled }}
+          volumeMounts:
+            - name: permissions-token
+              mountPath: {{ dir .Values.permissions.token.mountPath }}
+              readOnly: true
+          {{- end }}
+      {{- if .Values.permissions.enabled }}
+      volumes:
+        - name: permissions-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: {{ .Values.permissions.token.audience }}
+                  expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
+                  path: {{ base .Values.permissions.token.mountPath }}
+      {{- end }}
 {{- end }}

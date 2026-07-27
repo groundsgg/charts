@@ -35,3 +35,14 @@ install renders a shorter list rather than a broken one.
 {{- end -}}
 {{- join "," $names -}}
 {{- end -}}
+
+{{- define "grounds-velocity.serviceAccountName" -}}
+{{- .Values.serviceAccount.name | default .Release.Name -}}
+{{- end -}}
+
+{{- define "grounds-velocity.permissionsRbacName" -}}
+{{- $hash := printf "%s/%s" .Release.Namespace .Release.Name | sha256sum | trunc 8 -}}
+{{- $base := printf "grounds-permissions-%s" .Release.Name -}}
+{{- $prefix := $base | trunc (int (sub 63 (add (len $hash) 1))) | trimSuffix "-" -}}
+{{- printf "%s-%s" $prefix $hash -}}
+{{- end -}}

@@ -1,0 +1,17 @@
+{{- if and .Values.agones.enabled (or .Values.serviceAccount.create .Values.permissions.enabled) }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-agones-sdk
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    grounds/component: gamemode
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: agones-sdk
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "grounds-gamemode.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

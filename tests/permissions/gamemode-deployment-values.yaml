@@ -1,0 +1,9 @@
+serviceAccount:
+  name: minestom-lobby
+
+permissions:
+  enabled: true
+  serviceUrl: http://service-permissions-runtime.default.svc.cluster.local:8080
+  access:
+    - capability: snapshot:read
+

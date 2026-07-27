@@ -117,3 +117,18 @@ resources:
 
 service:
   type: ClusterIP
+
+serviceAccount:
+  create: false
+  name: ""
+  annotations: {}
+  imagePullSecrets: []
+
+permissions:
+  enabled: false
+  serviceUrl: ""
+  access: []
+  token:
+    audience: service-permissions
+    expirationSeconds: 3600
+    mountPath: /var/run/secrets/grounds/permissions-token
