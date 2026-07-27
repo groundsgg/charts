@@ -1,0 +1,25 @@
+{{- if .Values.permissions.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "grounds-gamemode.permissionsRbacName" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    gg.grounds/permissions-rbac: "true"
+rules:
+  {{- range .Values.permissions.access }}
+  {{- if eq .capability "snapshot:read" }}
+  - nonResourceURLs:
+      - /v1/permissions/runtime/players/*
+    verbs:
+      - get
+  {{- else if eq .capability "catalog:register" }}
+  - nonResourceURLs:
+      {{- range .resources }}
+      - /v1/permissions/runtime/catalog/manifests/{{ . }}
+      {{- end }}
+    verbs:
+      - put
+  {{- end }}
+  {{- end }}
+{{- end }}

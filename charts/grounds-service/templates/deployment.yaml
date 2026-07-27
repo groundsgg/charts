@@ -29,8 +29,11 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .Values.serviceAccount.create }}
+      {{- if or .Values.serviceAccount.create .Values.kubernetesReview.enabled }}
       serviceAccountName: {{ .Values.serviceAccount.name | default .Release.Name }}
+      {{- end }}
+      {{- if .Values.kubernetesReview.enabled }}
+      automountServiceAccountToken: false
       {{- end }}
       {{- $imageRepo := .Values.deployment.image.repository }}
       {{- if .Values.deployment.image.registry }}
@@ -60,14 +63,22 @@ spec:
               value: {{ printf "%s/token" .Values.groundsToken.mountPath | quote }}
             {{- end }}
           {{- end }}
-          {{- if .Values.groundsToken.enabled }}
+          {{- if or .Values.groundsToken.enabled .Values.kubernetesReview.enabled }}
           volumeMounts:
+            {{- if .Values.groundsToken.enabled }}
             - name: grounds-sa-token
               mountPath: {{ .Values.groundsToken.mountPath }}
               readOnly: true
+            {{- end }}
+            {{- if .Values.kubernetesReview.enabled }}
+            - name: kube-api-access
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              readOnly: true
+            {{- end }}
           {{- end }}
-      {{- if .Values.groundsToken.enabled }}
+      {{- if or .Values.groundsToken.enabled .Values.kubernetesReview.enabled }}
       volumes:
+        {{- if .Values.groundsToken.enabled }}
         - name: grounds-sa-token
           projected:
             sources:
@@ -75,5 +86,25 @@ spec:
                   audience: {{ .Values.groundsToken.audience }}
                   expirationSeconds: {{ .Values.groundsToken.expirationSeconds }}
                   path: token
+        {{- end }}
+        {{- if .Values.kubernetesReview.enabled }}
+        - name: kube-api-access
+          projected:
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: {{ .Values.kubernetesReview.token.expirationSeconds }}
+                  path: token
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+              - downwardAPI:
+                  items:
+                    - path: namespace
+                      fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+        {{- end }}
       {{- end }}
 {{- end }}

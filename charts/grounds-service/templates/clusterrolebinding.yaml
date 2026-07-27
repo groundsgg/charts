@@ -1,0 +1,19 @@
+{{- if .Values.kubernetesReview.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "grounds-service.kubernetesReviewName" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "grounds-service.kubernetesReviewName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.serviceAccount.name | default .Release.Name }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

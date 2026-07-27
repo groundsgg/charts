@@ -1,0 +1,21 @@
+deployment:
+  containerPort: 8080
+  containerPortName: http
+
+service:
+  enabled: true
+  port: 8080
+  targetPort: 8080
+
+additionalServices:
+  - name: service-permissions-runtime
+    port: 8080
+    targetPort: 8080
+    portName: http
+
+serviceAccount:
+  name: service-permissions
+
+kubernetesReview:
+  enabled: true
+

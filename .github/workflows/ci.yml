@@ -6,12 +6,16 @@ on:
       - main
     paths:
       - "charts/**"
+      - "scripts/test-permissions-runtime.sh"
+      - "tests/permissions/**"
       - ".github/workflows/ci.yml"
   pull_request:
     branches:
       - main
     paths:
       - "charts/**"
+      - "scripts/test-permissions-runtime.sh"
+      - "tests/permissions/**"
       - ".github/workflows/ci.yml"
 
 permissions:
@@ -22,6 +26,27 @@ env:
   HELM_VERSION: "3.19.0"
 
 jobs:
+  permissions-runtime:
+    name: 🧪 Permissions runtime contract
+    runs-on: blacksmith-4vcpu-ubuntu-2404-arm
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v7
+
+      - name: 🔧 Setup Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: 📦 Update chart dependencies
+        run: |
+          helm dependency update charts/grounds-velocity
+          helm dependency update charts/grounds-gamemode
+          helm dependency update charts/grounds-service
+
+      - name: 🧪 Test permissions runtime contract
+        run: bash scripts/test-permissions-runtime.sh
+
   charts:
     name: 🧪 Lint/Test/Package ${{ matrix.chart }}
     runs-on: blacksmith-4vcpu-ubuntu-2404-arm

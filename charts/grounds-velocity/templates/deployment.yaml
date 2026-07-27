@@ -1,3 +1,5 @@
+{{- $permissionsTokenDirectory := dir .Values.permissions.token.mountPath -}}
+{{- $sharedTokenDirectory := and .Values.groundsToken.enabled .Values.permissions.enabled (eq .Values.groundsToken.mountPath $permissionsTokenDirectory) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,8 +32,11 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .Values.serviceAccount.create }}
-      serviceAccountName: {{ .Values.serviceAccount.name | default .Release.Name }}
+      {{- if or .Values.serviceAccount.create .Values.permissions.enabled }}
+      serviceAccountName: {{ include "grounds-velocity.serviceAccountName" . }}
+      # The baked Agones discovery plugin uses the standard in-cluster client.
+      # Keep its API-server token in addition to the scoped projected tokens.
+      automountServiceAccountToken: true
       {{- end }}
       {{- $imageRepo := .Values.image.repository }}
       {{- if .Values.image.registry }}
@@ -106,6 +111,12 @@ spec:
             - name: GROUNDS_TOKEN_FILE
               value: {{ printf "%s/token" .Values.groundsToken.mountPath | quote }}
             {{- end }}
+            {{- if .Values.permissions.enabled }}
+            - name: PERMISSIONS_SERVICE_URL
+              value: {{ required "permissions.serviceUrl is required when permissions are enabled" .Values.permissions.serviceUrl | quote }}
+            - name: PERMISSIONS_TOKEN_FILE
+              value: {{ .Values.permissions.token.mountPath | quote }}
+            {{- end }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -127,6 +138,11 @@ spec:
               mountPath: {{ .Values.groundsToken.mountPath }}
               readOnly: true
             {{- end }}
+            {{- if and .Values.permissions.enabled (not $sharedTokenDirectory) }}
+            - name: permissions-sa-token
+              mountPath: {{ $permissionsTokenDirectory }}
+              readOnly: true
+            {{- end }}
       volumes:
         {{- with .Values.plugins }}
         - name: plugins
@@ -140,4 +156,19 @@ spec:
                   audience: {{ .Values.groundsToken.audience }}
                   expirationSeconds: {{ .Values.groundsToken.expirationSeconds }}
                   path: token
+              {{- if $sharedTokenDirectory }}
+              - serviceAccountToken:
+                  audience: {{ .Values.permissions.token.audience }}
+                  expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
+                  path: {{ base .Values.permissions.token.mountPath }}
+              {{- end }}
+        {{- end }}
+        {{- if and .Values.permissions.enabled (not $sharedTokenDirectory) }}
+        - name: permissions-sa-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: {{ .Values.permissions.token.audience }}
+                  expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
+                  path: {{ base .Values.permissions.token.mountPath }}
         {{- end }}

@@ -1,0 +1,15 @@
+agones:
+  enabled: true
+
+serviceAccount:
+  name: paper-game
+
+permissions:
+  enabled: true
+  serviceUrl: http://service-permissions-runtime.default.svc.cluster.local:8080
+  access:
+    - capability: snapshot:read
+    - capability: catalog:register
+      resources:
+        - plugin-permissions
+

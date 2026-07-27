@@ -110,3 +110,15 @@ groundsToken:
   audience: grounds-services
   mountPath: /var/run/secrets/grounds
   expirationSeconds: 3600
+
+# Authenticated service-permissions REST access. Forge validates and supplies
+# the access declarations; the chart maps only those declarations to exact
+# Kubernetes non-resource URL grants.
+permissions:
+  enabled: false
+  serviceUrl: ""
+  access: []
+  token:
+    audience: service-permissions
+    expirationSeconds: 3600
+    mountPath: /var/run/secrets/grounds/permissions-token

@@ -53,6 +53,12 @@ spec:
             grounds/component: gamemode
             grounds/server-type: {{ .Values.kind }}
         spec:
+          {{- if or .Values.serviceAccount.create .Values.permissions.enabled }}
+          serviceAccountName: {{ include "grounds-gamemode.serviceAccountName" . }}
+          # Agones injects its SDK sidecar into this pod. The sidecar needs the
+          # standard API-server token in addition to the app's scoped token.
+          automountServiceAccountToken: true
+          {{- end }}
           containers:
             - name: {{ .Release.Name }}
               image: {{ include "grounds-gamemode.image" . | quote }}
@@ -75,4 +81,20 @@ spec:
               resources:
                 {{- toYaml . | nindent 16 }}
               {{- end }}
+              {{- if .Values.permissions.enabled }}
+              volumeMounts:
+                - name: permissions-token
+                  mountPath: {{ dir .Values.permissions.token.mountPath }}
+                  readOnly: true
+              {{- end }}
+          {{- if .Values.permissions.enabled }}
+          volumes:
+            - name: permissions-token
+              projected:
+                sources:
+                  - serviceAccountToken:
+                      audience: {{ .Values.permissions.token.audience }}
+                      expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
+                      path: {{ base .Values.permissions.token.mountPath }}
+          {{- end }}
 {{- end }}
