@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.4.0...grounds-service-v0.5.0) (2026-07-27)
+
+
+### Features
+
+* **charts:** add permissions REST runtime identity ([#112](https://github.com/groundsgg/charts/issues/112)) ([590b8a4](https://github.com/groundsgg/charts/commit/590b8a44cefad10259b2df27612304a92111f814))
+
 ## [0.4.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.3.0...grounds-service-v0.4.0) (2026-07-24)
 
 
