@@ -47,72 +47,67 @@ jobs:
       - name: 🧪 Test permissions runtime contract
         run: bash scripts/test-permissions-runtime.sh
 
-  charts:
-    name: 🧪 Lint/Test/Package ${{ matrix.chart }}
+  detect-changed-charts:
+    name: 🔎 Detect changed charts
     runs-on: blacksmith-4vcpu-ubuntu-2404-arm
-    strategy:
-      fail-fast: false
-      matrix:
-        chart:
-          - common
-          - grounds-api
-          - cockpit
-          - grounds-service
-          - agones-fleet
-          - grounds-velocity
-          - plugin-velocity-jar
-          - grounds-gamemode
-          - service-notifications
-          - novu
-          - grounds-valkey-dev
-        include:
-          - chart: novu
-            template_args: >-
-              --set novu.secrets.novuSecretKey=test
-              --set novu.secrets.jwtSecret=test
-              --set novu.secrets.storeEncryptionKey=test
-              --set novu.secrets.awsAccessKeyId=test
-              --set novu.secrets.awsSecretAccessKey=test
+    outputs:
+      charts: ${{ steps.matrix.outputs.charts }}
+      has-changed-charts: ${{ steps.matrix.outputs.has-changed-charts }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: 🔍 Detect changes
-        id: changed-files
-        uses: tj-actions/changed-files@v47
+      - name: 🔎 Build chart matrix
+        id: matrix
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -o pipefail
+          charts=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" \
+            | awk -F/ '/^charts\/[^/]+\// { print $2 }' \
+            | sort -u \
+            | jq -Rsc 'split("\n") | map(select(length > 0))')
+
+          echo "charts=$charts" >> "$GITHUB_OUTPUT"
+          echo "has-changed-charts=$([[ "$charts" == "[]" ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
+
+  charts:
+    name: 🧪 Lint/Test/Package ${{ matrix.chart }}
+    runs-on: blacksmith-4vcpu-ubuntu-2404-arm
+    needs: detect-changed-charts
+    if: needs.detect-changed-charts.outputs.has-changed-charts == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        chart: ${{ fromJSON(needs.detect-changed-charts.outputs.charts) }}
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v7
         with:
-          files: |
-            charts/${{ matrix.chart }}/**
+          fetch-depth: 0
 
       - name: 🔧 Setup Helm
-        if: steps.changed-files.outputs.any_changed == 'true'
         uses: azure/setup-helm@v5
         with:
           version: ${{ env.HELM_VERSION }}
 
       - name: 🔧 Setup kubectl
-        if: steps.changed-files.outputs.any_changed == 'true'
         uses: azure/setup-kubectl@v5
 
       - name: 🔧 Setup Kubeconform
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          # Match the runner. This job runs on an arm64 Blacksmith runner, and a
-          # hardcoded amd64 binary fails as `cannot execute binary file`
-          # (exit 126) — which only surfaces when a chart actually changes,
-          # because unchanged charts skip this step entirely.
           case "$(uname -m)" in
             x86_64)        ARCH=amd64 ;;
             aarch64|arm64) ARCH=arm64 ;;
-            *) echo "unsupported architecture: $(uname -m)" >&2; exit 1 ;;
+            *) echo "Unsupported kubeconform architecture (architecture=$(uname -m))" >&2; exit 1 ;;
           esac
           curl -fsSL "https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-${ARCH}.tar.gz" | tar xz
           sudo mv kubeconform /usr/local/bin/
 
       - name: 🔐 Login to GitHub Container Registry
-        if: steps.changed-files.outputs.any_changed == 'true'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -120,31 +115,34 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 📦 Update chart dependencies
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           helm dependency update charts/${{ matrix.chart }}
 
-      - name: 🔍 Lint chart
-        if: steps.changed-files.outputs.any_changed == 'true'
+      - name: 🔧 Set template arguments
+        id: template-args
         run: |
-          helm lint charts/${{ matrix.chart }} ${{ matrix.template_args }}
+          if [[ "${{ matrix.chart }}" == "novu" ]]; then
+            echo 'args=--set novu.secrets.novuSecretKey=test --set novu.secrets.jwtSecret=test --set novu.secrets.storeEncryptionKey=test --set novu.secrets.awsAccessKeyId=test --set novu.secrets.awsSecretAccessKey=test' >> "$GITHUB_OUTPUT"
+          else
+            echo 'args=' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 🔍 Lint chart
+        run: |
+          helm lint charts/${{ matrix.chart }} ${{ steps.template-args.outputs.args }}
 
       - name: 🧪 Test chart
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
-          helm template test charts/${{ matrix.chart }} ${{ matrix.template_args }} | kubeconform -summary -strict -skip IngressRoute,Middleware,Fleet,HTTPRoute,ServiceMonitor
+          helm template test charts/${{ matrix.chart }} ${{ steps.template-args.outputs.args }} | kubeconform -summary -strict -skip IngressRoute,Middleware,Fleet,HTTPRoute,ServiceMonitor
 
       - name: 📁 Create output directory
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: mkdir -p .output
 
       - name: 📦 Package chart
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           helm package charts/${{ matrix.chart }} --destination .output
 
       - name: 🔍 Verify packaged files
-        if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           if ls .output/${{ matrix.chart }}-*.tgz 1> /dev/null 2>&1; then
             echo "✅ Successfully packaged chart:"
