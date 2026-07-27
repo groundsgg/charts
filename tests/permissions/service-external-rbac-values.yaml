@@ -1,0 +1,11 @@
+deployment:
+  containerPort: 8080
+
+serviceAccount:
+  name: service-permissions
+
+kubernetesReview:
+  enabled: true
+  rbac:
+    create: false
+
