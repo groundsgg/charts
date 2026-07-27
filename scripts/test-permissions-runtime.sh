@@ -24,6 +24,20 @@ assert_not_contains() {
   fi
 }
 
+assert_kind_contains() {
+  local file="$1"
+  local kind="$2"
+  grep -Fxq -- "kind: ${kind}" "$file" || fail "missing kind '${kind}' in ${file}"
+}
+
+assert_kind_not_contains() {
+  local file="$1"
+  local kind="$2"
+  if grep -Fxq -- "kind: ${kind}" "$file"; then
+    fail "unexpected kind '${kind}' in ${file}"
+  fi
+}
+
 render() {
   local release="$1"
   local chart="$2"
@@ -66,6 +80,24 @@ assert_contains "$velocity_output" "/v1/permissions/runtime/players/*"
 assert_contains "$velocity_output" "/v1/permissions/runtime/catalog/manifests/plugin-chat"
 assert_contains "$velocity_output" "/v1/permissions/runtime/catalog/manifests/plugin-permissions"
 
+velocity_external_rbac_output="${output_dir}/velocity-external-rbac.yaml"
+render velocity grounds-velocity "$velocity_external_rbac_output" \
+  -f "${repo_root}/tests/permissions/velocity-values.yaml" \
+  --set permissions.rbac.create=false
+assert_contains "$velocity_external_rbac_output" "serviceAccountName: velocity"
+assert_contains "$velocity_external_rbac_output" "name: PERMISSIONS_TOKEN_FILE"
+assert_contains "$velocity_external_rbac_output" "audience: service-permissions"
+assert_kind_not_contains "$velocity_external_rbac_output" "ClusterRole"
+assert_kind_not_contains "$velocity_external_rbac_output" "ClusterRoleBinding"
+assert_not_contains "$velocity_external_rbac_output" "/v1/permissions/runtime/players/*"
+
+velocity_legacy_rbac_values_output="${output_dir}/velocity-legacy-rbac-values.yaml"
+render velocity grounds-velocity "$velocity_legacy_rbac_values_output" \
+  -f "${repo_root}/tests/permissions/velocity-values.yaml" \
+  --set permissions.rbac=null
+assert_kind_contains "$velocity_legacy_rbac_values_output" "ClusterRole"
+assert_kind_contains "$velocity_legacy_rbac_values_output" "ClusterRoleBinding"
+
 velocity_separate_tokens_output="${output_dir}/velocity-separate-tokens.yaml"
 render velocity grounds-velocity "$velocity_separate_tokens_output" \
   -f "${repo_root}/tests/permissions/velocity-values.yaml" \
@@ -87,6 +119,24 @@ assert_contains "$gamemode_deployment_output" "name: PERMISSIONS_SERVICE_URL"
 assert_contains "$gamemode_deployment_output" "name: PERMISSIONS_TOKEN_FILE"
 assert_contains "$gamemode_deployment_output" "/v1/permissions/runtime/players/*"
 assert_not_contains "$gamemode_deployment_output" "name: agones-sdk"
+
+gamemode_external_rbac_output="${output_dir}/gamemode-external-rbac.yaml"
+render minestom-lobby grounds-gamemode "$gamemode_external_rbac_output" \
+  -f "${repo_root}/tests/permissions/gamemode-deployment-values.yaml" \
+  --set permissions.rbac.create=false
+assert_contains "$gamemode_external_rbac_output" "serviceAccountName: minestom-lobby"
+assert_contains "$gamemode_external_rbac_output" "name: PERMISSIONS_TOKEN_FILE"
+assert_contains "$gamemode_external_rbac_output" "audience: service-permissions"
+assert_kind_not_contains "$gamemode_external_rbac_output" "ClusterRole"
+assert_kind_not_contains "$gamemode_external_rbac_output" "ClusterRoleBinding"
+assert_not_contains "$gamemode_external_rbac_output" "/v1/permissions/runtime/players/*"
+
+gamemode_legacy_rbac_values_output="${output_dir}/gamemode-legacy-rbac-values.yaml"
+render minestom-lobby grounds-gamemode "$gamemode_legacy_rbac_values_output" \
+  -f "${repo_root}/tests/permissions/gamemode-deployment-values.yaml" \
+  --set permissions.rbac=null
+assert_kind_contains "$gamemode_legacy_rbac_values_output" "ClusterRole"
+assert_kind_contains "$gamemode_legacy_rbac_values_output" "ClusterRoleBinding"
 
 gamemode_fleet_output="${output_dir}/gamemode-fleet.yaml"
 render paper-game grounds-gamemode "$gamemode_fleet_output" \
@@ -126,8 +176,8 @@ render service-permissions grounds-service "$service_external_rbac_output" \
   -f "${repo_root}/tests/permissions/service-external-rbac-values.yaml"
 assert_contains "$service_external_rbac_output" "serviceAccountName: service-permissions"
 assert_contains "$service_external_rbac_output" "mountPath: /var/run/secrets/kubernetes.io/serviceaccount"
-assert_not_contains "$service_external_rbac_output" "kind: ClusterRole"
-assert_not_contains "$service_external_rbac_output" "kind: ClusterRoleBinding"
+assert_kind_not_contains "$service_external_rbac_output" "ClusterRole"
+assert_kind_not_contains "$service_external_rbac_output" "ClusterRoleBinding"
 assert_not_contains "$service_external_rbac_output" "- tokenreviews"
 assert_not_contains "$service_external_rbac_output" "- subjectaccessreviews"
 
@@ -135,8 +185,8 @@ service_legacy_review_values_output="${output_dir}/service-legacy-review-values.
 render service-permissions grounds-service "$service_legacy_review_values_output" \
   --set kubernetesReview.enabled=true \
   --set kubernetesReview.rbac=null
-assert_contains "$service_legacy_review_values_output" "kind: ClusterRole"
-assert_contains "$service_legacy_review_values_output" "kind: ClusterRoleBinding"
+assert_kind_contains "$service_legacy_review_values_output" "ClusterRole"
+assert_kind_contains "$service_legacy_review_values_output" "ClusterRoleBinding"
 assert_contains "$service_legacy_review_values_output" "- tokenreviews"
 assert_contains "$service_legacy_review_values_output" "- subjectaccessreviews"
 
