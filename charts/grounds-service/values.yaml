@@ -60,6 +60,18 @@ service:
   ## @param service.name Service port name
   name: http
 
+## Additional internal Services selecting the same deployment pods. These do
+## not create routes or ingresses; callers must be able to reach the cluster
+## DNS name directly.
+additionalServices: []
+# Example:
+# additionalServices:
+#   - name: service-permissions-runtime
+#     type: ClusterIP
+#     port: 8080
+#     targetPort: 8080
+#     portName: http
+
 ## @section ServiceAccount configuration
 ## A dedicated ServiceAccount is required for NATS auth-callout (B4): the
 ## broker resolves the connecting pod's SA and reads its gg.grounds/events
@@ -122,3 +134,11 @@ groundsToken:
   mountPath: /var/run/secrets/grounds
   ## @param groundsToken.expirationSeconds Requested token TTL (kubelet rotates)
   expirationSeconds: 3600
+
+## Explicit Kubernetes API identity for backends that validate projected
+## workload tokens with TokenReview and authorize paths with SubjectAccessReview.
+## Disabled by default so ordinary services gain neither credentials nor RBAC.
+kubernetesReview:
+  enabled: false
+  token:
+    expirationSeconds: 3600

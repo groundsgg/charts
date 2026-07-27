@@ -41,6 +41,12 @@ for chart in grounds-velocity grounds-gamemode; do
   assert_not_contains "$default_output" "audience: service-permissions"
 done
 
+service_default_output="${output_dir}/grounds-service-default.yaml"
+render test grounds-service "$service_default_output"
+assert_not_contains "$service_default_output" "name: service-permissions-runtime"
+assert_not_contains "$service_default_output" "tokenreviews"
+assert_not_contains "$service_default_output" "subjectaccessreviews"
+
 velocity_output="${output_dir}/velocity.yaml"
 render velocity grounds-velocity "$velocity_output" \
   -f "${repo_root}/tests/permissions/velocity-values.yaml"
@@ -79,6 +85,29 @@ assert_contains "$gamemode_fleet_output" "automountServiceAccountToken: false"
 assert_contains "$gamemode_fleet_output" "kind: RoleBinding"
 assert_contains "$gamemode_fleet_output" "name: agones-sdk"
 assert_contains "$gamemode_fleet_output" "/v1/permissions/runtime/catalog/manifests/plugin-permissions"
+
+service_output="${output_dir}/service.yaml"
+render service-permissions grounds-service "$service_output" \
+  -f "${repo_root}/tests/permissions/service-values.yaml"
+service_count="$(grep -c '^kind: Service$' "$service_output")"
+[[ "$service_count" == "2" ]] || fail "expected two Services, rendered ${service_count}"
+deployment_count="$(grep -c '^kind: Deployment$' "$service_output")"
+[[ "$deployment_count" == "1" ]] || fail "expected one Deployment, rendered ${deployment_count}"
+assert_contains "$service_output" "name: service-permissions-runtime"
+assert_contains "$service_output" "containerPort: 8080"
+assert_contains "$service_output" "serviceAccountName: service-permissions"
+assert_contains "$service_output" "automountServiceAccountToken: false"
+assert_contains "$service_output" "mountPath: /var/run/secrets/kubernetes.io/serviceaccount"
+assert_contains "$service_output" "name: kube-root-ca.crt"
+assert_contains "$service_output" "path: namespace"
+assert_contains "$service_output" "resources:"
+assert_contains "$service_output" "- tokenreviews"
+assert_contains "$service_output" "- subjectaccessreviews"
+assert_contains "$service_output" "verbs:"
+assert_contains "$service_output" "- create"
+assert_not_contains "$service_output" "audience:"
+assert_not_contains "$service_output" "- '*'"
+assert_not_contains "$service_output" "kind: HTTPRoute"
 
 if rg -n 'PERMISSIONS_GRPC_TARGET|service-permissions:9000' \
   "${repo_root}/charts/grounds-velocity" \

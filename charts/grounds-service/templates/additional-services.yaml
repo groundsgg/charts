@@ -1,0 +1,25 @@
+{{- range .Values.additionalServices }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ required "additionalServices[].name is required" .name }}
+  labels:
+    {{- include "common.labels" $ | nindent 4 }}
+    {{- with $.Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $.Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .type | default "ClusterIP" }}
+  ports:
+    - port: {{ required "additionalServices[].port is required" .port }}
+      targetPort: {{ required "additionalServices[].targetPort is required" .targetPort }}
+      protocol: TCP
+      name: {{ .portName | default "http" }}
+  selector:
+    {{- include "common.selectorLabels" $ | nindent 4 }}
+{{- end }}
