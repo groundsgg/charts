@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.5.0...grounds-service-v0.6.0) (2026-07-27)
+
+
+### Features
+
+* **grounds-service:** support external review RBAC ([#116](https://github.com/groundsgg/charts/issues/116)) ([3cc42ea](https://github.com/groundsgg/charts/commit/3cc42ea60e57023f06b0530ea219861732bdcc8e))
+
 ## [0.5.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.4.0...grounds-service-v0.5.0) (2026-07-27)
 
 
