@@ -1,3 +1,5 @@
+{{- $permissionsTokenDirectory := dir .Values.permissions.token.mountPath -}}
+{{- $sharedTokenDirectory := and .Values.groundsToken.enabled .Values.permissions.enabled (eq .Values.groundsToken.mountPath $permissionsTokenDirectory) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -32,7 +34,9 @@ spec:
     spec:
       {{- if or .Values.serviceAccount.create .Values.permissions.enabled }}
       serviceAccountName: {{ include "grounds-velocity.serviceAccountName" . }}
-      automountServiceAccountToken: false
+      # The baked Agones discovery plugin uses the standard in-cluster client.
+      # Keep its API-server token in addition to the scoped projected tokens.
+      automountServiceAccountToken: true
       {{- end }}
       {{- $imageRepo := .Values.image.repository }}
       {{- if .Values.image.registry }}
@@ -129,9 +133,14 @@ spec:
             - name: plugins
               mountPath: /app/plugins
             {{- end }}
-            {{- if or .Values.groundsToken.enabled .Values.permissions.enabled }}
+            {{- if .Values.groundsToken.enabled }}
             - name: grounds-sa-token
-              mountPath: {{ if .Values.groundsToken.enabled }}{{ .Values.groundsToken.mountPath }}{{ else }}{{ dir .Values.permissions.token.mountPath }}{{ end }}
+              mountPath: {{ .Values.groundsToken.mountPath }}
+              readOnly: true
+            {{- end }}
+            {{- if and .Values.permissions.enabled (not $sharedTokenDirectory) }}
+            - name: permissions-sa-token
+              mountPath: {{ $permissionsTokenDirectory }}
               readOnly: true
             {{- end }}
       volumes:
@@ -139,20 +148,27 @@ spec:
         - name: plugins
           emptyDir: {}
         {{- end }}
-        {{- if or .Values.groundsToken.enabled .Values.permissions.enabled }}
+        {{- if .Values.groundsToken.enabled }}
         - name: grounds-sa-token
           projected:
             sources:
-              {{- if .Values.groundsToken.enabled }}
               - serviceAccountToken:
                   audience: {{ .Values.groundsToken.audience }}
                   expirationSeconds: {{ .Values.groundsToken.expirationSeconds }}
                   path: token
-              {{- end }}
-              {{- if .Values.permissions.enabled }}
+              {{- if $sharedTokenDirectory }}
               - serviceAccountToken:
                   audience: {{ .Values.permissions.token.audience }}
                   expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
                   path: {{ base .Values.permissions.token.mountPath }}
               {{- end }}
+        {{- end }}
+        {{- if and .Values.permissions.enabled (not $sharedTokenDirectory) }}
+        - name: permissions-sa-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: {{ .Values.permissions.token.audience }}
+                  expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
+                  path: {{ base .Values.permissions.token.mountPath }}
         {{- end }}

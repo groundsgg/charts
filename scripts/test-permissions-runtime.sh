@@ -53,7 +53,9 @@ render velocity grounds-velocity "$velocity_output" \
 assert_contains "$velocity_output" "kind: ServiceAccount"
 assert_contains "$velocity_output" "name: velocity"
 assert_contains "$velocity_output" "serviceAccountName: velocity"
-assert_contains "$velocity_output" "automountServiceAccountToken: false"
+assert_contains "$velocity_output" "automountServiceAccountToken: true"
+assert_contains "$velocity_output" "kind: RoleBinding"
+assert_contains "$velocity_output" "name: agones-sdk"
 assert_contains "$velocity_output" "name: PERMISSIONS_SERVICE_URL"
 assert_contains "$velocity_output" "http://service-permissions-runtime.default.svc.cluster.local:8080"
 assert_contains "$velocity_output" "name: PERMISSIONS_TOKEN_FILE"
@@ -63,6 +65,16 @@ assert_contains "$velocity_output" "path: permissions-token"
 assert_contains "$velocity_output" "/v1/permissions/runtime/players/*"
 assert_contains "$velocity_output" "/v1/permissions/runtime/catalog/manifests/plugin-chat"
 assert_contains "$velocity_output" "/v1/permissions/runtime/catalog/manifests/plugin-permissions"
+
+velocity_separate_tokens_output="${output_dir}/velocity-separate-tokens.yaml"
+render velocity grounds-velocity "$velocity_separate_tokens_output" \
+  -f "${repo_root}/tests/permissions/velocity-values.yaml" \
+  --set groundsToken.enabled=true \
+  --set groundsToken.mountPath=/var/run/secrets/grounds \
+  --set permissions.token.mountPath=/var/run/secrets/permissions/token
+assert_contains "$velocity_separate_tokens_output" "mountPath: /var/run/secrets/grounds"
+assert_contains "$velocity_separate_tokens_output" "mountPath: /var/run/secrets/permissions"
+assert_contains "$velocity_separate_tokens_output" "value: \"/var/run/secrets/permissions/token\""
 
 gamemode_deployment_output="${output_dir}/gamemode-deployment.yaml"
 render minestom-lobby grounds-gamemode "$gamemode_deployment_output" \
@@ -81,7 +93,7 @@ render paper-game grounds-gamemode "$gamemode_fleet_output" \
   -f "${repo_root}/tests/permissions/gamemode-fleet-values.yaml"
 assert_contains "$gamemode_fleet_output" "kind: Fleet"
 assert_contains "$gamemode_fleet_output" "serviceAccountName: paper-game"
-assert_contains "$gamemode_fleet_output" "automountServiceAccountToken: false"
+assert_contains "$gamemode_fleet_output" "automountServiceAccountToken: true"
 assert_contains "$gamemode_fleet_output" "kind: RoleBinding"
 assert_contains "$gamemode_fleet_output" "name: agones-sdk"
 assert_contains "$gamemode_fleet_output" "/v1/permissions/runtime/catalog/manifests/plugin-permissions"
