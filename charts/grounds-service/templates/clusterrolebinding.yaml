@@ -1,4 +1,5 @@
-{{- if .Values.kubernetesReview.enabled }}
+{{- $reviewRbac := .Values.kubernetesReview.rbac | default dict -}}
+{{- if and .Values.kubernetesReview.enabled (dig "create" true $reviewRbac) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

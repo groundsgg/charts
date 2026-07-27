@@ -140,5 +140,10 @@ groundsToken:
 ## Disabled by default so ordinary services gain neither credentials nor RBAC.
 kubernetesReview:
   enabled: false
+  ## Cluster-scoped TokenReview and SubjectAccessReview permissions. Disable
+  ## only when the platform provisions equivalent RBAC for this ServiceAccount.
+  rbac:
+    ## @param kubernetesReview.rbac.create Create the review ClusterRole and binding
+    create: true
   token:
     expirationSeconds: 3600
