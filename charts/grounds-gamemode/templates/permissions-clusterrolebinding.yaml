@@ -1,4 +1,5 @@
-{{- if .Values.permissions.enabled }}
+{{- $permissionsRbac := .Values.permissions.rbac | default dict -}}
+{{- if and .Values.permissions.enabled (dig "create" true $permissionsRbac) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

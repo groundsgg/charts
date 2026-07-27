@@ -117,6 +117,10 @@ groundsToken:
 permissions:
   enabled: false
   serviceUrl: ""
+  # Cluster-scoped non-resource URL access for the runtime identity. Disable
+  # only when the platform provisions equivalent RBAC for this ServiceAccount.
+  rbac:
+    create: true
   access: []
   token:
     audience: service-permissions
