@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/groundsgg/charts/compare/grounds-clickhouse-dev-v0.2.1...grounds-clickhouse-dev-v0.2.2) (2026-07-27)
+
+
+### Bug Fixes
+
+* **clickhouse:** use memory-safe readiness check ([#122](https://github.com/groundsgg/charts/issues/122)) ([ce0147e](https://github.com/groundsgg/charts/commit/ce0147e5cd574c6ca85fb84ebe1c8209c2d8988b))
+
 ## [0.2.1](https://github.com/groundsgg/charts/compare/grounds-clickhouse-dev-v0.2.0...grounds-clickhouse-dev-v0.2.1) (2026-07-21)
 
 
