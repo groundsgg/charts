@@ -131,6 +131,15 @@ assert_not_contains "$service_external_rbac_output" "kind: ClusterRoleBinding"
 assert_not_contains "$service_external_rbac_output" "- tokenreviews"
 assert_not_contains "$service_external_rbac_output" "- subjectaccessreviews"
 
+service_legacy_review_values_output="${output_dir}/service-legacy-review-values.yaml"
+render service-permissions grounds-service "$service_legacy_review_values_output" \
+  --set kubernetesReview.enabled=true \
+  --set kubernetesReview.rbac=null
+assert_contains "$service_legacy_review_values_output" "kind: ClusterRole"
+assert_contains "$service_legacy_review_values_output" "kind: ClusterRoleBinding"
+assert_contains "$service_legacy_review_values_output" "- tokenreviews"
+assert_contains "$service_legacy_review_values_output" "- subjectaccessreviews"
+
 if rg -n 'PERMISSIONS_GRPC_TARGET|service-permissions:9000' \
   "${repo_root}/charts/grounds-velocity" \
   "${repo_root}/charts/grounds-gamemode" \
