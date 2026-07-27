@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.7.0...grounds-velocity-v0.8.0) (2026-07-27)
+
+
+### Features
+
+* **permissions:** support platform-owned client RBAC ([#118](https://github.com/groundsgg/charts/issues/118)) ([2eec17c](https://github.com/groundsgg/charts/commit/2eec17cce875e8c436b8c238181cc9c535ab6408))
+
 ## [0.7.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.6.0...grounds-velocity-v0.7.0) (2026-07-27)
 
 
