@@ -40,6 +40,12 @@ deployment:
   #   limits:
   #     cpu: "500m"
   #     memory: "512Mi"
+  ## @param deployment.startupProbe Optional Kubernetes startup probe for the container
+  startupProbe: {}
+  ## @param deployment.readinessProbe Optional Kubernetes readiness probe for the container
+  readinessProbe: {}
+  ## @param deployment.livenessProbe Optional Kubernetes liveness probe for the container
+  livenessProbe: {}
   ## @param deployment.env Environment variables for the container
   env: {}
   # Example:

@@ -1,0 +1,23 @@
+deployment:
+  containerPort: 8080
+  containerPortName: http
+  startupProbe:
+    httpGet:
+      path: /q/health/started
+      port: http
+    periodSeconds: 2
+    failureThreshold: 60
+  readinessProbe:
+    httpGet:
+      path: /q/health/ready
+      port: http
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 3
+  livenessProbe:
+    httpGet:
+      path: /q/health/live
+      port: http
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
