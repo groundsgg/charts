@@ -4,6 +4,9 @@ agones:
 serviceAccount:
   name: paper-game
 
+groundsToken:
+  enabled: true
+
 permissions:
   enabled: true
   serviceUrl: http://service-permissions-runtime.default.svc.cluster.local:8080
@@ -12,4 +15,3 @@ permissions:
     - capability: catalog:register
       resources:
         - plugin-permissions
-
