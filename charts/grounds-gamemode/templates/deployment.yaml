@@ -1,5 +1,11 @@
-{{- $permissionsTokenDirectory := dir .Values.permissions.token.mountPath -}}
-{{- $sharedTokenDirectory := and .Values.groundsToken.enabled .Values.permissions.enabled (eq .Values.groundsToken.mountPath $permissionsTokenDirectory) -}}
+{{- $groundsToken := .Values.groundsToken | default dict -}}
+{{- $groundsTokenEnabled := $groundsToken.enabled | default false -}}
+{{- $groundsTokenMountPath := clean ($groundsToken.mountPath | default "") -}}
+{{- $groundsTokenAudience := $groundsToken.audience | default "grounds-services" -}}
+{{- $groundsTokenExpirationSeconds := $groundsToken.expirationSeconds | default 3600 -}}
+{{- $permissionsTokenPath := clean .Values.permissions.token.mountPath -}}
+{{- $permissionsTokenDirectory := dir $permissionsTokenPath -}}
+{{- $sharedTokenDirectory := and $groundsTokenEnabled .Values.permissions.enabled (eq $groundsTokenMountPath $permissionsTokenDirectory) -}}
 {{- if not .Values.agones.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -61,11 +67,11 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if or .Values.groundsToken.enabled .Values.permissions.enabled }}
+          {{- if or $groundsTokenEnabled .Values.permissions.enabled }}
           volumeMounts:
-            {{- if .Values.groundsToken.enabled }}
+            {{- if $groundsTokenEnabled }}
             - name: grounds-sa-token
-              mountPath: {{ .Values.groundsToken.mountPath }}
+              mountPath: {{ $groundsTokenMountPath }}
               readOnly: true
             {{- end }}
             {{- if and .Values.permissions.enabled (not $sharedTokenDirectory) }}
@@ -74,21 +80,21 @@ spec:
               readOnly: true
             {{- end }}
           {{- end }}
-      {{- if or .Values.groundsToken.enabled .Values.permissions.enabled }}
+      {{- if or $groundsTokenEnabled .Values.permissions.enabled }}
       volumes:
-        {{- if .Values.groundsToken.enabled }}
+        {{- if $groundsTokenEnabled }}
         - name: grounds-sa-token
           projected:
             sources:
               - serviceAccountToken:
-                  audience: {{ .Values.groundsToken.audience }}
-                  expirationSeconds: {{ .Values.groundsToken.expirationSeconds }}
+                  audience: {{ $groundsTokenAudience }}
+                  expirationSeconds: {{ $groundsTokenExpirationSeconds }}
                   path: token
               {{- if $sharedTokenDirectory }}
               - serviceAccountToken:
                   audience: {{ .Values.permissions.token.audience }}
                   expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
-                  path: {{ base .Values.permissions.token.mountPath }}
+                  path: {{ base $permissionsTokenPath }}
               {{- end }}
         {{- end }}
         {{- if and .Values.permissions.enabled (not $sharedTokenDirectory) }}
@@ -98,7 +104,7 @@ spec:
               - serviceAccountToken:
                   audience: {{ .Values.permissions.token.audience }}
                   expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
-                  path: {{ base .Values.permissions.token.mountPath }}
+                  path: {{ base $permissionsTokenPath }}
         {{- end }}
       {{- end }}
 {{- end }}
