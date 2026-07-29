@@ -24,6 +24,15 @@ assert_not_contains() {
   fi
 }
 
+assert_count() {
+  local file="$1"
+  local expected="$2"
+  local value="$3"
+  local actual
+  actual="$(grep -Fc -- "$value" "$file")"
+  [[ "$actual" == "$expected" ]] || fail "expected ${expected} occurrences of '${value}' in ${file}, found ${actual}"
+}
+
 assert_kind_contains() {
   local file="$1"
   local kind="$2"
@@ -53,6 +62,9 @@ for chart in grounds-velocity grounds-gamemode; do
   assert_not_contains "$default_output" "PERMISSIONS_TOKEN_FILE"
   assert_not_contains "$default_output" "grounds-permissions-"
   assert_not_contains "$default_output" "audience: service-permissions"
+  assert_not_contains "$default_output" "GROUNDS_TOKEN_FILE"
+  assert_not_contains "$default_output" "grounds-sa-token"
+  assert_not_contains "$default_output" "audience: grounds-services"
 done
 
 service_default_output="${output_dir}/grounds-service-default.yaml"
@@ -117,6 +129,15 @@ assert_contains "$gamemode_deployment_output" "serviceAccountName: minestom-lobb
 assert_contains "$gamemode_deployment_output" "automountServiceAccountToken: false"
 assert_contains "$gamemode_deployment_output" "name: PERMISSIONS_SERVICE_URL"
 assert_contains "$gamemode_deployment_output" "name: PERMISSIONS_TOKEN_FILE"
+assert_contains "$gamemode_deployment_output" "value: \"/var/run/secrets/grounds/permissions-token\""
+assert_contains "$gamemode_deployment_output" "audience: service-permissions"
+assert_contains "$gamemode_deployment_output" "name: GROUNDS_TOKEN_FILE"
+assert_contains "$gamemode_deployment_output" "value: \"/var/run/secrets/grounds/token\""
+assert_contains "$gamemode_deployment_output" "name: grounds-sa-token"
+assert_contains "$gamemode_deployment_output" "audience: grounds-services"
+assert_contains "$gamemode_deployment_output" "path: token"
+assert_count "$gamemode_deployment_output" 2 "- serviceAccountToken:"
+assert_count "$gamemode_deployment_output" 2 "expirationSeconds: 3600"
 assert_contains "$gamemode_deployment_output" "/v1/permissions/runtime/players/*"
 assert_not_contains "$gamemode_deployment_output" "name: agones-sdk"
 
@@ -138,6 +159,19 @@ render minestom-lobby grounds-gamemode "$gamemode_legacy_rbac_values_output" \
 assert_kind_contains "$gamemode_legacy_rbac_values_output" "ClusterRole"
 assert_kind_contains "$gamemode_legacy_rbac_values_output" "ClusterRoleBinding"
 
+gamemode_deployment_grounds_token_only_output="${output_dir}/gamemode-deployment-grounds-token-only.yaml"
+render minestom-lobby grounds-gamemode "$gamemode_deployment_grounds_token_only_output" \
+  -f "${repo_root}/tests/permissions/gamemode-deployment-values.yaml" \
+  --set permissions.enabled=false
+assert_contains "$gamemode_deployment_grounds_token_only_output" "kind: ServiceAccount"
+assert_contains "$gamemode_deployment_grounds_token_only_output" "serviceAccountName: minestom-lobby"
+assert_contains "$gamemode_deployment_grounds_token_only_output" "automountServiceAccountToken: false"
+assert_contains "$gamemode_deployment_grounds_token_only_output" "name: GROUNDS_TOKEN_FILE"
+assert_contains "$gamemode_deployment_grounds_token_only_output" "audience: grounds-services"
+assert_not_contains "$gamemode_deployment_grounds_token_only_output" "PERMISSIONS_TOKEN_FILE"
+assert_kind_not_contains "$gamemode_deployment_grounds_token_only_output" "ClusterRole"
+assert_kind_not_contains "$gamemode_deployment_grounds_token_only_output" "ClusterRoleBinding"
+
 gamemode_fleet_output="${output_dir}/gamemode-fleet.yaml"
 render paper-game grounds-gamemode "$gamemode_fleet_output" \
   -f "${repo_root}/tests/permissions/gamemode-fleet-values.yaml"
@@ -146,7 +180,32 @@ assert_contains "$gamemode_fleet_output" "serviceAccountName: paper-game"
 assert_contains "$gamemode_fleet_output" "automountServiceAccountToken: true"
 assert_contains "$gamemode_fleet_output" "kind: RoleBinding"
 assert_contains "$gamemode_fleet_output" "name: agones-sdk"
+assert_contains "$gamemode_fleet_output" "name: PERMISSIONS_TOKEN_FILE"
+assert_contains "$gamemode_fleet_output" "value: \"/var/run/secrets/grounds/permissions-token\""
+assert_contains "$gamemode_fleet_output" "audience: service-permissions"
+assert_contains "$gamemode_fleet_output" "name: GROUNDS_TOKEN_FILE"
+assert_contains "$gamemode_fleet_output" "value: \"/var/run/secrets/grounds/token\""
+assert_contains "$gamemode_fleet_output" "name: grounds-sa-token"
+assert_contains "$gamemode_fleet_output" "audience: grounds-services"
+assert_contains "$gamemode_fleet_output" "path: token"
+assert_count "$gamemode_fleet_output" 2 "- serviceAccountToken:"
+assert_count "$gamemode_fleet_output" 2 "expirationSeconds: 3600"
 assert_contains "$gamemode_fleet_output" "/v1/permissions/runtime/catalog/manifests/plugin-permissions"
+
+gamemode_fleet_grounds_token_only_output="${output_dir}/gamemode-fleet-grounds-token-only.yaml"
+render paper-game grounds-gamemode "$gamemode_fleet_grounds_token_only_output" \
+  -f "${repo_root}/tests/permissions/gamemode-fleet-values.yaml" \
+  --set permissions.enabled=false
+assert_contains "$gamemode_fleet_grounds_token_only_output" "kind: ServiceAccount"
+assert_contains "$gamemode_fleet_grounds_token_only_output" "serviceAccountName: paper-game"
+assert_contains "$gamemode_fleet_grounds_token_only_output" "automountServiceAccountToken: true"
+assert_contains "$gamemode_fleet_grounds_token_only_output" "kind: RoleBinding"
+assert_contains "$gamemode_fleet_grounds_token_only_output" "name: paper-game-agones-sdk"
+assert_contains "$gamemode_fleet_grounds_token_only_output" "name: GROUNDS_TOKEN_FILE"
+assert_contains "$gamemode_fleet_grounds_token_only_output" "audience: grounds-services"
+assert_not_contains "$gamemode_fleet_grounds_token_only_output" "PERMISSIONS_TOKEN_FILE"
+assert_kind_not_contains "$gamemode_fleet_grounds_token_only_output" "ClusterRole"
+assert_kind_not_contains "$gamemode_fleet_grounds_token_only_output" "ClusterRoleBinding"
 
 service_output="${output_dir}/service.yaml"
 render service-permissions grounds-service "$service_output" \

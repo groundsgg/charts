@@ -1,3 +1,5 @@
+{{- $permissionsTokenDirectory := dir .Values.permissions.token.mountPath -}}
+{{- $sharedTokenDirectory := and .Values.groundsToken.enabled .Values.permissions.enabled (eq .Values.groundsToken.mountPath $permissionsTokenDirectory) -}}
 {{- if .Values.agones.enabled }}
 apiVersion: agones.dev/v1
 kind: Fleet
@@ -53,7 +55,7 @@ spec:
             grounds/component: gamemode
             grounds/server-type: {{ .Values.kind }}
         spec:
-          {{- if or .Values.serviceAccount.create .Values.permissions.enabled }}
+          {{- if eq (include "grounds-gamemode.serviceAccountRequired" .) "true" }}
           serviceAccountName: {{ include "grounds-gamemode.serviceAccountName" . }}
           # Agones injects its SDK sidecar into this pod. The sidecar needs the
           # standard API-server token in addition to the app's scoped token.
@@ -81,14 +83,37 @@ spec:
               resources:
                 {{- toYaml . | nindent 16 }}
               {{- end }}
-              {{- if .Values.permissions.enabled }}
+              {{- if or .Values.groundsToken.enabled .Values.permissions.enabled }}
               volumeMounts:
-                - name: permissions-token
-                  mountPath: {{ dir .Values.permissions.token.mountPath }}
+                {{- if .Values.groundsToken.enabled }}
+                - name: grounds-sa-token
+                  mountPath: {{ .Values.groundsToken.mountPath }}
                   readOnly: true
+                {{- end }}
+                {{- if and .Values.permissions.enabled (not $sharedTokenDirectory) }}
+                - name: permissions-token
+                  mountPath: {{ $permissionsTokenDirectory }}
+                  readOnly: true
+                {{- end }}
               {{- end }}
-          {{- if .Values.permissions.enabled }}
+          {{- if or .Values.groundsToken.enabled .Values.permissions.enabled }}
           volumes:
+            {{- if .Values.groundsToken.enabled }}
+            - name: grounds-sa-token
+              projected:
+                sources:
+                  - serviceAccountToken:
+                      audience: {{ .Values.groundsToken.audience }}
+                      expirationSeconds: {{ .Values.groundsToken.expirationSeconds }}
+                      path: token
+                  {{- if $sharedTokenDirectory }}
+                  - serviceAccountToken:
+                      audience: {{ .Values.permissions.token.audience }}
+                      expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
+                      path: {{ base .Values.permissions.token.mountPath }}
+                  {{- end }}
+            {{- end }}
+            {{- if and .Values.permissions.enabled (not $sharedTokenDirectory) }}
             - name: permissions-token
               projected:
                 sources:
@@ -96,5 +121,6 @@ spec:
                       audience: {{ .Values.permissions.token.audience }}
                       expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
                       path: {{ base .Values.permissions.token.mountPath }}
+            {{- end }}
           {{- end }}
 {{- end }}

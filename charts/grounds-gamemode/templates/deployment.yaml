@@ -1,3 +1,5 @@
+{{- $permissionsTokenDirectory := dir .Values.permissions.token.mountPath -}}
+{{- $sharedTokenDirectory := and .Values.groundsToken.enabled .Values.permissions.enabled (eq .Values.groundsToken.mountPath $permissionsTokenDirectory) -}}
 {{- if not .Values.agones.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -33,7 +35,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- if or .Values.serviceAccount.create .Values.permissions.enabled }}
+      {{- if eq (include "grounds-gamemode.serviceAccountRequired" .) "true" }}
       serviceAccountName: {{ include "grounds-gamemode.serviceAccountName" . }}
       automountServiceAccountToken: false
       {{- end }}
@@ -59,14 +61,37 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if .Values.permissions.enabled }}
+          {{- if or .Values.groundsToken.enabled .Values.permissions.enabled }}
           volumeMounts:
-            - name: permissions-token
-              mountPath: {{ dir .Values.permissions.token.mountPath }}
+            {{- if .Values.groundsToken.enabled }}
+            - name: grounds-sa-token
+              mountPath: {{ .Values.groundsToken.mountPath }}
               readOnly: true
+            {{- end }}
+            {{- if and .Values.permissions.enabled (not $sharedTokenDirectory) }}
+            - name: permissions-token
+              mountPath: {{ $permissionsTokenDirectory }}
+              readOnly: true
+            {{- end }}
           {{- end }}
-      {{- if .Values.permissions.enabled }}
+      {{- if or .Values.groundsToken.enabled .Values.permissions.enabled }}
       volumes:
+        {{- if .Values.groundsToken.enabled }}
+        - name: grounds-sa-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: {{ .Values.groundsToken.audience }}
+                  expirationSeconds: {{ .Values.groundsToken.expirationSeconds }}
+                  path: token
+              {{- if $sharedTokenDirectory }}
+              - serviceAccountToken:
+                  audience: {{ .Values.permissions.token.audience }}
+                  expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
+                  path: {{ base .Values.permissions.token.mountPath }}
+              {{- end }}
+        {{- end }}
+        {{- if and .Values.permissions.enabled (not $sharedTokenDirectory) }}
         - name: permissions-token
           projected:
             sources:
@@ -74,5 +99,6 @@ spec:
                   audience: {{ .Values.permissions.token.audience }}
                   expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
                   path: {{ base .Values.permissions.token.mountPath }}
+        {{- end }}
       {{- end }}
 {{- end }}

@@ -46,6 +46,10 @@ Velocity forwarding env-vars for the engine.
 {{- with .Values.extraEnv }}
 {{ toYaml . }}
 {{- end }}
+{{- if .Values.groundsToken.enabled }}
+- name: GROUNDS_TOKEN_FILE
+  value: {{ printf "%s/token" .Values.groundsToken.mountPath | quote }}
+{{- end }}
 {{- if .Values.permissions.enabled }}
 - name: PERMISSIONS_SERVICE_URL
   value: {{ required "permissions.serviceUrl is required when permissions are enabled" .Values.permissions.serviceUrl | quote }}
@@ -68,6 +72,18 @@ Resolves the fully-qualified image reference.
 
 {{- define "grounds-gamemode.serviceAccountName" -}}
 {{- .Values.serviceAccount.name | default .Release.Name -}}
+{{- end -}}
+
+{{/*
+Whether this release needs a dedicated ServiceAccount. Scoped projected tokens
+must never fall back to the namespace's default account implicitly.
+*/}}
+{{- define "grounds-gamemode.serviceAccountRequired" -}}
+{{- if or .Values.serviceAccount.create .Values.permissions.enabled .Values.groundsToken.enabled -}}
+true
+{{- else -}}
+false
+{{- end -}}
 {{- end -}}
 
 {{- define "grounds-gamemode.permissionsRbacName" -}}

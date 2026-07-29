@@ -124,6 +124,15 @@ serviceAccount:
   annotations: {}
   imagePullSecrets: []
 
+# Grounds projected SA-token (NATS bearer). When enabled, projects a
+# short-lived token (audience grounds-services) and exposes GROUNDS_TOKEN_FILE
+# so the runtime can present it as the NATS bearer. Inert by default.
+groundsToken:
+  enabled: false
+  audience: grounds-services
+  mountPath: /var/run/secrets/grounds
+  expirationSeconds: 3600
+
 permissions:
   enabled: false
   serviceUrl: ""
