@@ -7,7 +7,9 @@ on:
     paths:
       - "charts/**"
       - "scripts/test-permissions-runtime.sh"
+      - "scripts/test-grounds-service-probes.sh"
       - "tests/permissions/**"
+      - "tests/grounds-service/**"
       - ".github/workflows/ci.yml"
   pull_request:
     branches:
@@ -15,7 +17,9 @@ on:
     paths:
       - "charts/**"
       - "scripts/test-permissions-runtime.sh"
+      - "scripts/test-grounds-service-probes.sh"
       - "tests/permissions/**"
+      - "tests/grounds-service/**"
       - ".github/workflows/ci.yml"
 
 permissions:
@@ -27,7 +31,7 @@ env:
 
 jobs:
   permissions-runtime:
-    name: 🧪 Permissions runtime contract
+    name: 🧪 Service runtime contracts
     runs-on: blacksmith-4vcpu-ubuntu-2404-arm
     steps:
       - name: 📥 Checkout code
@@ -46,6 +50,9 @@ jobs:
 
       - name: 🧪 Test permissions runtime contract
         run: bash scripts/test-permissions-runtime.sh
+
+      - name: 🩺 Test grounds-service probe contract
+        run: bash scripts/test-grounds-service-probes.sh
 
   detect-changed-charts:
     name: 🔎 Detect changed charts
