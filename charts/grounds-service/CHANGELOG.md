@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.6.0...grounds-service-v0.7.0) (2026-07-29)
+
+
+### Features
+
+* **grounds-service:** support container health probes ([#125](https://github.com/groundsgg/charts/issues/125)) ([96e4452](https://github.com/groundsgg/charts/commit/96e4452dcfa505c87a030151bb6e924797642690))
+
 ## [0.6.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.5.0...grounds-service-v0.6.0) (2026-07-27)
 
 
