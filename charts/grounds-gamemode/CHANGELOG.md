@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.7.0...grounds-gamemode-v0.8.0) (2026-07-29)
+
+
+### Features
+
+* **gamemode:** project NATS workload tokens ([#127](https://github.com/groundsgg/charts/issues/127)) ([ec6f888](https://github.com/groundsgg/charts/commit/ec6f88858a69d2317a18f2835493ee57f79314f8))
+
 ## [0.7.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.6.0...grounds-gamemode-v0.7.0) (2026-07-27)
 
 
