@@ -30,6 +30,18 @@ deployment:
   containerPort: null
   ## @param deployment.containerPortName Container port name (optional)
   containerPortName: http
+  ## Prometheus scrape hints. When enabled the pod carries the standard
+  ## prometheus.io/{scrape,port,path} annotations, which the environment's
+  ## metrics agent (the satellite's Alloy) discovers and scrapes — the service
+  ## has to opt in, because most pods expose nothing worth scraping and a blind
+  ## scrape of every pod is how a metrics bill runs away.
+  metrics:
+    ## @param deployment.metrics.enabled Advertise this pod for Prometheus scraping
+    enabled: false
+    ## @param deployment.metrics.port Port the metrics endpoint listens on
+    port: 9000
+    ## @param deployment.metrics.path HTTP path of the metrics endpoint
+    path: /q/metrics
   ## @param deployment.resources CPU and memory resource requests and limits
   resources: {}
   # Example:
