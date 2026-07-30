@@ -32,7 +32,7 @@ env:
 jobs:
   permissions-runtime:
     name: 🧪 Service runtime contracts
-    runs-on: blacksmith-4vcpu-ubuntu-2404-arm
+    runs-on: blacksmith-2vcpu-ubuntu-2404-arm
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v7
@@ -56,7 +56,7 @@ jobs:
 
   detect-changed-charts:
     name: 🔎 Detect changed charts
-    runs-on: blacksmith-4vcpu-ubuntu-2404-arm
+    runs-on: blacksmith-2vcpu-ubuntu-2404-arm
     outputs:
       charts: ${{ steps.matrix.outputs.charts }}
       has-changed-charts: ${{ steps.matrix.outputs.has-changed-charts }}
@@ -83,7 +83,7 @@ jobs:
 
   charts:
     name: 🧪 Lint/Test/Package ${{ matrix.chart }}
-    runs-on: blacksmith-4vcpu-ubuntu-2404-arm
+    runs-on: blacksmith-2vcpu-ubuntu-2404-arm
     needs: detect-changed-charts
     if: needs.detect-changed-charts.outputs.has-changed-charts == 'true'
     strategy:
