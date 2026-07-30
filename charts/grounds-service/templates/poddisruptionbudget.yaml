@@ -1,0 +1,30 @@
+{{- /*
+PodDisruptionBudget — voluntary disruption only.
+
+It guards drains, rolling node upgrades and the cluster autoscaler compacting
+nodes. It cannot guard a node dying; that is what replicas are for.
+
+Only rendered above one replica, and that condition is the point: a PDB with
+minAvailable 1 in front of a single replica blocks every drain forever, so
+routine maintenance stops being routine.
+*/ -}}
+{{- if and .Values.deployment.enabled .Values.podDisruptionBudget.enabled (gt (int .Values.deployment.replicaCount) 1) }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" . | nindent 6 }}
+{{- end }}

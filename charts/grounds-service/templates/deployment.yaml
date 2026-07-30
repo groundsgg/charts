@@ -36,6 +36,18 @@ spec:
         {{- end }}
       {{- end }}
     spec:
+      {{- with .Values.deployment.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
+      {{- if and .Values.deployment.topologySpread.enabled (gt (int .Values.deployment.replicaCount) 1) }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: {{ .Values.deployment.topologySpread.topologyKey }}
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              {{- include "common.selectorLabels" . | nindent 14 }}
+      {{- end }}
       {{- if or .Values.serviceAccount.create .Values.kubernetesReview.enabled }}
       serviceAccountName: {{ .Values.serviceAccount.name | default .Release.Name }}
       {{- end }}
@@ -71,6 +83,12 @@ spec:
           {{- with .Values.deployment.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if gt (int .Values.deployment.preStopSleepSeconds) 0 }}
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: {{ .Values.deployment.preStopSleepSeconds }}
           {{- end }}
           {{- if or .Values.deployment.env .Values.groundsToken.enabled }}
           env:
