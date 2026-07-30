@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.8.0...grounds-service-v0.9.0) (2026-07-30)
+
+
+### Features
+
+* **grounds-service:** spread replicas, budget disruptions, shut down gracefully ([#134](https://github.com/groundsgg/charts/issues/134)) ([a58b272](https://github.com/groundsgg/charts/commit/a58b2729b7334e9c455a1bd9da3a5be7c44d069f))
+
 ## [0.8.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.7.0...grounds-service-v0.8.0) (2026-07-30)
 
 
