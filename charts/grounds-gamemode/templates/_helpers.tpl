@@ -28,6 +28,12 @@ Velocity forwarding env-vars for the engine.
 {{- $groundsToken := .Values.groundsToken | default dict -}}
 {{- $groundsTokenEnabled := $groundsToken.enabled | default false -}}
 {{- if eq (include "grounds-gamemode.engine" .) "minestom" -}}
+{{- if .Values.agones.matchmaking.enabled }}
+- name: GROUNDS_MATCHMAKING
+  value: "1"
+- name: GROUNDS_MATCH_HOST_PORT
+  value: {{ .Values.agones.matchmaking.grpcPort | quote }}
+{{- end }}
 - name: GROUNDS_PROXY_MODE
   value: velocity
 - name: GROUNDS_VELOCITY_FORWARDING_SECRET

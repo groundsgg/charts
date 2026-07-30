@@ -54,6 +54,18 @@ spec:
         httpPort: 9358
       health:
         disabled: true
+      {{- if .Values.agones.matchmaking.enabled }}
+      # The matchmaker allocates on this Counter (`matches.minAvailable >= 1`)
+      # and increments it; the server decrements when a match ends. Without it
+      # every allocation the matchmaker attempts fails the selector and players
+      # requeue forever, so it is what makes a matchmade Fleet allocatable at
+      # all. `Allocated` here means "hosting >= 1 match", not "full" — one
+      # Minestom server runs many matches, up to the capacity.
+      counters:
+        matches:
+          count: 0
+          capacity: {{ .Values.agones.matchmaking.counterCapacity }}
+      {{- end }}
       template:
         metadata:
           labels:
@@ -83,6 +95,14 @@ spec:
                 - name: minecraft
                   containerPort: {{ .Values.containerPort }}
                   protocol: TCP
+                {{- if .Values.agones.matchmaking.enabled }}
+                # Where service-match pushes StartMatch. Reached by PodIP, so the
+                # entry is documentation rather than a requirement — but it keeps
+                # the two ports this pod serves visible in one place.
+                - name: matchhost
+                  containerPort: {{ .Values.agones.matchmaking.grpcPort }}
+                  protocol: TCP
+                {{- end }}
               env:
                 {{- include "grounds-gamemode.env" . | nindent 16 }}
               {{- with .Values.resources }}
