@@ -24,9 +24,16 @@ spec:
         {{- with .Values.global.commonLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- with .Values.global.commonAnnotations }}
+      {{- if or .Values.global.commonAnnotations .Values.deployment.metrics.enabled }}
       annotations:
+        {{- with .Values.global.commonAnnotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.deployment.metrics.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.deployment.metrics.port | quote }}
+        prometheus.io/path: {{ .Values.deployment.metrics.path | quote }}
+        {{- end }}
       {{- end }}
     spec:
       {{- if .Values.serviceAccount.create }}
