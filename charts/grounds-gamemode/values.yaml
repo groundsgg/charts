@@ -64,6 +64,22 @@ image:
 # becomes the floor rather than the count.
 agones:
   enabled: false
+  # Matchmaking mode. When on, the matchmaker (service-match) allocates and
+  # drives these servers: it selects on the Agones `matches` Counter and pushes
+  # each match over gRPC to the server's MatchHost port. Off for ordinary fleets
+  # — a lobby is joined directly, not matchmade — so the counter, the gRPC port
+  # and GROUNDS_MATCHMAKING are all opt-in and a non-matchmade Fleet renders
+  # exactly as before.
+  matchmaking:
+    enabled: false
+    # How many matches one server may host at once — the capacity of the
+    # `matches` Counter the allocator reads (`minAvailable >= 1`) and increments
+    # on allocation. The server decrements it when a match ends.
+    counterCapacity: 4
+    # The MatchHost gRPC port the server listens on and service-match dials
+    # (its GAMESERVER_GRPC_PORT default). A plain container port on the PodIP,
+    # not an Agones-managed game port.
+    grpcPort: 9090
   fleet:
     minReplicas: 0
     maxReplicas: 2
