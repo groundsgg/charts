@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.9.0...grounds-gamemode-v0.10.0) (2026-07-30)
+
+
+### Features
+
+* **grounds-gamemode:** counter autoscaler for matchmade fleets ([#136](https://github.com/groundsgg/charts/issues/136)) ([e695308](https://github.com/groundsgg/charts/commit/e6953081953331df08d90d51866c24c80343b5e0))
+
 ## [0.9.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.8.0...grounds-gamemode-v0.9.0) (2026-07-30)
 
 
