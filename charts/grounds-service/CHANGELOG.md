@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.7.0...grounds-service-v0.8.0) (2026-07-30)
+
+
+### Features
+
+* **grounds-service:** opt-in Prometheus scrape annotations ([#129](https://github.com/groundsgg/charts/issues/129)) ([4446a96](https://github.com/groundsgg/charts/commit/4446a96e100dcf5f6d81d9393dd8d3ff3a2d60aa))
+
 ## [0.7.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.6.0...grounds-service-v0.7.0) (2026-07-29)
 
 
