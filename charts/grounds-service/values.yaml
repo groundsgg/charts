@@ -17,6 +17,29 @@ deployment:
   enabled: true
   ## @param deployment.replicaCount Number of pods to deploy
   replicaCount: 1
+  ## Spread pods across nodes.
+  ##
+  ## Two replicas that land on the same node are not two replicas: a drain
+  ## during an autoscale-down, or a kernel upgrade, takes both. That is worse
+  ## than one replica, because it claims an availability it does not have.
+  ##
+  ## `ScheduleAnyway`, not `DoNotSchedule`: a satellite runs 2-6 nodes, so a
+  ## hard constraint turns "spread if you can" into "do not schedule at all"
+  ## the moment replicas outnumber nodes.
+  topologySpread:
+    ## @param deployment.topologySpread.enabled Spread pods across nodes
+    enabled: true
+    ## @param deployment.topologySpread.topologyKey Node label to spread over
+    topologyKey: kubernetes.io/hostname
+  ## Graceful shutdown.
+  ##
+  ## Endpoints propagate asynchronously: a pod can still receive connections
+  ## for a moment after it enters Terminating. The preStop sleep spends that
+  ## moment doing nothing so in-flight requests finish somewhere alive,
+  ## instead of being cut off mid-response on every rolling update.
+  terminationGracePeriodSeconds: 30
+  ## @param deployment.preStopSleepSeconds Delay before SIGTERM; 0 disables
+  preStopSleepSeconds: 5
   image:
     ## @param deployment.image.registry Docker image registry (optional)
     registry: ""
@@ -66,6 +89,21 @@ deployment:
   #     value: "value"
 
 ## @section Service configuration
+## PodDisruptionBudget.
+##
+## Guards against *voluntary* disruption only — drains, rolling node upgrades,
+## the cluster autoscaler compacting nodes. It cannot protect against a node
+## dying, which is what replicas are for.
+##
+## Rendered only when replicaCount > 1: a PDB with minAvailable 1 in front of a
+## single replica blocks every drain forever, which turns routine maintenance
+## into a page.
+podDisruptionBudget:
+  ## @param podDisruptionBudget.enabled Create a PDB when replicaCount > 1
+  enabled: true
+  ## @param podDisruptionBudget.minAvailable Pods that must stay up
+  minAvailable: 1
+
 service:
   ## @param service.enabled Enable service
   enabled: false
