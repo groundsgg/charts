@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.8.0...grounds-gamemode-v0.9.0) (2026-07-30)
+
+
+### Features
+
+* **grounds-gamemode:** matchmaking mode — Agones counter, gRPC port, env ([#132](https://github.com/groundsgg/charts/issues/132)) ([fd13422](https://github.com/groundsgg/charts/commit/fd13422f778b9c286ecb433ec77f9f63919c99ec))
+
 ## [0.8.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.7.0...grounds-gamemode-v0.8.0) (2026-07-29)
 
 
