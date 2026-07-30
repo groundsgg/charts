@@ -17,7 +17,7 @@ env:
 jobs:
   release:
     name: 📦 Package and Publish ${{ matrix.chart }}
-    runs-on: blacksmith-2vcpu-ubuntu-2404-arm
+    runs-on: ubuntu-24.04-arm
     strategy:
       fail-fast: false
       matrix:
