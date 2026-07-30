@@ -133,9 +133,20 @@ Note this is the *name*, not the source of truth for a player's region: that
 travels in their session. A name is for reading, not for parsing.
 */}}
 {{- define "grounds-gamemode.fleetName" -}}
+{{- if .Values.agones.matchmaking.enabled -}}
+{{- /*
+  A matchmade Fleet's name IS the mode id: service-match allocates from a Fleet
+  named after the mode (fleetNameFor = modeId, region-agnostic), so a region
+  suffix here would render `duel-nl-ams1` while the allocator asks for `duel`
+  and every allocation misses. Each region runs its own service-match against
+  its own single-region cluster, so the suffix is redundant anyway — dropped.
+*/ -}}
+{{ $.Release.Name }}
+{{- else -}}
 {{- with .Values.global.region -}}
 {{ $.Release.Name }}-{{ . }}
 {{- else -}}
 {{ $.Release.Name }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
