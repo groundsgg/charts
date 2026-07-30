@@ -87,9 +87,13 @@ agones:
       # Off by default: turning this on for every existing release would start
       # changing replica counts on fleets nobody asked to autoscale.
       enabled: false
-      # Servers kept ready beyond those allocated. An absolute count, so it
-      # must not exceed maxReplicas; Agones also requires minReplicas to be at
-      # least this when minReplicas is non-zero.
+      # What to keep spare. Meaning depends on the policy the fleet renders:
+      #   - non-matchmaking (Buffer): servers kept *ready* beyond those
+      #     allocated. An absolute count <= maxReplicas; Agones also requires
+      #     minReplicas >= this when minReplicas is non-zero.
+      #   - matchmaking (Counter): `matches` slots kept *free* across the fleet.
+      #     Must be <= minCapacity (= minReplicas * counterCapacity), so a
+      #     matchmade autoscaled fleet needs minReplicas >= 1.
       bufferSize: 2
       # How often Agones re-evaluates. The default 30s is a long time to wait
       # for a lobby when the buffer just emptied.

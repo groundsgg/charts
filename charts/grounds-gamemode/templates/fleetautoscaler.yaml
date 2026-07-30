@@ -13,6 +13,21 @@ metadata:
 spec:
   fleetName: {{ include "grounds-gamemode.fleetName" . }}
   policy:
+    {{- if .Values.agones.matchmaking.enabled }}
+    # Counter, not Buffer: a matchmade server stays Allocated the whole time it
+    # holds >= 1 match and hosts many at once, so "ready servers" (what Buffer
+    # counts) is always ~0 under load and Buffer would thrash. Scale on the
+    # `matches` Counter instead — keep `bufferSize` match slots free across the
+    # fleet, growing a whole server (counterCapacity slots) when they run low.
+    # min/maxCapacity are the aggregate slot bounds, derived from the replica
+    # floor/ceiling so the same two knobs govern both policies.
+    type: Counter
+    counter:
+      key: matches
+      bufferSize: {{ .Values.agones.fleet.autoscaler.bufferSize }}
+      minCapacity: {{ mul .Values.agones.fleet.minReplicas .Values.agones.matchmaking.counterCapacity }}
+      maxCapacity: {{ mul .Values.agones.fleet.maxReplicas .Values.agones.matchmaking.counterCapacity }}
+    {{- else }}
     # Buffer, not Webhook: keep a fixed number of servers *ready* on top of
     # whatever is allocated. That is exactly the property a lobby needs — the
     # next player must find somewhere to go without waiting for a container to
@@ -22,6 +37,7 @@ spec:
       bufferSize: {{ .Values.agones.fleet.autoscaler.bufferSize }}
       minReplicas: {{ .Values.agones.fleet.minReplicas }}
       maxReplicas: {{ .Values.agones.fleet.maxReplicas }}
+    {{- end }}
   sync:
     type: FixedInterval
     fixedInterval:
