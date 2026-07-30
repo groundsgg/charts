@@ -29,10 +29,15 @@ permissions:
 env:
   HELM_VERSION: "3.19.0"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   permissions-runtime:
     name: 🧪 Service runtime contracts
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v7
@@ -57,6 +62,7 @@ jobs:
   detect-changed-charts:
     name: 🔎 Detect changed charts
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
     outputs:
       charts: ${{ steps.matrix.outputs.charts }}
       has-changed-charts: ${{ steps.matrix.outputs.has-changed-charts }}
@@ -84,6 +90,7 @@ jobs:
   charts:
     name: 🧪 Lint/Test/Package ${{ matrix.chart }}
     runs-on: ubuntu-24.04-arm
+    timeout-minutes: 10
     needs: detect-changed-charts
     if: needs.detect-changed-charts.outputs.has-changed-charts == 'true'
     strategy:
