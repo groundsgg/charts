@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.8.0...grounds-velocity-v0.9.0) (2026-08-01)
+
+
+### Features
+
+* **velocity:** graceful drain on rollout — preStop, probes, grace period ([#139](https://github.com/groundsgg/charts/issues/139)) ([33a942e](https://github.com/groundsgg/charts/commit/33a942eb4178fb85ad22c96943e9eac3028a42ec))
+
 ## [0.8.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.7.0...grounds-velocity-v0.8.0) (2026-07-27)
 
 
