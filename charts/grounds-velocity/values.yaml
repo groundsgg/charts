@@ -85,6 +85,25 @@ forwardingSecret:
   name: "velocity-forwarding-secret"
   key: "secret"
 
+# Graceful proxy drain. When enabled, the pod's preStop hook calls the drain
+# endpoint of the baked plugin-agones (loopback only) and waits until the proxy
+# is empty: lobby players are moved to another proxy right away with a
+# Minecraft transfer packet, players inside a round stay until the round ends,
+# and shortly before terminationGracePeriodSeconds runs out the rest is
+# transferred regardless. Without this, a rollout kicks everyone.
+drain:
+  enabled: false
+  # Loopback port plugin-agones listens on (GROUNDS_DRAIN_HTTP_PORT).
+  httpPort: 8085
+  # Public host[:port] transferred players reconnect through — a name mc-router
+  # routes, e.g. the region's own geo name. Required when enabled.
+  transferHost: ""
+
+# How long a terminating pod may keep running. With drain enabled this is the
+# time budget for waiting out rounds — the plugin force-transfers 60s before it
+# expires, so pick "longest round + lobby drain + margin".
+terminationGracePeriodSeconds: 30
+
 env: []
 
 # ServiceAccount for NATS auth-callout (B4): the broker resolves this pod's

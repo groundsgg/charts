@@ -16,6 +16,19 @@ metadata:
   {{- end }}
 spec:
   replicas: {{ .Values.replicas }}
+  # Surge first, never below capacity: the new pod must be Ready (see the
+  # readinessProbe) before the old one starts draining, or a transferred player
+  # has nowhere to land.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  {{- if .Values.drain.enabled }}
+  # A draining pod legitimately holds the rollout open until its players are
+  # gone; the Deployment default (600s) would flag that as a failed rollout.
+  progressDeadlineSeconds: {{ add .Values.terminationGracePeriodSeconds 300 }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "common.selectorLabels" . | nindent 6 }}
@@ -38,6 +51,7 @@ spec:
       # Keep its API-server token in addition to the scoped projected tokens.
       automountServiceAccountToken: true
       {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       {{- $imageRepo := .Values.image.repository }}
       {{- if .Values.image.registry }}
       {{- $imageRepo = printf "%s/%s" .Values.image.registry .Values.image.repository }}
@@ -104,6 +118,12 @@ spec:
             - name: REGION
               value: {{ . | quote }}
             {{- end }}
+            {{- if .Values.drain.enabled }}
+            - name: GROUNDS_DRAIN_TRANSFER_HOST
+              value: {{ required "drain.transferHost is required when drain is enabled" .Values.drain.transferHost | quote }}
+            - name: GROUNDS_DRAIN_HTTP_PORT
+              value: {{ .Values.drain.httpPort | quote }}
+            {{- end }}
             {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -117,6 +137,32 @@ spec:
             - name: PERMISSIONS_TOKEN_FILE
               value: {{ .Values.permissions.token.mountPath | quote }}
             {{- end }}
+          # Readiness gates the rollout: with maxUnavailable 0 the old pod is
+          # only terminated once the new one accepts Minecraft connections.
+          readinessProbe:
+            tcpSocket:
+              port: minecraft
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          {{- if .Values.drain.enabled }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sh
+                  - -c
+                  # Ask the baked plugin-agones to drain, then wait until the
+                  # proxy is empty; the kubelet's grace period is the hard stop.
+                  # If the endpoint is not there (older image, plugin missing),
+                  # the first wget fails and this returns immediately — which is
+                  # exactly today's behaviour, not a hang.
+                  - |
+                    if wget -q -O /dev/null "http://127.0.0.1:{{ .Values.drain.httpPort }}/drain/start?deadlineSeconds={{ max 30 (sub .Values.terminationGracePeriodSeconds 60) }}"; then
+                      while [ "$(wget -q -O - "http://127.0.0.1:{{ .Values.drain.httpPort }}/drain/players" 2>/dev/null || echo 0)" != "0" ]; do
+                        sleep 5
+                      done
+                    fi
+          {{- end }}
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
