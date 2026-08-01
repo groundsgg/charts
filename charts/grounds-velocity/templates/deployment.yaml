@@ -119,8 +119,10 @@ spec:
               value: {{ . | quote }}
             {{- end }}
             {{- if .Values.drain.enabled }}
+            {{- with .Values.drain.transferHost }}
             - name: GROUNDS_DRAIN_TRANSFER_HOST
-              value: {{ required "drain.transferHost is required when drain is enabled" .Values.drain.transferHost | quote }}
+              value: {{ . | quote }}
+            {{- end }}
             - name: GROUNDS_DRAIN_HTTP_PORT
               value: {{ .Values.drain.httpPort | quote }}
             {{- end }}

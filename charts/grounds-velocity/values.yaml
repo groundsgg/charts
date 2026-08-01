@@ -95,8 +95,10 @@ drain:
   enabled: false
   # Loopback port plugin-agones listens on (GROUNDS_DRAIN_HTTP_PORT).
   httpPort: 8085
-  # Public host[:port] transferred players reconnect through — a name mc-router
-  # routes, e.g. the region's own geo name. Required when enabled.
+  # Optional override for the public host[:port] transferred players reconnect
+  # through. Empty on purpose: the plugin then targets this region's own entry
+  # in REGIONS (the catalogue /region already transfers with), so one shared
+  # values file drains correctly in every region.
   transferHost: ""
 
 # How long a terminating pod may keep running. With drain enabled this is the
