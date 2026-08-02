@@ -118,6 +118,14 @@ spec:
             - name: REGION
               value: {{ . | quote }}
             {{- end }}
+            {{- with .Values.global.continent }}
+            # The coarse half of the same fact, which the chart already knows and
+            # until now only used to build its own mc-router names. plugin-proxy
+            # resolves it into the network MOTD as {{"{{localzone}}"}}, so one
+            # stored MOTD can name the continent it is being read in.
+            - name: CONTINENT
+              value: {{ . | quote }}
+            {{- end }}
             {{- if .Values.drain.enabled }}
             {{- with .Values.drain.transferHost }}
             - name: GROUNDS_DRAIN_TRANSFER_HOST

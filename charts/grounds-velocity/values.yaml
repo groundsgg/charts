@@ -19,6 +19,8 @@ global:
   region: ""
   # The continent this region belongs to (`eu`, `na`) — the coarse choice a
   # player makes with /region, as opposed to `region` which names a datacentre.
+  # Rendered as the CONTINENT environment variable when set, which is where
+  # plugin-proxy's `{{localzone}}` MOTD placeholder reads it from.
   continent: ""
   # Which environment this release serves (`stage`). Together with the two
   # domains below it is what lets the chart build its own mc-router names
