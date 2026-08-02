@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.10.0...grounds-gamemode-v0.11.0) (2026-08-02)
+
+
+### Features
+
+* **grounds-gamemode:** hand the lobby its region entry point ([#145](https://github.com/groundsgg/charts/issues/145)) ([1e6354c](https://github.com/groundsgg/charts/commit/1e6354c256c889af21a50e70e3fb36cf644098da))
+
 ## [0.10.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.9.0...grounds-gamemode-v0.10.0) (2026-07-30)
 
 
