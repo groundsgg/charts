@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.10.0...grounds-velocity-v0.11.0) (2026-08-02)
+
+
+### Features
+
+* **grounds-velocity:** render global.continent as CONTINENT ([#143](https://github.com/groundsgg/charts/issues/143)) ([c5c2583](https://github.com/groundsgg/charts/commit/c5c2583246edb3e2da743dcccc3632ca17141c49))
+
 ## [0.10.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.9.0...grounds-velocity-v0.10.0) (2026-08-02)
 
 
