@@ -41,6 +41,13 @@ global:
   # `extraEnv` would force every overlay to repeat the whole list to add one
   # entry.
   region: ""
+  # The continent this region belongs to (`eu`, `na`). Exposed as CONTINENT,
+  # which is the identity a lobby announces itself with.
+  continent: ""
+  # The region catalogue ArgoCD passes every component: `<continent>=<host>:<port>`
+  # comma separated. Read for this continent's own entry point — it is the only
+  # place that carries the node port the proxy is actually published on.
+  regions: ""
 
 # Logical kind of the game-server. See note above.
 kind: "paper"

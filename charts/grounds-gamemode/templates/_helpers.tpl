@@ -52,6 +52,11 @@ Velocity forwarding env-vars for the engine.
 - name: REGION
   value: {{ . | quote }}
 {{- end }}
+{{- with .Values.global.continent }}
+- name: CONTINENT
+  value: {{ . | quote }}
+{{- end }}
+{{- include "grounds-gamemode.regionEntryEnv" . }}
 {{- with .Values.extraEnv }}
 {{ toYaml . }}
 {{- end }}
@@ -147,6 +152,47 @@ travels in their session. A name is for reading, not for parsing.
 {{ $.Release.Name }}-{{ . }}
 {{- else -}}
 {{ $.Release.Name }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Where this region's own entry point answers, for a lobby that has to tell other
+regions how to reach it.
+
+Taken out of `global.regions` rather than rebuilt from the parts: that string is
+the catalogue ArgoCD already passes every component, and it is the only place
+that carries the *port*. The port is not 25565 — UKS publishes the proxy on a
+node port — and a name rebuilt here would silently default to the wrong one.
+
+Emits nothing unless the continent has an entry in the catalogue, which keeps a
+single-region or local install rendering a shorter env rather than a broken one.
+*/}}
+{{- define "grounds-gamemode.regionEntryEnv" -}}
+{{- $g := .Values.global -}}
+{{- if and $g.continent $g.regions -}}
+{{- $prefix := printf "%s=" $g.continent -}}
+{{- $entry := "" -}}
+{{- range (splitList "," $g.regions) -}}
+{{- $candidate := trim . -}}
+{{- if and (eq $entry "") (hasPrefix $prefix $candidate) -}}
+{{- $entry = trimPrefix $prefix $candidate -}}
+{{- end -}}
+{{- end -}}
+{{- if $entry -}}
+{{- $parts := splitList ":" $entry -}}
+{{- $port := "" -}}
+{{- $host := $entry -}}
+{{- if gt (len $parts) 1 -}}
+{{- $port = last $parts -}}
+{{- $host = join ":" (initial $parts) -}}
+{{- end }}
+- name: GROUNDS_LOBBY_REGION_HOST
+  value: {{ $host | quote }}
+{{- if $port }}
+- name: GROUNDS_LOBBY_REGION_PORT
+  value: {{ $port | quote }}
+{{- end }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
