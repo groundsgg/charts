@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.9.0...grounds-velocity-v0.10.0) (2026-08-02)
+
+
+### Features
+
+* **grounds-velocity:** route the continent entry points through mc-router ([#141](https://github.com/groundsgg/charts/issues/141)) ([b502f33](https://github.com/groundsgg/charts/commit/b502f33293636aac239f973c135b3e0dd1d97182))
+
 ## [0.9.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.8.0...grounds-velocity-v0.9.0) (2026-08-01)
 
 
