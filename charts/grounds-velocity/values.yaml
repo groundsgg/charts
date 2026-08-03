@@ -76,6 +76,26 @@ ports:
   # regardless — the Service/probe/targetPort must agree or health + routing fail.
   minecraft: 25565
 
+# Prometheus metrics about the proxy itself — players on it, backends it has
+# registered, the network count it reports in the server list, and the JVM under
+# them. mc-router measures the front door and the game servers measure their own
+# worlds; this is the layer between, which nothing else can see.
+#
+# Enabling does three things, and all three are needed for a single series to
+# arrive: the pod gets the `prometheus.io/*` annotations the satellite's metrics
+# agent discovers on, `port` is declared as a containerPort (the agent keeps only
+# the target whose port matches the annotation — an undeclared port is silently
+# never scraped), and GROUNDS_METRICS_* is set so plugin-proxy binds the
+# endpoint.
+#
+# Needs plugin-proxy 1.1.0 or newer in the image. On an older one the
+# annotations point at a closed port and every scrape fails.
+metrics:
+  enabled: false
+  # Must differ from ports.minecraft.
+  port: 9000
+  path: /metrics
+
 service:
   type: ClusterIP
   externalTrafficPolicy: ""

@@ -40,9 +40,12 @@ spec:
         {{- with .Values.global.commonLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- with .Values.global.commonAnnotations }}
+      {{- if or .Values.global.commonAnnotations .Values.metrics.enabled }}
       annotations:
+        {{- with .Values.global.commonAnnotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- include "grounds-velocity.metricsAnnotations" . | nindent 8 }}
       {{- end }}
     spec:
       {{- if or .Values.serviceAccount.create .Values.permissions.enabled }}
@@ -102,7 +105,16 @@ spec:
             - name: minecraft
               containerPort: {{ .Values.ports.minecraft }}
               protocol: TCP
+            {{- include "grounds-velocity.metricsPort" . | nindent 12 }}
           env:
+            {{- if .Values.metrics.enabled }}
+            - name: GROUNDS_METRICS_ENABLED
+              value: "true"
+            - name: GROUNDS_METRICS_PORT
+              value: {{ .Values.metrics.port | quote }}
+            - name: GROUNDS_METRICS_PATH
+              value: {{ .Values.metrics.path | quote }}
+            {{- end }}
             - name: VELOCITY_FORWARDING_SECRET
               valueFrom:
                 secretKeyRef:
