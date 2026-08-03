@@ -59,3 +59,38 @@ install renders a shorter list rather than a broken one.
 {{- $prefix := $base | trunc (int (sub 63 (add (len $hash) 1))) | trimSuffix "-" -}}
 {{- printf "%s-%s" $prefix $hash -}}
 {{- end -}}
+
+{{/*
+What makes the satellite's metrics agent scrape this pod. The agent discovers by
+`prometheus.io/scrape` and then keeps only the target whose declared container
+port equals the annotation's — so these two go together or neither works, which
+is why one helper emits the annotations and the sibling emits the port.
+*/}}
+{{- define "grounds-velocity.metricsAnnotations" -}}
+{{- if .Values.metrics.enabled -}}
+{{- include "grounds-velocity.validateMetricsPort" . -}}
+prometheus.io/scrape: "true"
+prometheus.io/port: {{ .Values.metrics.port | quote }}
+prometheus.io/path: {{ .Values.metrics.path | quote }}
+{{- end -}}
+{{- end -}}
+
+{{- define "grounds-velocity.metricsPort" -}}
+{{- if .Values.metrics.enabled -}}
+{{- include "grounds-velocity.validateMetricsPort" . -}}
+- name: metrics
+  containerPort: {{ .Values.metrics.port }}
+  protocol: TCP
+{{- end -}}
+{{- end -}}
+
+{{/*
+One port cannot serve both. Left to the plugin this surfaces as a bind failure
+saying "Address already in use", which names neither setting — and the proxy
+would carry on serving Minecraft, so nothing else would look wrong either.
+*/}}
+{{- define "grounds-velocity.validateMetricsPort" -}}
+{{- if eq (int .Values.metrics.port) (int .Values.ports.minecraft) -}}
+{{- fail (printf "metrics.port (%v) must differ from ports.minecraft (%v)" .Values.metrics.port .Values.ports.minecraft) -}}
+{{- end -}}
+{{- end -}}

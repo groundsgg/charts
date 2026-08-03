@@ -62,6 +62,9 @@ jobs:
       - name: 📈 Test grounds-gamemode metrics contract
         run: bash scripts/test-gamemode-metrics.sh
 
+      - name: 📈 Test grounds-velocity metrics contract
+        run: bash scripts/test-velocity-metrics.sh
+
   detect-changed-charts:
     name: 🔎 Detect changed charts
     runs-on: ubuntu-24.04-arm
