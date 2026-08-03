@@ -118,6 +118,28 @@ forwardingSecret:
 # Container port. Minecraft default 25565.
 containerPort: 25565
 
+# Prometheus metrics about the server itself — tick time, players, instances,
+# entities, chunks, and the JVM under them. Agones says whether a server is
+# Ready; this says whether the one a player is on is keeping up.
+#
+# Enabling does three things, and all three are needed for a single series to
+# arrive: the pod gets the `prometheus.io/*` annotations the satellite's metrics
+# agent discovers on, `port` is declared as a containerPort (the agent keeps only
+# the target whose port matches the annotation — an undeclared port is silently
+# never scraped), and, on Minestom, GROUNDS_METRICS_* is set so the runtime
+# actually binds the endpoint.
+#
+# Off by default: a scrape target nobody asked for is a metrics bill, and a game
+# server is a pod that comes and goes.
+#
+# `kind: paper` gets the annotations and the port but no env — Paper has no
+# endpoint of its own here, so enabling it there means bringing an exporter.
+metrics:
+  enabled: false
+  # Must differ from containerPort.
+  port: 9000
+  path: /metrics
+
 # Optional entrypoint override. This REPLACES the image's ENTRYPOINT — it does
 # not add to it. Every image these charts run is `ENTRYPOINT ["java","-jar",…]`,
 # so passing a flag here (`command: ["--port","25565"]`) makes the runtime try

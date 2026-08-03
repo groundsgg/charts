@@ -72,6 +72,10 @@ spec:
             {{- include "common.podLabels" . | nindent 12 }}
             grounds/component: gamemode
             grounds/server-type: {{ .Values.kind }}
+          {{- if .Values.metrics.enabled }}
+          annotations:
+            {{- include "grounds-gamemode.metricsAnnotations" . | nindent 12 }}
+          {{- end }}
         spec:
           {{- if eq (include "grounds-gamemode.serviceAccountRequired" .) "true" }}
           serviceAccountName: {{ include "grounds-gamemode.serviceAccountName" . }}
@@ -103,6 +107,7 @@ spec:
                   containerPort: {{ .Values.agones.matchmaking.grpcPort }}
                   protocol: TCP
                 {{- end }}
+                {{- include "grounds-gamemode.metricsPort" . | nindent 16 }}
               env:
                 {{- include "grounds-gamemode.env" . | nindent 16 }}
               {{- with .Values.resources }}

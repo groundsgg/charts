@@ -36,9 +36,12 @@ spec:
         {{- with .Values.global.commonLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- with .Values.global.commonAnnotations }}
+      {{- if or .Values.global.commonAnnotations .Values.metrics.enabled }}
       annotations:
+        {{- with .Values.global.commonAnnotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- include "grounds-gamemode.metricsAnnotations" . | nindent 8 }}
       {{- end }}
     spec:
       {{- if eq (include "grounds-gamemode.serviceAccountRequired" .) "true" }}
@@ -61,6 +64,7 @@ spec:
             - name: minecraft
               containerPort: {{ .Values.containerPort }}
               protocol: TCP
+            {{- include "grounds-gamemode.metricsPort" . | nindent 12 }}
           env:
             {{- include "grounds-gamemode.env" . | nindent 12 }}
           {{- with .Values.resources }}
