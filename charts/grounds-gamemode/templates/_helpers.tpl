@@ -34,6 +34,14 @@ Velocity forwarding env-vars for the engine.
 - name: GROUNDS_MATCH_HOST_PORT
   value: {{ .Values.agones.matchmaking.grpcPort | quote }}
 {{- end }}
+{{- if .Values.metrics.enabled }}
+- name: GROUNDS_METRICS_ENABLED
+  value: "true"
+- name: GROUNDS_METRICS_PORT
+  value: {{ .Values.metrics.port | quote }}
+- name: GROUNDS_METRICS_PATH
+  value: {{ .Values.metrics.path | quote }}
+{{- end }}
 - name: GROUNDS_PROXY_MODE
   value: velocity
 - name: GROUNDS_VELOCITY_FORWARDING_SECRET
@@ -70,6 +78,42 @@ Velocity forwarding env-vars for the engine.
 - name: PERMISSIONS_TOKEN_FILE
   value: {{ clean .Values.permissions.token.mountPath | quote }}
 {{- end }}
+{{- end -}}
+
+{{/*
+What makes the satellite's metrics agent scrape this pod. The agent discovers by
+`prometheus.io/scrape` and then keeps only the target whose declared container
+port equals the annotation's — so these two go together or neither works, which
+is why one helper emits the annotations and the sibling emits the port.
+*/}}
+{{- define "grounds-gamemode.metricsAnnotations" -}}
+{{- if .Values.metrics.enabled -}}
+{{- include "grounds-gamemode.validateMetricsPort" . -}}
+prometheus.io/scrape: "true"
+prometheus.io/port: {{ .Values.metrics.port | quote }}
+prometheus.io/path: {{ .Values.metrics.path | quote }}
+{{- end -}}
+{{- end -}}
+
+{{- define "grounds-gamemode.metricsPort" -}}
+{{- if .Values.metrics.enabled -}}
+{{- include "grounds-gamemode.validateMetricsPort" . -}}
+- name: metrics
+  containerPort: {{ .Values.metrics.port }}
+  protocol: TCP
+{{- end -}}
+{{- end -}}
+
+{{/*
+One port cannot serve both. Left to the runtime this surfaces as a bind failure
+saying "Address already in use", which names neither setting; on Paper it would
+not surface at all and the agent would simply scrape the Minecraft port and get
+nothing it can parse.
+*/}}
+{{- define "grounds-gamemode.validateMetricsPort" -}}
+{{- if eq (int .Values.metrics.port) (int .Values.containerPort) -}}
+{{- fail (printf "metrics.port (%v) must differ from containerPort (%v)" .Values.metrics.port .Values.containerPort) -}}
+{{- end -}}
 {{- end -}}
 
 {{/*

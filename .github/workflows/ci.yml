@@ -59,6 +59,9 @@ jobs:
       - name: 🩺 Test grounds-service probe contract
         run: bash scripts/test-grounds-service-probes.sh
 
+      - name: 📈 Test grounds-gamemode metrics contract
+        run: bash scripts/test-gamemode-metrics.sh
+
   detect-changed-charts:
     name: 🔎 Detect changed charts
     runs-on: ubuntu-24.04-arm
