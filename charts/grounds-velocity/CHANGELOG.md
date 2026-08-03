@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.11.0...grounds-velocity-v0.12.0) (2026-08-03)
+
+
+### Features
+
+* **grounds-velocity:** opt-in Prometheus metrics on the proxy pods ([#149](https://github.com/groundsgg/charts/issues/149)) ([d9d370c](https://github.com/groundsgg/charts/commit/d9d370c6ce7ca37cea2f283741f51b01e3597a1f))
+
 ## [0.11.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.10.0...grounds-velocity-v0.11.0) (2026-08-02)
 
 
