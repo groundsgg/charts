@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.11.0...grounds-gamemode-v0.12.0) (2026-08-03)
+
+
+### Features
+
+* **grounds-gamemode:** opt-in Prometheus metrics on game-server pods ([#147](https://github.com/groundsgg/charts/issues/147)) ([351c7b2](https://github.com/groundsgg/charts/commit/351c7b2c2e5b3213fae3c0ba01b7dfb0d07207e8))
+
 ## [0.11.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.10.0...grounds-gamemode-v0.11.0) (2026-08-02)
 
 
