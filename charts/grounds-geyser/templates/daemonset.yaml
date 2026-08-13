@@ -29,10 +29,9 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{/* The hostPort is exclusive, so the old pod on a node has to be gone before
-       its replacement can bind. RollingUpdate on a DaemonSet already deletes
-       before it creates, one node at a time — a Bedrock player on that node
-       reconnects, players on the others never notice. */}}
+  {{/* One node at a time: a Bedrock player on that node reconnects, players on
+       the others never notice. RakNet sessions are per-process, so a pod
+       replacement always drops the sessions it was holding. */}}
   updateStrategy:
     type: RollingUpdate
     rollingUpdate:
@@ -73,12 +72,20 @@ spec:
         - name: geyser
           image: "{{ $imageRepo }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{/* No hostPort. It is what a Bedrock client needs — 19132 is outside
+               the NodePort range, so a Service cannot serve it the ordinary way
+               — but binding it here costs the whole namespace its PodSecurity
+               level: baseline forbids hostPort, so allowing one means enforcing
+               `privileged` for everything alongside.
+
+               The region's Pulumi stack owns a Service with `externalIPs` set to
+               the node addresses instead. Cilium runs with kube-proxy
+               replacement and programs those, so UDP 19132 on any node address
+               reaches these pods without the pod claiming a port on the host —
+               and the namespace stays at baseline. */}}
           ports:
             - name: bedrock
               containerPort: {{ .Values.bedrock.port }}
-              {{- if .Values.bedrock.hostPort }}
-              hostPort: {{ .Values.bedrock.port }}
-              {{- end }}
               protocol: UDP
           {{- with .Values.resources }}
           resources:

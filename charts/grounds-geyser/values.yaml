@@ -42,17 +42,20 @@ image:
 # belongs on the environment whose users are the team, not the one whose users
 # are players.
 bedrock:
-  port: 19132
-  # Bound on the node, not behind a Service: a Bedrock client speaks RakNet
-  # over UDP and the address it dials is the only routing key that exists
-  # before the session is up — there is no handshake hostname for anything to
-  # route on, the way mc-router does for Java. So the player has to reach the
-  # node directly.
+  # A Bedrock client speaks RakNet over UDP, and the address it dials is the
+  # only routing key that exists before the session is up — there is no
+  # handshake hostname for anything to route on, the way mc-router does for
+  # Java. So the player has to reach a node address directly, on this port.
   #
-  # `hostPort` and not `hostNetwork`: the pod keeps its own network namespace,
-  # so nothing else on the node is exposed, and the remote address below can
-  # still be a cluster DNS name.
-  hostPort: true
+  # Reaching it is NOT this chart's job. 19132 sits outside the NodePort range,
+  # so an ordinary Service cannot serve it, and a hostPort would cost the whole
+  # namespace its PodSecurity level — baseline forbids hostPort, so one pod
+  # binding it means enforcing `privileged` for everything alongside.
+  #
+  # The region's Pulumi stack owns a Service with `externalIPs` set to the node
+  # addresses. Cilium programs those, so this port reaches the pods without any
+  # of them claiming a port on the host.
+  port: 19132
   # What the Bedrock server list shows before the player connects. Geyser
   # answers these locally — the ping never reaches Velocity.
   motd1: "Grounds"
