@@ -43,6 +43,9 @@
     },
     "charts/grounds-valkey-dev": {
       "release-type": "helm"
+    },
+    "charts/grounds-geyser": {
+      "release-type": "helm"
     }
   }
 }

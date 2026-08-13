@@ -1,0 +1,136 @@
+# Default values for grounds-geyser.
+#
+# Geyser Standalone is the Bedrock entry point: it terminates the RakNet/UDP
+# session a Bedrock client opens, translates it to the Java protocol, and
+# connects to Velocity as an ordinary Java client. Everything downstream of
+# Velocity — plugin-agones discovery, the game-server fleets — is unchanged and
+# never learns the player came from Bedrock.
+#
+# It is a separate release rather than a sidecar on the proxy on purpose.
+# Bedrock breaks its protocol roughly every six weeks and Geyser has to be
+# updated in step; as a sidecar every one of those updates would restart a
+# player-facing Velocity pod. Separated, a Geyser roll costs Bedrock players a
+# reconnect and costs Java players nothing.
+
+global:
+  commonLabels: {}
+  commonAnnotations: {}
+
+replicaCount: 1
+
+image:
+  # Our own build, the way ghcr.io/groundsgg/velocity is.
+  #
+  # GeyserMC publishes no official container image — only small third-party
+  # repositories exist, and none of them is something to put in the player
+  # path of a signed, pinned supply chain. The image has to ship Geyser
+  # Standalone with its data directory at /opt/geyser.
+  registry: "ghcr.io"
+  repository: "groundsgg/geyser"
+  # A moving default, pinned per environment — the same contract every other
+  # chart here has, and deploy's CI enforces it: a component whose values do
+  # not override this fails the "everything is pinned" check.
+  #
+  # It matters more here than elsewhere. A moving tag turns any unrelated pod
+  # restart into an unannounced protocol upgrade, and a Geyser one Bedrock
+  # version behind rejects every client that already auto-updated.
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# The UDP port Bedrock clients connect to.
+#
+# 19132 is the default in the Bedrock "Add Server" UI. Any other value is a
+# port every player has to type by hand, which is why the non-default port
+# belongs on the environment whose users are the team, not the one whose users
+# are players.
+bedrock:
+  port: 19132
+  # Bound on the node, not behind a Service: a Bedrock client speaks RakNet
+  # over UDP and the address it dials is the only routing key that exists
+  # before the session is up — there is no handshake hostname for anything to
+  # route on, the way mc-router does for Java. So the player has to reach the
+  # node directly.
+  #
+  # `hostPort` and not `hostNetwork`: the pod keeps its own network namespace,
+  # so nothing else on the node is exposed, and the remote address below can
+  # still be a cluster DNS name.
+  hostPort: true
+  # What the Bedrock server list shows before the player connects. Geyser
+  # answers these locally — the ping never reaches Velocity.
+  motd1: "Grounds"
+  motd2: ""
+  serverName: "Grounds"
+  # RakNet is stateful and a session belongs to one Geyser process for its
+  # whole life. Two pods on one node would also collide on the hostPort. The
+  # anti-affinity makes the second pod Pending instead of letting the
+  # scheduler produce a half-broken placement.
+  #
+  # Scaling past one replica per region needs source-IP affinity in front,
+  # which nothing here provides — raise replicaCount only together with that.
+  antiAffinity: true
+
+# Where Geyser sends the translated Java-protocol connection.
+#
+# The in-cluster Velocity Service, not a node IP: Geyser is a client of the
+# proxy like any other backend caller, and the ClusterIP is the address that
+# survives the proxy pod moving.
+remote:
+  address: "velocity"
+  port: 25565
+  # `floodgate` is the only auth-type that works in front of an online-mode
+  # proxy. A Bedrock player has an XUID and no Mojang account, so there is no
+  # Java login for Velocity to verify; Floodgate is what lets the proxy accept
+  # the connection and hand the player a deterministic UUID derived from the
+  # XUID instead.
+  #
+  # It requires the Floodgate plugin on Velocity AND the same key file on both
+  # sides — see floodgateKey below. Set to `offline` only against a proxy that
+  # is itself in offline mode.
+  authType: "floodgate"
+
+# The shared secret that lets Velocity's Floodgate plugin trust the player data
+# Geyser sends it. Referenced, never created: secrets reach this namespace via
+# ESO / Pulumi, the same way velocity-forwarding-secret does, and a chart that
+# generated its own would produce a different key on the proxy side.
+floodgateKey:
+  # Set to false when authType is not `floodgate`.
+  enabled: true
+  secretName: "floodgate-key"
+  key: "key.pem"
+
+# DNS for the node this pod lands on.
+#
+# external-dns' Pod source publishes an A record pointing at the *node's*
+# ExternalIP for any pod carrying this annotation — which is the only way a
+# hostPort workload becomes reachable by name, since there is no Service and
+# therefore no LoadBalancer IP to publish.
+#
+# NOTE: the Pod source has to be in external-dns' `sources` list for this to do
+# anything. It is not in the module default.
+dns:
+  # Leave empty to publish nothing and point a record at the node by hand.
+  hostname: ""
+
+# Geyser writes nothing here that has to survive a restart — player sessions
+# are in-memory and the config is mounted read-only from a ConfigMap. Caches
+# rebuild.
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+# Extra top-level keys merged into the rendered config.yml. Geyser has far more
+# settings than this chart models; anything it does not model goes here rather
+# than growing a value per option.
+#
+# Example:
+#   extraConfig:
+#     max-players: 200
+#     show-coordinates: false
+extraConfig: {}
+
+nodeSelector: {}
+tolerations: []

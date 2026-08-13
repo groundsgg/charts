@@ -1,0 +1,44 @@
+{{/*
+Geyser reads a single config.yml at startup. Only the keys this chart models
+are written; every key Geyser has a default for is left out on purpose, so an
+upstream default change is inherited instead of being silently pinned to
+whatever the default was when this template was written.
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  config.yml: |
+    bedrock:
+      # 0.0.0.0, not the pod IP: with a hostPort the kubelet forwards from the
+      # node's address into the pod, so binding anything narrower means the
+      # forwarded packets arrive at a socket nothing is listening on.
+      address: 0.0.0.0
+      port: {{ .Values.bedrock.port }}
+      # The port advertised to the client in the pong is this one, not the
+      # remote's. Cloning the remote port would advertise Velocity's 25565 to a
+      # Bedrock client, which then dials a port that speaks TCP.
+      clone-remote-port: false
+      motd1: {{ .Values.bedrock.motd1 | quote }}
+      motd2: {{ .Values.bedrock.motd2 | quote }}
+      server-name: {{ .Values.bedrock.serverName | quote }}
+    remote:
+      address: {{ .Values.remote.address | quote }}
+      port: {{ .Values.remote.port }}
+      auth-type: {{ .Values.remote.authType | quote }}
+    {{- if .Values.floodgateKey.enabled }}
+    floodgate-key-file: /opt/geyser/floodgate/{{ .Values.floodgateKey.key }}
+    {{- end }}
+    {{- with .Values.extraConfig }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
