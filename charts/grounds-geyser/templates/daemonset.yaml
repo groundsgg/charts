@@ -1,5 +1,22 @@
+{{/*
+A DaemonSet, not a Deployment, and that follows from how a Bedrock client finds
+this cluster at all.
+
+A Bedrock client does not read SRV records. It dials UDP 19132 on whatever the
+name resolves to, full stop — where a Java client is handed the real port by an
+SRV and lands on mc-router's NodePort. 19132 is also outside the NodePort range,
+so a Service cannot serve it and the pod has to bind the node directly.
+
+The region's A records carry EVERY worker node's address, because a NodePort
+answers on all of them. One Geyser pod on one node would leave a Bedrock player
+resolving an address where nothing is listening, with no fallback — so it runs
+on every node, and any address in the record set works.
+
+That also removes the reschedule outage the alternative has: a single pod moving
+node means waiting out DNS before Bedrock players can reconnect.
+*/}}
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: {{ .Release.Name }}
   labels:
@@ -12,14 +29,14 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  replicas: {{ .Values.replicaCount }}
-  {{- if .Values.bedrock.hostPort }}
-  {{/* Recreate, not RollingUpdate: the hostPort is exclusive, so a surge pod
-       cannot start on the same node while the old one still holds the port —
-       the rollout would stall until the deadline instead of proceeding. */}}
-  strategy:
-    type: Recreate
-  {{- end }}
+  {{/* The hostPort is exclusive, so the old pod on a node has to be gone before
+       its replacement can bind. RollingUpdate on a DaemonSet already deletes
+       before it creates, one node at a time — a Bedrock player on that node
+       reconnects, players on the others never notice. */}}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
   selector:
     matchLabels:
       {{- include "common.selectorLabels" . | nindent 6 }}
@@ -39,19 +56,7 @@ spec:
         {{- with .Values.global.commonAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-        {{- with .Values.dns.hostname }}
-        external-dns.alpha.kubernetes.io/hostname: {{ . | quote }}
-        {{- end }}
     spec:
-      {{- if .Values.bedrock.antiAffinity }}
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchLabels:
-                  {{- include "common.selectorLabels" . | nindent 18 }}
-              topologyKey: kubernetes.io/hostname
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

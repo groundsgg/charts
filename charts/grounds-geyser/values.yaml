@@ -16,8 +16,6 @@ global:
   commonLabels: {}
   commonAnnotations: {}
 
-replicaCount: 1
-
 image:
   # Our own build, the way ghcr.io/groundsgg/velocity is.
   #
@@ -60,14 +58,6 @@ bedrock:
   motd1: "Grounds"
   motd2: ""
   serverName: "Grounds"
-  # RakNet is stateful and a session belongs to one Geyser process for its
-  # whole life. Two pods on one node would also collide on the hostPort. The
-  # anti-affinity makes the second pod Pending instead of letting the
-  # scheduler produce a half-broken placement.
-  #
-  # Scaling past one replica per region needs source-IP affinity in front,
-  # which nothing here provides — raise replicaCount only together with that.
-  antiAffinity: true
 
 # Where Geyser sends the translated Java-protocol connection.
 #
@@ -98,18 +88,13 @@ floodgateKey:
   secretName: "floodgate-key"
   key: "key.pem"
 
-# DNS for the node this pod lands on.
+# No DNS knob here on purpose.
 #
-# external-dns' Pod source publishes an A record pointing at the *node's*
-# ExternalIP for any pod carrying this annotation — which is the only way a
-# hostPort workload becomes reachable by name, since there is no Service and
-# therefore no LoadBalancer IP to publish.
-#
-# NOTE: the Pod source has to be in external-dns' `sources` list for this to do
-# anything. It is not in the module default.
-dns:
-  # Leave empty to publish nothing and point a record at the node by hand.
-  hostname: ""
+# Running on every node means the region's existing A records already point at
+# addresses where Geyser is listening — the same set mc-router's NodePort is
+# reached on. The Bedrock name is declared alongside them by the satellite's
+# Pulumi stack, next to the records it already writes, rather than being
+# assembled from a pod annotation.
 
 # Geyser writes nothing here that has to survive a restart — player sessions
 # are in-memory and the config is mounted read-only from a ConfigMap. Caches
