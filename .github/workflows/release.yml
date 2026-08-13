@@ -41,6 +41,7 @@ jobs:
           - grounds-gamemode
           - service-notifications
           - novu
+          - grounds-geyser
     env:
       MATCHES_REF: ${{ startsWith(github.ref, format('refs/tags/{0}-v', matrix.chart)) }}
     steps:
