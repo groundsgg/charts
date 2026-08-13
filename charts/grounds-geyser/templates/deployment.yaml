@@ -80,13 +80,19 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-            {{/* subPath so the mount lands as a single file: Geyser's data
-                 directory also holds caches and logs it writes at runtime, and
-                 mounting the ConfigMap as a directory would replace all of
-                 it with a read-only volume. */}}
+            {{/* /config, not /opt/geyser/config.yml. Geyser does not just read
+                 its config, it rewrites it: on startup it fills in every key it
+                 has a default for and saves the result back atomically, temp
+                 file then rename. Against a read-only mount that rename fails
+                 with "Resource busy" and Geyser refuses to start — reported as
+                 a config error, which is a long way from the real cause.
+
+                 The image's start.sh copies this into the working directory,
+                 which is writable, so the rewrite lands on a copy and is
+                 discarded on restart. The ConfigMap stays the only source of
+                 truth. Requires geyser image >= 0.1.0. */}}
             - name: config
-              mountPath: /opt/geyser/config.yml
-              subPath: config.yml
+              mountPath: /config
               readOnly: true
             {{- if .Values.floodgateKey.enabled }}
             - name: floodgate-key
