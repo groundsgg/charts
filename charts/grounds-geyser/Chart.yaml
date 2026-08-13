@@ -3,7 +3,7 @@ name: grounds-geyser
 description: Geyser Standalone — Bedrock UDP entry point that translates to the
   Java-protocol Velocity proxy
 type: application
-version: 0.2.0
+version: 1.0.0
 
 dependencies:
   - name: common

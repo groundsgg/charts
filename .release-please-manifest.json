@@ -13,5 +13,5 @@
   "charts/service-notifications": "0.6.0",
   "charts/novu": "1.0.0",
   "charts/grounds-valkey-dev": "0.2.1",
-  "charts/grounds-geyser": "0.2.0"
+  "charts/grounds-geyser": "1.0.0"
 }
