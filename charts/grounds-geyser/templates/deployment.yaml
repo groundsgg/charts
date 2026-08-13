@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  {{- if .Values.bedrock.hostPort }}
+  {{/* Recreate, not RollingUpdate: the hostPort is exclusive, so a surge pod
+       cannot start on the same node while the old one still holds the port —
+       the rollout would stall until the deadline instead of proceeding. */}}
+  strategy:
+    type: Recreate
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.podLabels" . | nindent 8 }}
+        {{- with .Values.global.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{/* Roll the pod when the rendered config changes. Geyser reads
+             config.yml once at startup, so without this a values change syncs
+             into the ConfigMap and then does nothing until something else
+             happens to restart the pod. */}}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.global.commonAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.dns.hostname }}
+        external-dns.alpha.kubernetes.io/hostname: {{ . | quote }}
+        {{- end }}
+    spec:
+      {{- if .Values.bedrock.antiAffinity }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  {{- include "common.selectorLabels" . | nindent 18 }}
+              topologyKey: kubernetes.io/hostname
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- $imageRepo := .Values.image.repository }}
+      {{- if .Values.image.registry }}
+      {{- $imageRepo = printf "%s/%s" .Values.image.registry .Values.image.repository }}
+      {{- end }}
+      containers:
+        - name: geyser
+          image: "{{ $imageRepo }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: bedrock
+              containerPort: {{ .Values.bedrock.port }}
+              {{- if .Values.bedrock.hostPort }}
+              hostPort: {{ .Values.bedrock.port }}
+              {{- end }}
+              protocol: UDP
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{/* subPath so the mount lands as a single file: Geyser's data
+                 directory also holds caches and logs it writes at runtime, and
+                 mounting the ConfigMap as a directory would replace all of
+                 it with a read-only volume. */}}
+            - name: config
+              mountPath: /opt/geyser/config.yml
+              subPath: config.yml
+              readOnly: true
+            {{- if .Values.floodgateKey.enabled }}
+            - name: floodgate-key
+              mountPath: /opt/geyser/floodgate
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}
+        {{- if .Values.floodgateKey.enabled }}
+        - name: floodgate-key
+          secret:
+            secretName: {{ .Values.floodgateKey.secretName }}
+            items:
+              - key: {{ .Values.floodgateKey.key }}
+                path: {{ .Values.floodgateKey.key }}
+        {{- end }}
