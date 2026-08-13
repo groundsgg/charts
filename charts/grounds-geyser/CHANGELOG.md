@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/groundsgg/charts/compare/grounds-geyser-v0.3.0...grounds-geyser-v0.4.0) (2026-08-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* **grounds-geyser:** bedrock.hostPort is gone, and the chart no longer exposes the port by itself — a deployment needs the Service its region provides.
+
+### Features
+
+* **grounds-geyser:** drop the hostPort ([#167](https://github.com/groundsgg/charts/issues/167)) ([29e5985](https://github.com/groundsgg/charts/commit/29e5985ae6990c5244c5bf14b0680e6a88301c50))
+
 ## [0.3.0](https://github.com/groundsgg/charts/compare/grounds-geyser-v0.2.0...grounds-geyser-v0.3.0) (2026-08-13)
 
 
