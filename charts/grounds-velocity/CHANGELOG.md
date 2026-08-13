@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.12.0...grounds-velocity-v0.13.0) (2026-08-13)
+
+
+### Features
+
+* **grounds-velocity:** mount the floodgate key for a bedrock proxy ([#161](https://github.com/groundsgg/charts/issues/161)) ([a8c8da7](https://github.com/groundsgg/charts/commit/a8c8da7738ccf3e7d96a2e9d7c7fd2399554e86d))
+
 ## [0.12.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.11.0...grounds-velocity-v0.12.0) (2026-08-03)
 
 
