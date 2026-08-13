@@ -107,6 +107,29 @@ forwardingSecret:
   name: "velocity-forwarding-secret"
   key: "secret"
 
+# The Floodgate key, for a proxy that admits Bedrock players.
+#
+# Floodgate is what lets an online-mode proxy accept a player who has an Xbox
+# Live account and no Mojang one: Geyser signs the player data with this key and
+# Floodgate verifies the signature. Both sides must see byte-identical keys, so
+# it is referenced and never generated — the same reason velocity-forwarding-
+# secret is provisioned out-of-band.
+#
+# Mounted somewhere neutral rather than onto plugins/floodgate, because
+# Floodgate also creates a config.yml in that directory on first start and a
+# read-only mount there stops the plugin initialising. The image's start.sh
+# copies the key in from FLOODGATE_KEY_FILE, which this renders.
+#
+# Requires a velocity image that reads FLOODGATE_KEY_FILE. Off by default:
+# a proxy with no Bedrock players has no use for it, and enabling it also means
+# setting VELOCITY_FORCE_KEY_AUTHENTICATION=false, which is not something to do
+# on a proxy that serves Java players.
+floodgateKey:
+  enabled: false
+  secretName: "floodgate-key"
+  key: "key.pem"
+  mountPath: /var/run/secrets/floodgate
+
 # Graceful proxy drain. When enabled, the pod's preStop hook calls the drain
 # endpoint of the baked plugin-agones (loopback only) and waits until the proxy
 # is empty: lobby players are moved to another proxy right away with a
