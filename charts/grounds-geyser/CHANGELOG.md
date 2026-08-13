@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.0](https://github.com/groundsgg/charts/compare/grounds-geyser-v0.2.0...grounds-geyser-v0.3.0) (2026-08-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* **grounds-geyser:** the workload is a DaemonSet, so replicaCount and the anti-affinity toggle are gone, and so is the external-dns annotation — the Bedrock name is declared by the satellite stack next to the records it already writes for these same addresses.
+
+### Features
+
+* **grounds-geyser:** run on every node ([#163](https://github.com/groundsgg/charts/issues/163)) ([23e8512](https://github.com/groundsgg/charts/commit/23e8512da505bdf08d29f63605a6c8f7f331d0ec))
+
 ## [0.2.0](https://github.com/groundsgg/charts/compare/grounds-geyser-v0.1.0...grounds-geyser-v0.2.0) (2026-08-13)
 
 
