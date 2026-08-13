@@ -45,7 +45,8 @@
       "release-type": "helm"
     },
     "charts/grounds-geyser": {
-      "release-type": "helm"
+      "release-type": "helm",
+      "initial-version": "0.1.0"
     }
   }
 }
