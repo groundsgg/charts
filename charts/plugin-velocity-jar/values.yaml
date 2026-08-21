@@ -52,6 +52,8 @@ resources:
 # its own requests it inherits the namespace LimitRange default, and since a
 # pod reserves `max(sum(containers), largest initContainer)` that default —
 # not the 10m above — is what the scheduler holds for the whole pod.
+# Requests only: limits are left to the namespace default so a cold start is
+# never throttled while it copies.
 initResources:
   requests:
     cpu: "10m"
