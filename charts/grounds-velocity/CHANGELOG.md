@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.1](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.13.0...grounds-velocity-v0.13.1) (2026-08-21)
+
+
+### Bug Fixes
+
+* **grounds-velocity:** say why the init requests carry no limits ([#172](https://github.com/groundsgg/charts/issues/172)) ([bb28de6](https://github.com/groundsgg/charts/commit/bb28de62c7bf772c6fca2a5b72276c6dcf47985b))
+
 ## [0.13.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.12.0...grounds-velocity-v0.13.0) (2026-08-13)
 
 
