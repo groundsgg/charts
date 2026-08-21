@@ -76,6 +76,10 @@ spec:
                  emptyDir root is owned by root, so preserving timestamps on the
                  destination directory fails with EPERM and the pod never inits. */}}
             - cp -r /app/plugins/. /plugins/
+          {{- with $.Values.initResources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: plugins
               mountPath: /plugins
@@ -92,6 +96,10 @@ spec:
               --retry 5 --retry-delay 2 --retry-connrefused
               -o /plugins/{{ $plugin }}.jar
               http://{{ $plugin }}:8080/plugin.jar
+          {{- with $.Values.initResources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: plugins
               mountPath: /plugins

@@ -68,6 +68,16 @@ resources:
     cpu: "2"
     memory: "2Gi"
 
+# The init-containers seed and fetch plugin JARs and then exit. Without their
+# own requests they inherit the namespace LimitRange default, and since a pod
+# reserves `max(sum(containers), largest initContainer)` that default can end
+# up being what the scheduler holds for the proxy — on a full node that is the
+# difference between a rollout that schedules and one that waits forever.
+initResources:
+  requests:
+    cpu: "10m"
+    memory: "32Mi"
+
 # Velocity exposes the player port (modern Minecraft proxy) and an
 # optional metrics port via the velocity-prometheus-exporter plugin.
 ports:
