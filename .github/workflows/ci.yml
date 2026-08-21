@@ -8,6 +8,7 @@ on:
       - "charts/**"
       - "scripts/test-permissions-runtime.sh"
       - "scripts/test-grounds-service-probes.sh"
+      - "scripts/check-pr-title-scope.sh"
       - "tests/permissions/**"
       - "tests/grounds-service/**"
       - ".github/workflows/ci.yml"
@@ -18,6 +19,7 @@ on:
       - "charts/**"
       - "scripts/test-permissions-runtime.sh"
       - "scripts/test-grounds-service-probes.sh"
+      - "scripts/check-pr-title-scope.sh"
       - "tests/permissions/**"
       - "tests/grounds-service/**"
       - ".github/workflows/ci.yml"
@@ -92,6 +94,26 @@ jobs:
 
           echo "charts=$charts" >> "$GITHUB_OUTPUT"
           echo "has-changed-charts=$([[ "$charts" == "[]" ]] && echo false || echo true)" >> "$GITHUB_OUTPUT"
+
+  title-scope:
+    name: 🏷️ Title carries the chart scope
+    needs: detect-changed-charts
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 5
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v7
+
+      # The squash merge turns this title into the commit message, and Release
+      # Please reads the scope off it to decide which chart to release.
+      - name: 🏷️ Check the pull request title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          CHANGED_CHARTS: ${{ needs.detect-changed-charts.outputs.charts }}
+        run: |
+          mapfile -t charts < <(jq -r '.[]' <<< "$CHANGED_CHARTS")
+          bash scripts/check-pr-title-scope.sh "$PR_TITLE" "${charts[@]}"
 
   charts:
     name: 🧪 Lint/Test/Package ${{ matrix.chart }}
