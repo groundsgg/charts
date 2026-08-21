@@ -73,6 +73,8 @@ resources:
 # reserves `max(sum(containers), largest initContainer)` that default can end
 # up being what the scheduler holds for the proxy — on a full node that is the
 # difference between a rollout that schedules and one that waits forever.
+# Requests only: limits are left to the namespace default so a cold start is
+# never throttled while it fetches.
 initResources:
   requests:
     cpu: "10m"
