@@ -169,6 +169,8 @@ jobs:
         run: |
           if [[ "${{ matrix.chart }}" == "novu" ]]; then
             echo 'args=--set novu.secrets.novuSecretKey=test --set novu.secrets.jwtSecret=test --set novu.secrets.storeEncryptionKey=test --set novu.secrets.awsAccessKeyId=test --set novu.secrets.awsSecretAccessKey=test' >> "$GITHUB_OUTPUT"
+          elif [[ "${{ matrix.chart }}" == "grounds-static-servers" ]]; then
+            echo 'args=--set servers.buildserver=buildserver:25565' >> "$GITHUB_OUTPUT"
           else
             echo 'args=' >> "$GITHUB_OUTPUT"
           fi

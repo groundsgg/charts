@@ -35,17 +35,14 @@ assert_render_fails() {
 }
 
 cat >"${output_dir}/valid-values.yaml" <<'EOF'
-configMap:
-  name: shared-static-servers
 servers:
   zebra: zebra.example.internal:25566
   alpha: alpha.example.internal:25565
 EOF
 
 helm template test "${chart}" -f "${output_dir}/valid-values.yaml" >"${output_dir}/valid.yaml"
-helm template default "${chart}" >"${output_dir}/default.yaml"
 
-config_map='select(.kind == "ConfigMap" and .metadata.name == "shared-static-servers")'
+config_map='select(.kind == "ConfigMap" and .metadata.name == "velocity-static-servers-v1")'
 assert_yq "${output_dir}/valid.yaml" \
   "${config_map} | .data.GROUNDS_STATIC_SERVERS == \"alpha=alpha.example.internal:25565,zebra=zebra.example.internal:25566\"" \
   "ConfigMap does not expose deterministically sorted plugin-agones servers"
@@ -54,9 +51,9 @@ assert_yq "${output_dir}/valid.yaml" \
   "chart did not render exactly one ConfigMap"
 assert_yq "${output_dir}/valid.yaml" \
   "${config_map} | .immutable == true" \
-  "shared ConfigMap is not immutable"
-assert_yq "${output_dir}/default.yaml" \
-  "select(.kind == \"ConfigMap\") | .metadata.name == \"velocity-static-servers-v1\" and .immutable == true and .data.GROUNDS_STATIC_SERVERS == \"buildserver=buildserver:25565\"" \
+  "default ConfigMap is not immutable"
+assert_yq "${output_dir}/valid.yaml" \
+  "${config_map} | .metadata.name == \"velocity-static-servers-v1\" and .immutable == true" \
   "default ConfigMap name is not the immutable versioned contract"
 
 cat >"${output_dir}/empty-servers.yaml" <<'EOF'
