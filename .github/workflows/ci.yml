@@ -54,6 +54,7 @@ jobs:
           helm dependency update charts/grounds-velocity
           helm dependency update charts/grounds-gamemode
           helm dependency update charts/grounds-service
+          helm dependency update charts/grounds-static-servers
 
       - name: 🧪 Test permissions runtime contract
         run: bash scripts/test-permissions-runtime.sh
@@ -66,6 +67,9 @@ jobs:
 
       - name: 📈 Test grounds-velocity metrics contract
         run: bash scripts/test-velocity-metrics.sh
+
+      - name: 🧭 Test grounds-static-servers contract
+        run: bash scripts/test-static-servers.sh
 
   detect-changed-charts:
     name: 🔎 Detect changed charts

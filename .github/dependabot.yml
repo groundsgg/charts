@@ -34,3 +34,7 @@ updates:
     directory: "/charts/agones-fleet"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "helm"
+    directory: "/charts/grounds-static-servers"
+    schedule:
+      interval: "weekly"

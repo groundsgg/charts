@@ -1,0 +1,10 @@
+apiVersion: v2
+name: grounds-static-servers
+description: Environment-owned static Velocity backends for plugin-agones
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: common
+    version: "0.2.0"
+    repository: "oci://ghcr.io/groundsgg/charts"

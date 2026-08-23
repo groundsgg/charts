@@ -1,0 +1,21 @@
+{{- include "grounds-static-servers.validate" . -}}
+{{- $entries := list -}}
+{{- range $name := keys .Values.servers | sortAlpha -}}
+  {{- $entries = append $entries (printf "%s=%s" $name (index $.Values.servers $name)) -}}
+{{- end -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ required "configMap.name is required" .Values.configMap.name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+immutable: true
+data:
+  GROUNDS_STATIC_SERVERS: {{ join "," $entries | quote }}
