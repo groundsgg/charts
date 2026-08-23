@@ -31,7 +31,7 @@ assert_render_fails() {
   if helm template invalid "${chart}" -f "${values_file}" >"${output}" 2>&1; then
     fail "expected render to fail: ${expected}"
   fi
-  rg -F -- "$expected" "${output}" >/dev/null || fail "missing error: ${expected}"
+  grep -F -- "$expected" "${output}" >/dev/null || fail "missing error: ${expected}"
 }
 
 assert_default_render_fails() {
@@ -41,7 +41,7 @@ assert_default_render_fails() {
   if helm template default "${chart}" >"${output}" 2>&1; then
     fail "expected no-values render to fail: ${expected}"
   fi
-  rg -F -- "$expected" "${output}" >/dev/null || fail "missing no-values error: ${expected}"
+  grep -F -- "$expected" "${output}" >/dev/null || fail "missing no-values error: ${expected}"
 }
 
 assert_default_render_fails "servers must contain at least one static server"
