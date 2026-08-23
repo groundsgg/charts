@@ -8,6 +8,7 @@ on:
       - "charts/**"
       - "scripts/test-permissions-runtime.sh"
       - "scripts/test-grounds-service-probes.sh"
+      - "scripts/test-static-servers.sh"
       - "scripts/check-pr-title-scope.sh"
       - "tests/permissions/**"
       - "tests/grounds-service/**"
@@ -19,6 +20,7 @@ on:
       - "charts/**"
       - "scripts/test-permissions-runtime.sh"
       - "scripts/test-grounds-service-probes.sh"
+      - "scripts/test-static-servers.sh"
       - "scripts/check-pr-title-scope.sh"
       - "tests/permissions/**"
       - "tests/grounds-service/**"
@@ -54,6 +56,7 @@ jobs:
           helm dependency update charts/grounds-velocity
           helm dependency update charts/grounds-gamemode
           helm dependency update charts/grounds-service
+          helm dependency update charts/grounds-static-servers
 
       - name: 🧪 Test permissions runtime contract
         run: bash scripts/test-permissions-runtime.sh
@@ -66,6 +69,9 @@ jobs:
 
       - name: 📈 Test grounds-velocity metrics contract
         run: bash scripts/test-velocity-metrics.sh
+
+      - name: 🧭 Test grounds-static-servers contract
+        run: bash scripts/test-static-servers.sh
 
   detect-changed-charts:
     name: 🔎 Detect changed charts
@@ -165,6 +171,8 @@ jobs:
         run: |
           if [[ "${{ matrix.chart }}" == "novu" ]]; then
             echo 'args=--set novu.secrets.novuSecretKey=test --set novu.secrets.jwtSecret=test --set novu.secrets.storeEncryptionKey=test --set novu.secrets.awsAccessKeyId=test --set novu.secrets.awsSecretAccessKey=test' >> "$GITHUB_OUTPUT"
+          elif [[ "${{ matrix.chart }}" == "grounds-static-servers" ]]; then
+            echo 'args=--set servers.buildserver=buildserver:25565' >> "$GITHUB_OUTPUT"
           else
             echo 'args=' >> "$GITHUB_OUTPUT"
           fi
