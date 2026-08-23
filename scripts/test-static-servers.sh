@@ -53,13 +53,14 @@ global:
 servers:
   zebra: zebra.example.internal:25566
   alpha: alpha.example.internal:25565
+  ipv4: 10.42.1.7:25567
 EOF
 
 helm template test "${chart}" -f "${output_dir}/valid-values.yaml" >"${output_dir}/valid.yaml"
 
 config_map='select(.kind == "ConfigMap" and .metadata.name == "velocity-static-servers-v1")'
 assert_yq "${output_dir}/valid.yaml" \
-  "${config_map} | .data.GROUNDS_STATIC_SERVERS == \"alpha=alpha.example.internal:25565,zebra=zebra.example.internal:25566\"" \
+  "${config_map} | .data.GROUNDS_STATIC_SERVERS == \"alpha=alpha.example.internal:25565,ipv4=10.42.1.7:25567,zebra=zebra.example.internal:25566\"" \
   "ConfigMap does not expose deterministically sorted plugin-agones servers"
 assert_yq "${output_dir}/valid.yaml" \
   "[${config_map}] | length == 1" \
@@ -111,6 +112,42 @@ servers:
   lobby: "lobby.example.internal:25565,other.example.internal:25566"
 EOF
 assert_render_fails "${output_dir}/unsafe-endpoint.yaml" "endpoint must be a DNS or IPv4 host and port"
+
+cat >"${output_dir}/empty-dns-label.yaml" <<'EOF'
+servers:
+  lobby: a..b:25565
+EOF
+assert_render_fails "${output_dir}/empty-dns-label.yaml" "endpoint must be a valid DNS or IPv4 host and port"
+
+cat >"${output_dir}/invalid-dns-label-boundary.yaml" <<'EOF'
+servers:
+  lobby: a.-b:25565
+EOF
+assert_render_fails "${output_dir}/invalid-dns-label-boundary.yaml" "endpoint must be a valid DNS or IPv4 host and port"
+
+cat >"${output_dir}/oversized-dns-label.yaml" <<'EOF'
+servers:
+  lobby: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.internal:25565
+EOF
+assert_render_fails "${output_dir}/oversized-dns-label.yaml" "endpoint must be a valid DNS or IPv4 host and port"
+
+cat >"${output_dir}/oversized-dns-host.yaml" <<'EOF'
+servers:
+  lobby: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:25565
+EOF
+assert_render_fails "${output_dir}/oversized-dns-host.yaml" "endpoint must be a valid DNS or IPv4 host and port"
+
+cat >"${output_dir}/invalid-ipv4-octet.yaml" <<'EOF'
+servers:
+  lobby: 256.10.20.30:25565
+EOF
+assert_render_fails "${output_dir}/invalid-ipv4-octet.yaml" "endpoint must be a valid DNS or IPv4 host and port"
+
+cat >"${output_dir}/oversized-ipv4-octet.yaml" <<'EOF'
+servers:
+  lobby: 999999999999999999999.10.20.30:25565
+EOF
+assert_render_fails "${output_dir}/oversized-ipv4-octet.yaml" "endpoint must be a valid DNS or IPv4 host and port"
 
 cat >"${output_dir}/case-duplicate.yaml" <<'EOF'
 servers:
