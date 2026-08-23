@@ -14,4 +14,4 @@ configMap:
 # Each map key is the Velocity server name and each value is its host:port
 # endpoint. Entries are rendered alphabetically by server name.
 servers:
-  lobby: lobby:25565
+  buildserver: buildserver:25565

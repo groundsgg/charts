@@ -56,7 +56,7 @@ assert_yq "${output_dir}/valid.yaml" \
   "${config_map} | .immutable == true" \
   "shared ConfigMap is not immutable"
 assert_yq "${output_dir}/default.yaml" \
-  "select(.kind == \"ConfigMap\") | .metadata.name == \"velocity-static-servers-v1\" and .immutable == true" \
+  "select(.kind == \"ConfigMap\") | .metadata.name == \"velocity-static-servers-v1\" and .immutable == true and .data.GROUNDS_STATIC_SERVERS == \"buildserver=buildserver:25565\"" \
   "default ConfigMap name is not the immutable versioned contract"
 
 cat >"${output_dir}/empty-servers.yaml" <<'EOF'
@@ -74,13 +74,25 @@ cat >"${output_dir}/empty-endpoint.yaml" <<'EOF'
 servers:
   lobby: ""
 EOF
-assert_render_fails "${output_dir}/empty-endpoint.yaml" "endpoint must be a host:port value"
+assert_render_fails "${output_dir}/empty-endpoint.yaml" "endpoint must be a DNS or IPv4 host and port"
 
 cat >"${output_dir}/empty-name.yaml" <<'EOF'
 servers:
   "": lobby.example.internal:25565
 EOF
 assert_render_fails "${output_dir}/empty-name.yaml" "static server name must not be empty"
+
+cat >"${output_dir}/unsafe-name.yaml" <<'EOF'
+servers:
+  "lobby,other": lobby.example.internal:25565
+EOF
+assert_render_fails "${output_dir}/unsafe-name.yaml" "name must use only letters, numbers, underscores, or hyphens"
+
+cat >"${output_dir}/unsafe-endpoint.yaml" <<'EOF'
+servers:
+  lobby: "lobby.example.internal:25565,other.example.internal:25566"
+EOF
+assert_render_fails "${output_dir}/unsafe-endpoint.yaml" "endpoint must be a DNS or IPv4 host and port"
 
 cat >"${output_dir}/case-duplicate.yaml" <<'EOF'
 servers:

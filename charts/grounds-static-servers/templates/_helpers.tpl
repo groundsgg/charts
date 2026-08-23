@@ -11,6 +11,9 @@
   {{- if eq (trim $name) "" -}}
     {{- fail "static server name must not be empty" -}}
   {{- end -}}
+  {{- if not (regexMatch "^[A-Za-z0-9_-]+$" $name) -}}
+    {{- fail (printf "static server %q name must use only letters, numbers, underscores, or hyphens" $name) -}}
+  {{- end -}}
   {{- $normalizedName := lower $name -}}
   {{- if has $normalizedName $seen -}}
     {{- fail (printf "duplicate static server name (case-insensitive): %s" $name) -}}
@@ -20,8 +23,8 @@
   {{- if not (kindIs "string" $endpoint) -}}
     {{- fail (printf "static server %q endpoint must be a host:port string" $name) -}}
   {{- end -}}
-  {{- if not (regexMatch "^[^[:space:]]+:[0-9]+$" $endpoint) -}}
-    {{- fail (printf "static server %q endpoint must be a host:port value" $name) -}}
+  {{- if not (regexMatch "^([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9.-]*[A-Za-z0-9]):[0-9]+$" $endpoint) -}}
+    {{- fail (printf "static server %q endpoint must be a DNS or IPv4 host and port" $name) -}}
   {{- end -}}
   {{- $port := regexFind "[0-9]+$" $endpoint | int -}}
   {{- if or (lt $port 1) (gt $port 65535) -}}
