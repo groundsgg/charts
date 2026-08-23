@@ -9,6 +9,8 @@ configMap:
   # grounds-velocity releases in one environment need to reference one stable
   # ConfigMap. Bump this explicit version when the static-server set changes,
   # then update each proxy's configMapKeyRef to roll it out.
+  # Helm keeps old immutable versions during upgrades and uninstalls. Remove
+  # them manually only after every proxy references the replacement name.
   name: velocity-static-servers-v1
 
 # Each map key is the Velocity server name and each value is its host:port

@@ -34,7 +34,22 @@ assert_render_fails() {
   rg -F -- "$expected" "${output}" >/dev/null || fail "missing error: ${expected}"
 }
 
+assert_default_render_fails() {
+  local expected="$1"
+  local output="${output_dir}/default-failure.txt"
+
+  if helm template default "${chart}" >"${output}" 2>&1; then
+    fail "expected no-values render to fail: ${expected}"
+  fi
+  rg -F -- "$expected" "${output}" >/dev/null || fail "missing no-values error: ${expected}"
+}
+
+assert_default_render_fails "servers must contain at least one static server"
+
 cat >"${output_dir}/valid-values.yaml" <<'EOF'
+global:
+  commonAnnotations:
+    grounds.gg/owner: static-servers
 servers:
   zebra: zebra.example.internal:25566
   alpha: alpha.example.internal:25565
@@ -55,6 +70,12 @@ assert_yq "${output_dir}/valid.yaml" \
 assert_yq "${output_dir}/valid.yaml" \
   "${config_map} | .metadata.name == \"velocity-static-servers-v1\" and .immutable == true" \
   "default ConfigMap name is not the immutable versioned contract"
+assert_yq "${output_dir}/valid.yaml" \
+  "${config_map} | .metadata.annotations[\"helm.sh/resource-policy\"] == \"keep\"" \
+  "ConfigMap is not retained while proxies overlap during a versioned upgrade"
+assert_yq "${output_dir}/valid.yaml" \
+  "${config_map} | .metadata.annotations[\"grounds.gg/owner\"] == \"static-servers\"" \
+  "ConfigMap does not preserve global annotations"
 
 cat >"${output_dir}/empty-servers.yaml" <<'EOF'
 servers: {}

@@ -12,10 +12,8 @@ metadata:
     {{- with .Values.global.commonLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.global.commonAnnotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- merge (dict "helm.sh/resource-policy" "keep") .Values.global.commonAnnotations | toYaml | nindent 4 }}
 immutable: true
 data:
   GROUNDS_STATIC_SERVERS: {{ join "," $entries | quote }}
