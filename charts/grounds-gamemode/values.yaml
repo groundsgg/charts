@@ -194,3 +194,16 @@ permissions:
     audience: service-permissions
     expirationSeconds: 3600
     mountPath: /var/run/secrets/grounds/permissions-token
+
+# Durable server data for Deployment-mode Paper (buildserver). Off by default
+# so lobbies/games keep emptyDir behaviour. When enabled, the PVC is mounted at
+# mountPath (buildserver uses /data; the image entrypoint must keep plugin JARs
+# on the image and only persist world/plugin data under that path).
+persistence:
+  enabled: false
+  existingClaim: ""
+  size: 20Gi
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  mountPath: /data

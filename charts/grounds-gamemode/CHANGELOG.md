@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Features
+
+* **grounds-gamemode:** optional PVC persistence for Deployment Paper
+
 ## [0.12.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.11.0...grounds-gamemode-v0.12.0) (2026-08-03)
 
 
