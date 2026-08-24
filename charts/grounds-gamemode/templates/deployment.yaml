@@ -6,6 +6,10 @@
 {{- $permissionsTokenPath := clean .Values.permissions.token.mountPath -}}
 {{- $permissionsTokenDirectory := dir $permissionsTokenPath -}}
 {{- $sharedTokenDirectory := and $groundsTokenEnabled .Values.permissions.enabled (eq $groundsTokenMountPath $permissionsTokenDirectory) -}}
+{{- $persistence := .Values.persistence | default dict -}}
+{{- $persistenceEnabled := and (not .Values.agones.enabled) ($persistence.enabled | default false) -}}
+{{- $persistenceClaim := default (printf "%s-data" .Release.Name) ($persistence.existingClaim | default "") -}}
+{{- $needsVolumes := or $groundsTokenEnabled .Values.permissions.enabled $persistenceEnabled -}}
 {{- if not .Values.agones.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -71,7 +75,7 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if or $groundsTokenEnabled .Values.permissions.enabled }}
+          {{- if $needsVolumes }}
           volumeMounts:
             {{- if $groundsTokenEnabled }}
             - name: grounds-sa-token
@@ -83,8 +87,12 @@ spec:
               mountPath: {{ $permissionsTokenDirectory }}
               readOnly: true
             {{- end }}
+            {{- if $persistenceEnabled }}
+            - name: data
+              mountPath: {{ $persistence.mountPath | default "/data" }}
+            {{- end }}
           {{- end }}
-      {{- if or $groundsTokenEnabled .Values.permissions.enabled }}
+      {{- if $needsVolumes }}
       volumes:
         {{- if $groundsTokenEnabled }}
         - name: grounds-sa-token
@@ -109,6 +117,11 @@ spec:
                   audience: {{ .Values.permissions.token.audience }}
                   expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
                   path: {{ base $permissionsTokenPath }}
+        {{- end }}
+        {{- if $persistenceEnabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ $persistenceClaim | quote }}
         {{- end }}
       {{- end }}
 {{- end }}
