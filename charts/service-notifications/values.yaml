@@ -15,6 +15,7 @@ config:
   keycloakIssuerUrl: "https://account.grounds.gg/realms/grounds"
   jwtPublicKeyLocation: "https://account.grounds.gg/realms/grounds/protocol/openid-connect/certs"
   forgeBaseUrl: "http://grounds-forge.grounds-forge.svc.cluster.local:8080"
+  moderationProjectorEnabled: false
 
 existingSecret:
   name: "service-notifications"

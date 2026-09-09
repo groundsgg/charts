@@ -44,6 +44,8 @@ spec:
               value: {{ required "config.forgeBaseUrl is required" .Values.config.forgeBaseUrl | quote }}
             - name: NOTIFICATIONS_FORGE_BASE_URL
               value: {{ required "config.forgeBaseUrl is required" .Values.config.forgeBaseUrl | quote }}
+            - name: NOTIFICATIONS_MODERATION_PROJECTOR_ENABLED
+              value: {{ .Values.config.moderationProjectorEnabled | quote }}
             {{- if .Values.nats.url }}
             - name: NATS_URL
               value: {{ .Values.nats.url | quote }}
