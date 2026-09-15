@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.6.0...service-notifications-v0.7.0) (2026-09-15)
+
+
+### Features
+
+* **service-notifications:** expose moderation projector flag ([#181](https://github.com/groundsgg/charts/issues/181)) ([8219b85](https://github.com/groundsgg/charts/commit/8219b85450a0e54b1d1593a8f11df9215bf15046))
+
 ## [0.6.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.5.0...service-notifications-v0.6.0) (2026-07-24)
 
 
