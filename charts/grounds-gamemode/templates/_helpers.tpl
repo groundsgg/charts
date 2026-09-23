@@ -31,6 +31,8 @@ Velocity forwarding env-vars for the engine.
 {{- if .Values.agones.matchmaking.enabled }}
 - name: GROUNDS_MATCHMAKING
   value: "1"
+- name: NATS_URL
+  value: {{ .Values.agones.matchmaking.natsUrl | quote }}
 - name: GROUNDS_MATCH_HOST_PORT
   value: {{ .Values.agones.matchmaking.grpcPort | quote }}
 {{- end }}
