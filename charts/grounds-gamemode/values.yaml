@@ -109,6 +109,12 @@ agones:
 # Deployment-mode config (ignored when agones.enabled).
 replicas: 1
 
+# Deployment update strategy; empty keeps Kubernetes' RollingUpdate. Set
+# `{type: Recreate}` for a single replica on a node without headroom: a rolling
+# update starts the new pod before stopping the old one, and when the node cannot
+# fit both the new pod stays Pending forever while the old version keeps running.
+strategy: {}
+
 # velocity-forwarding-secret is provisioned out-of-band; the chart
 # only references it. Same convention as grounds-velocity.
 forwardingSecret:
