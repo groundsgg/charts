@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.13.0...grounds-gamemode-v0.14.0) (2026-09-29)
+
+
+### Features
+
+* **grounds-gamemode:** make the deployment update strategy configurable ([#183](https://github.com/groundsgg/charts/issues/183)) ([704817c](https://github.com/groundsgg/charts/commit/704817c276daedfe685d8277b21f4a28020faf99))
+
 ## [0.13.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.12.0...grounds-gamemode-v0.13.0) (2026-08-24)
 
 
