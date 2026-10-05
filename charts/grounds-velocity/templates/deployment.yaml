@@ -16,6 +16,11 @@ metadata:
   {{- end }}
 spec:
   replicas: {{ .Values.replicas }}
+  {{- if eq .Values.updateStrategy "Recreate" }}
+  # Old pod gone before the new one starts — see updateStrategy in values.yaml.
+  strategy:
+    type: Recreate
+  {{- else if eq .Values.updateStrategy "RollingUpdate" }}
   # Surge first, never below capacity: the new pod must be Ready (see the
   # readinessProbe) before the old one starts draining, or a transferred player
   # has nowhere to land.
@@ -24,6 +29,9 @@ spec:
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
+  {{- else }}
+  {{- fail (printf "updateStrategy must be RollingUpdate or Recreate, got %q" .Values.updateStrategy) }}
+  {{- end }}
   {{- if .Values.drain.enabled }}
   # A draining pod legitimately holds the rollout open until its players are
   # gone; the Deployment default (600s) would flag that as a failed rollout.
