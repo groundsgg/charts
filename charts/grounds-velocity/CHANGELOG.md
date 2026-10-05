@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.13.1...grounds-velocity-v0.14.0) (2026-10-05)
+
+
+### Features
+
+* **grounds-velocity:** allow a recreate rollout via updateStrategy ([#185](https://github.com/groundsgg/charts/issues/185)) ([83b0238](https://github.com/groundsgg/charts/commit/83b02381a7a41de166b3e66c50c45b1140aa2547))
+
 ## [0.13.1](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.13.0...grounds-velocity-v0.13.1) (2026-08-21)
 
 
