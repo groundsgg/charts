@@ -40,6 +40,17 @@ global:
 
 replicas: 1
 
+# How a new pod replaces the old one.
+#   RollingUpdate  the new pod is Ready before the old one drains, so the proxy
+#                  never drops below capacity. Briefly runs two proxies.
+#   Recreate       the old pod is fully gone (drained) before the new one
+#                  starts: never two proxies at once, but this proxy is down for
+#                  the drain plus a boot. For a node with no headroom for a
+#                  second JVM, where another proxy carries players meanwhile.
+# maxSurge 0 would not do the second: a terminating pod does not count against
+# it, so the new pod would start beside the draining one anyway.
+updateStrategy: RollingUpdate
+
 image:
   registry: "ghcr.io"
   repository: "groundsgg/velocity"
