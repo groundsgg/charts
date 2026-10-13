@@ -196,13 +196,17 @@ spec:
                 command:
                   - sh
                   - -c
-                  # Ask the baked plugin-agones to drain, then wait until the
-                  # proxy is empty; the kubelet's grace period is the hard stop.
-                  # If the endpoint is not there (older image, plugin missing),
-                  # the first wget fails and this returns immediately — which is
-                  # exactly today's behaviour, not a hang.
+                  # Wait first: termination and the Service dropping this pod
+                  # happen at the same moment, and a player transferred before
+                  # the routing has caught up reconnects to this very pod, which
+                  # is draining and refuses them. Then ask the baked
+                  # plugin-agones to drain and wait until the proxy is empty; the
+                  # kubelet's grace period is the hard stop. If the endpoint is
+                  # not there (older image, plugin missing), the first wget fails
+                  # and this returns right after the wait, not a hang.
                   - |
-                    if wget -q -O /dev/null "http://127.0.0.1:{{ .Values.drain.httpPort }}/drain/start?deadlineSeconds={{ max 30 (sub .Values.terminationGracePeriodSeconds 60) }}"; then
+                    sleep {{ .Values.drain.startDelaySeconds }}
+                    if wget -q -O /dev/null "http://127.0.0.1:{{ .Values.drain.httpPort }}/drain/start?deadlineSeconds={{ max 30 (sub .Values.terminationGracePeriodSeconds (add 60 .Values.drain.startDelaySeconds)) }}"; then
                       while [ "$(wget -q -O - "http://127.0.0.1:{{ .Values.drain.httpPort }}/drain/players" 2>/dev/null || echo 0)" != "0" ]; do
                         sleep 5
                       done
