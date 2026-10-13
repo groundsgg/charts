@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.14.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.13.1...grounds-velocity-v0.14.0) (2026-10-13)
+
+
+### Features
+
+* **grounds-velocity:** allow a recreate rollout via updateStrategy ([#185](https://github.com/groundsgg/charts/issues/185)) ([83b0238](https://github.com/groundsgg/charts/commit/83b02381a7a41de166b3e66c50c45b1140aa2547))
+
+
+### Bug Fixes
+
+* **grounds-velocity:** wait before starting the drain ([#187](https://github.com/groundsgg/charts/issues/187)) ([d2fb4fd](https://github.com/groundsgg/charts/commit/d2fb4fd93ce7abca51e3b99456b70eef4cd95441))
+
 ## [0.13.1](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.13.0...grounds-velocity-v0.13.1) (2026-08-21)
 
 
