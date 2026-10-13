@@ -73,19 +73,29 @@ agones:
   enabled: false
   # Matchmaking mode. When on, the matchmaker (service-match) allocates and
   # drives these servers: it selects on the Agones `matches` Counter and pushes
-  # each match over gRPC to the server's MatchHost port. Off for ordinary fleets
-  # — a lobby is joined directly, not matchmade — so the counter, the gRPC port
-  # and GROUNDS_MATCHMAKING are all opt-in and a non-matchmade Fleet renders
-  # exactly as before.
+  # each match to the server over NATS. Off for ordinary fleets — a lobby is
+  # joined directly, not matchmade — so the counter, the broker address and
+  # GROUNDS_MATCHMAKING are all opt-in and a non-matchmade Fleet renders exactly
+  # as before.
   matchmaking:
     enabled: false
     # How many matches one server may host at once — the capacity of the
     # `matches` Counter the allocator reads (`minAvailable >= 1`) and increments
     # on allocation. The server decrements it when a match ends.
     counterCapacity: 4
-    # The MatchHost gRPC port the server listens on and service-match dials
-    # (its GAMESERVER_GRPC_PORT default). A plain container port on the PodIP,
-    # not an Agones-managed game port.
+    # Where the server waits for its matches. It subscribes to
+    # `match.host.<gameServerName>.start`, and Agones names the pod after the
+    # GameServer, so the server derives that name from its own HOSTNAME and the
+    # matchmaker never has to know where the pod is.
+    #
+    # That is the whole reason this replaced a dialled port: these fleets run
+    # portPolicy: None, so they have no Service and no DNS name, and the
+    # matchmaker had to read the PodIP off the GameServer status.
+    natsUrl: "nats://nats.nats.svc.cluster.local:4222"
+    # The old MatchHost gRPC port, kept for one release. A runtime that has not
+    # migrated yet has no NATS responder, and service-match falls back to this
+    # rather than leaving the match unstarted. Remove once every fleet answers
+    # on NATS — with it, the container port below.
     grpcPort: 9090
   fleet:
     minReplicas: 0
