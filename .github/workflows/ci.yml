@@ -9,6 +9,7 @@ on:
       - "scripts/test-permissions-runtime.sh"
       - "scripts/test-grounds-service-probes.sh"
       - "scripts/test-static-servers.sh"
+      - "scripts/test-floodgate-config.sh"
       - "scripts/check-pr-title-scope.sh"
       - "tests/permissions/**"
       - "tests/grounds-service/**"
@@ -21,6 +22,7 @@ on:
       - "scripts/test-permissions-runtime.sh"
       - "scripts/test-grounds-service-probes.sh"
       - "scripts/test-static-servers.sh"
+      - "scripts/test-floodgate-config.sh"
       - "scripts/check-pr-title-scope.sh"
       - "tests/permissions/**"
       - "tests/grounds-service/**"
@@ -69,6 +71,9 @@ jobs:
 
       - name: 📈 Test grounds-velocity metrics contract
         run: bash scripts/test-velocity-metrics.sh
+
+      - name: 🔐 Test grounds-velocity Floodgate configuration
+        run: bash scripts/test-floodgate-config.sh
 
       - name: 🧭 Test grounds-static-servers contract
         run: bash scripts/test-static-servers.sh

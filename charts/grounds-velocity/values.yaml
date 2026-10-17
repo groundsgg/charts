@@ -153,6 +153,13 @@ floodgateKey:
   key: "key.pem"
   mountPath: /var/run/secrets/floodgate
 
+# Managed Floodgate settings for Bedrock admission. Keep linking disabled so a
+# Floodgate profile always uses its own UUID and its own saved player data.
+# Opt-in because Java-only proxies do not load Floodgate.
+floodgateConfig:
+  enabled: false
+  mountPath: /config/floodgate
+
 # Graceful proxy drain. When enabled, the pod's preStop hook calls the drain
 # endpoint of the baked plugin-agones (loopback only) and waits until the proxy
 # is empty: lobby players are moved to another proxy right away with a

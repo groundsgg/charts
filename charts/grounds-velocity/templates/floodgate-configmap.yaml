@@ -1,0 +1,23 @@
+{{- if .Values.floodgateConfig.enabled }}
+{{- if not .Values.floodgateKey.enabled }}
+{{- fail "floodgateConfig.enabled requires floodgateKey.enabled" }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-floodgate-config
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    grounds/component: velocity
+data:
+  config.yml: |
+    username-prefix: "."
+    replace-spaces: true
+    key-file-name: key.pem
+    send-floodgate-data: false
+    player-link:
+      enabled: false
+      require-link: false
+      enable-own-linking: false
+      enable-global-linking: false
+{{- end }}
