@@ -156,7 +156,7 @@ floodgateKey:
 # Managed Floodgate settings for Bedrock admission. Keep linking disabled so a
 # Floodgate profile always uses its own UUID and its own saved player data.
 # Opt-in because Java-only proxies do not load Floodgate.
-floodgateConfig:
+floodgate:
   enabled: false
   mountPath: /config/floodgate
 

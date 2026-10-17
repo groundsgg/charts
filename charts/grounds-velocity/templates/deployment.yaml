@@ -48,13 +48,13 @@ spec:
         {{- with .Values.global.commonLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- if or .Values.global.commonAnnotations .Values.metrics.enabled .Values.floodgateConfig.enabled }}
+      {{- if or .Values.global.commonAnnotations .Values.metrics.enabled .Values.floodgate.enabled }}
       annotations:
         {{- with .Values.global.commonAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         {{- include "grounds-velocity.metricsAnnotations" . | nindent 8 }}
-        {{- if .Values.floodgateConfig.enabled }}
+        {{- if .Values.floodgate.enabled }}
         checksum/floodgate-config: {{ include (print $.Template.BasePath "/floodgate-configmap.yaml") . | sha256sum }}
         {{- end }}
       {{- end }}
@@ -185,9 +185,9 @@ spec:
             - name: FLOODGATE_KEY_FILE
               value: {{ printf "%s/%s" .Values.floodgateKey.mountPath .Values.floodgateKey.key | quote }}
             {{- end }}
-            {{- if .Values.floodgateConfig.enabled }}
+            {{- if .Values.floodgate.enabled }}
             - name: FLOODGATE_CONFIG_FILE
-              value: {{ printf "%s/config.yml" .Values.floodgateConfig.mountPath | quote }}
+              value: {{ printf "%s/config.yml" .Values.floodgate.mountPath | quote }}
             {{- end }}
           # Readiness gates the rollout: with maxUnavailable 0 the old pod is
           # only terminated once the new one accepts Minecraft connections.
@@ -250,9 +250,9 @@ spec:
               mountPath: {{ .Values.floodgateKey.mountPath }}
               readOnly: true
             {{- end }}
-            {{- if .Values.floodgateConfig.enabled }}
+            {{- if .Values.floodgate.enabled }}
             - name: floodgate-config
-              mountPath: {{ .Values.floodgateConfig.mountPath }}
+              mountPath: {{ .Values.floodgate.mountPath }}
               readOnly: true
             {{- end }}
       volumes:
@@ -264,7 +264,7 @@ spec:
               - key: {{ .Values.floodgateKey.key }}
                 path: {{ .Values.floodgateKey.key }}
         {{- end }}
-        {{- if .Values.floodgateConfig.enabled }}
+        {{- if .Values.floodgate.enabled }}
         - name: floodgate-config
           configMap:
             name: {{ .Release.Name }}-floodgate-config

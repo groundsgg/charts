@@ -12,7 +12,7 @@ assert_yq() {
 }
 
 helm template java "${chart}" >"${output_dir}/java.yaml"
-helm template bedrock "${chart}" --set floodgateKey.enabled=true --set floodgateConfig.enabled=true >"${output_dir}/bedrock.yaml"
+helm template bedrock "${chart}" --set floodgateKey.enabled=true --set floodgate.enabled=true >"${output_dir}/bedrock.yaml"
 
 if yq -e 'select(.kind == "ConfigMap" and .metadata.name == "java-floodgate-config")' "${output_dir}/java.yaml" >/dev/null 2>&1; then
   fail "Java release unexpectedly rendered Floodgate config"

@@ -1,4 +1,4 @@
-{{- if .Values.floodgateConfig.enabled }}
+{{- if .Values.floodgate.enabled }}
 {{- if not .Values.floodgateKey.enabled }}
 {{- fail "floodgateConfig.enabled requires floodgateKey.enabled" }}
 {{- end }}
