@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.14.0...grounds-velocity-v0.15.0) (2026-10-17)
+
+
+### Features
+
+* **grounds-velocity:** manage Floodgate linking policy ([#188](https://github.com/groundsgg/charts/issues/188)) ([4c6dede](https://github.com/groundsgg/charts/commit/4c6deded2970916a98406c37bddf8b6a64e5bf17))
+
 ## [0.14.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.13.1...grounds-velocity-v0.14.0) (2026-10-13)
 
 
