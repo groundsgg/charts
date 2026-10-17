@@ -14,6 +14,13 @@ assert_yq() {
 helm template java "${chart}" >"${output_dir}/java.yaml"
 helm template bedrock "${chart}" --set floodgateKey.enabled=true --set floodgate.enabled=true >"${output_dir}/bedrock.yaml"
 
+if helm template invalid-key-only "${chart}" --set floodgateKey.enabled=true >"${output_dir}/invalid-key-only.yaml" 2>"${output_dir}/invalid-key-only.err"; then
+  fail "Floodgate key without managed config unexpectedly rendered"
+fi
+if helm template invalid-config-only "${chart}" --set floodgate.enabled=true >"${output_dir}/invalid-config-only.yaml" 2>"${output_dir}/invalid-config-only.err"; then
+  fail "managed Floodgate config without key unexpectedly rendered"
+fi
+
 if yq -e 'select(.kind == "ConfigMap" and .metadata.name == "java-floodgate-config")' "${output_dir}/java.yaml" >/dev/null 2>&1; then
   fail "Java release unexpectedly rendered Floodgate config"
 fi

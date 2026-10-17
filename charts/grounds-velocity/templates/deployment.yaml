@@ -1,3 +1,6 @@
+{{- if ne .Values.floodgateKey.enabled .Values.floodgate.enabled -}}
+{{- fail "floodgateKey.enabled and floodgate.enabled must match so Floodgate always uses the managed no-linking config" -}}
+{{- end -}}
 {{- $permissionsTokenDirectory := dir .Values.permissions.token.mountPath -}}
 {{- $sharedTokenDirectory := and .Values.groundsToken.enabled .Values.permissions.enabled (eq .Values.groundsToken.mountPath $permissionsTokenDirectory) -}}
 apiVersion: apps/v1
