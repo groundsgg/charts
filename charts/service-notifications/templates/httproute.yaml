@@ -17,7 +17,20 @@ spec:
   hostnames:
     - {{ required "gateway.hostname is required" .Values.gateway.hostname | quote }}
   rules:
-    - backendRefs:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /v1/notifications
+        - path:
+            type: PathPrefix
+            value: /v1/admin/notifications
+        - path:
+            type: PathPrefix
+            value: /v1/channel/minecraft
+        - path:
+            type: PathPrefix
+            value: /v1/notification-events
+      backendRefs:
         - name: {{ include "service-notifications.fullname" . }}
           port: {{ .Values.service.port }}
 {{- end }}
