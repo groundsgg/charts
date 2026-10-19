@@ -11,7 +11,7 @@ service:
   port: 8080
 
 config:
-  publicUrl: "https://notifications.grounds.gg"
+  publicUrl: "https://api.grounds.gg"
   keycloakIssuerUrl: "https://account.grounds.gg/realms/grounds"
   jwtPublicKeyLocation: "https://account.grounds.gg/realms/grounds/protocol/openid-connect/certs"
   forgeBaseUrl: "http://grounds-forge.grounds-forge.svc.cluster.local:8080"
@@ -56,7 +56,7 @@ database:
 
 gateway:
   enabled: true
-  hostname: "notifications.grounds.gg"
+  hostname: "api.grounds.gg"
   parentRef:
     name: "grounds-gateway"
     namespace: "gateway-system"
