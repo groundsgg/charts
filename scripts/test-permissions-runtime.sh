@@ -102,8 +102,81 @@ assert_kind_not_contains "$gamemode_null_fleet_output" "RoleBinding"
 service_default_output="${output_dir}/grounds-service-default.yaml"
 render test grounds-service "$service_default_output"
 assert_not_contains "$service_default_output" "name: service-permissions-runtime"
+assert_not_contains "$service_default_output" "PERMISSIONS_TOKEN_FILE"
+assert_not_contains "$service_default_output" "permissions-sa-token"
+assert_not_contains "$service_default_output" "audience: service-permissions"
 assert_not_contains "$service_default_output" "tokenreviews"
 assert_not_contains "$service_default_output" "subjectaccessreviews"
+assert_kind_not_contains "$service_default_output" "ClusterRole"
+assert_kind_not_contains "$service_default_output" "ClusterRoleBinding"
+
+service_consumer_token_output="${output_dir}/grounds-service-consumer-token.yaml"
+render service-moderation grounds-service "$service_consumer_token_output" \
+  -f "${repo_root}/tests/permissions/service-consumer-token-values.yaml"
+assert_contains "$service_consumer_token_output" "serviceAccountName: service-moderation"
+assert_contains "$service_consumer_token_output" "name: PERMISSIONS_TOKEN_FILE"
+assert_contains "$service_consumer_token_output" 'value: "/var/run/secrets/grounds-permissions/token"'
+assert_contains "$service_consumer_token_output" "name: permissions-sa-token"
+assert_contains "$service_consumer_token_output" "mountPath: /var/run/secrets/grounds-permissions"
+assert_contains "$service_consumer_token_output" "audience: service-permissions"
+assert_contains "$service_consumer_token_output" "expirationSeconds: 3600"
+assert_contains "$service_consumer_token_output" "path: token"
+assert_not_contains "$service_consumer_token_output" "GROUNDS_TOKEN_FILE"
+assert_not_contains "$service_consumer_token_output" "grounds-sa-token"
+assert_kind_not_contains "$service_consumer_token_output" "Secret"
+assert_kind_not_contains "$service_consumer_token_output" "ClusterRole"
+assert_kind_not_contains "$service_consumer_token_output" "ClusterRoleBinding"
+
+service_two_tokens_output="${output_dir}/grounds-service-two-tokens.yaml"
+render service-moderation grounds-service "$service_two_tokens_output" \
+  -f "${repo_root}/tests/permissions/service-consumer-token-values.yaml" \
+  --set groundsToken.enabled=true
+assert_contains "$service_two_tokens_output" "name: GROUNDS_TOKEN_FILE"
+assert_contains "$service_two_tokens_output" 'value: "/var/run/secrets/grounds/token"'
+assert_contains "$service_two_tokens_output" "name: PERMISSIONS_TOKEN_FILE"
+assert_contains "$service_two_tokens_output" 'value: "/var/run/secrets/grounds-permissions/token"'
+assert_contains "$service_two_tokens_output" "mountPath: /var/run/secrets/grounds"
+assert_contains "$service_two_tokens_output" "mountPath: /var/run/secrets/grounds-permissions"
+assert_contains "$service_two_tokens_output" "name: grounds-sa-token"
+assert_contains "$service_two_tokens_output" "name: permissions-sa-token"
+assert_contains "$service_two_tokens_output" "audience: grounds-services"
+assert_contains "$service_two_tokens_output" "audience: service-permissions"
+assert_count "$service_two_tokens_output" 2 "- serviceAccountToken:"
+assert_kind_not_contains "$service_two_tokens_output" "ClusterRole"
+assert_kind_not_contains "$service_two_tokens_output" "ClusterRoleBinding"
+
+service_review_tokens_output="${output_dir}/grounds-service-review-tokens.yaml"
+render service-moderation grounds-service "$service_review_tokens_output" \
+  -f "${repo_root}/tests/permissions/service-consumer-token-values.yaml" \
+  --set groundsToken.enabled=true \
+  --set kubernetesReview.enabled=true
+assert_contains "$service_review_tokens_output" "serviceAccountName: service-moderation"
+assert_contains "$service_review_tokens_output" "automountServiceAccountToken: false"
+assert_contains "$service_review_tokens_output" "mountPath: /var/run/secrets/kubernetes.io/serviceaccount"
+assert_contains "$service_review_tokens_output" "name: kube-root-ca.crt"
+assert_contains "$service_review_tokens_output" "path: namespace"
+assert_contains "$service_review_tokens_output" "- tokenreviews"
+assert_contains "$service_review_tokens_output" "- subjectaccessreviews"
+assert_count "$service_review_tokens_output" 3 "- serviceAccountToken:"
+
+service_missing_account_output="${output_dir}/grounds-service-missing-account.txt"
+assert_render_fails service-moderation grounds-service "$service_missing_account_output" \
+  "permissionsToken requires an explicit serviceAccount.name" \
+  --set permissionsToken.enabled=true
+
+service_token_collision_output="${output_dir}/grounds-service-token-collision.txt"
+assert_render_fails service-moderation grounds-service "$service_token_collision_output" \
+  "projected service-account token mount paths must not overlap" \
+  -f "${repo_root}/tests/permissions/service-consumer-token-values.yaml" \
+  --set groundsToken.enabled=true \
+  --set groundsToken.mountPath=/var/run/secrets/grounds-permissions
+
+service_review_collision_output="${output_dir}/grounds-service-review-collision.txt"
+assert_render_fails service-moderation grounds-service "$service_review_collision_output" \
+  "projected service-account token mount paths must not overlap" \
+  -f "${repo_root}/tests/permissions/service-consumer-token-values.yaml" \
+  --set kubernetesReview.enabled=true \
+  --set permissionsToken.mountPath=/var/run/secrets/kubernetes.io/serviceaccount
 
 velocity_output="${output_dir}/velocity.yaml"
 render velocity grounds-velocity "$velocity_output" \
