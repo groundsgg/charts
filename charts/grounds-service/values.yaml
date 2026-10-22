@@ -191,6 +191,18 @@ groundsToken:
   ## @param groundsToken.expirationSeconds Requested token TTL (kubelet rotates)
   expirationSeconds: 3600
 
+## @section Permissions runtime consumer token
+## Projects a second, independent ServiceAccount token whose fixed audience is
+## service-permissions. Consumers use it for the permissions runtime; it does
+## not replace GROUNDS_TOKEN_FILE or grant Kubernetes RBAC by itself.
+permissionsToken:
+  ## @param permissionsToken.enabled Project the service-permissions audience token
+  enabled: false
+  ## @param permissionsToken.mountPath Directory for the projected token
+  mountPath: /var/run/secrets/grounds-permissions
+  ## @param permissionsToken.expirationSeconds Requested token TTL (kubelet rotates)
+  expirationSeconds: 3600
+
 ## Explicit Kubernetes API identity for backends that validate projected
 ## workload tokens with TokenReview and authorize paths with SubjectAccessReview.
 ## Disabled by default so ordinary services gain neither credentials nor RBAC.

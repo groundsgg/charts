@@ -1,4 +1,18 @@
 {{- if .Values.deployment.enabled }}
+{{- if .Values.permissionsToken.enabled }}
+{{- if eq (trim .Values.serviceAccount.name) "" }}
+{{- fail "permissionsToken requires an explicit serviceAccount.name" }}
+{{- end }}
+{{- $permissionsMount := trimSuffix "/" .Values.permissionsToken.mountPath }}
+{{- $groundsMount := trimSuffix "/" .Values.groundsToken.mountPath }}
+{{- $kubernetesMount := "/var/run/secrets/kubernetes.io/serviceaccount" }}
+{{- if and .Values.groundsToken.enabled (or (eq $permissionsMount $groundsMount) (hasPrefix (printf "%s/" $permissionsMount) $groundsMount) (hasPrefix (printf "%s/" $groundsMount) $permissionsMount)) }}
+{{- fail "projected service-account token mount paths must not overlap" }}
+{{- end }}
+{{- if and .Values.kubernetesReview.enabled (or (eq $permissionsMount $kubernetesMount) (hasPrefix (printf "%s/" $permissionsMount) $kubernetesMount) (hasPrefix (printf "%s/" $kubernetesMount) $permissionsMount)) }}
+{{- fail "projected service-account token mount paths must not overlap" }}
+{{- end }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -48,7 +62,7 @@ spec:
             matchLabels:
               {{- include "common.selectorLabels" . | nindent 14 }}
       {{- end }}
-      {{- if or .Values.serviceAccount.create .Values.kubernetesReview.enabled }}
+      {{- if or .Values.serviceAccount.create .Values.kubernetesReview.enabled .Values.permissionsToken.enabled }}
       serviceAccountName: {{ .Values.serviceAccount.name | default .Release.Name }}
       {{- end }}
       {{- if .Values.kubernetesReview.enabled }}
@@ -90,7 +104,7 @@ spec:
               sleep:
                 seconds: {{ .Values.deployment.preStopSleepSeconds }}
           {{- end }}
-          {{- if or .Values.deployment.env .Values.groundsToken.enabled }}
+          {{- if or .Values.deployment.env .Values.groundsToken.enabled .Values.permissionsToken.enabled }}
           env:
             {{- with .Values.deployment.env }}
             {{- toYaml . | nindent 12 }}
@@ -99,12 +113,21 @@ spec:
             - name: GROUNDS_TOKEN_FILE
               value: {{ printf "%s/token" .Values.groundsToken.mountPath | quote }}
             {{- end }}
+            {{- if .Values.permissionsToken.enabled }}
+            - name: PERMISSIONS_TOKEN_FILE
+              value: {{ printf "%s/token" .Values.permissionsToken.mountPath | quote }}
+            {{- end }}
           {{- end }}
-          {{- if or .Values.groundsToken.enabled .Values.kubernetesReview.enabled }}
+          {{- if or .Values.groundsToken.enabled .Values.permissionsToken.enabled .Values.kubernetesReview.enabled }}
           volumeMounts:
             {{- if .Values.groundsToken.enabled }}
             - name: grounds-sa-token
               mountPath: {{ .Values.groundsToken.mountPath }}
+              readOnly: true
+            {{- end }}
+            {{- if .Values.permissionsToken.enabled }}
+            - name: permissions-sa-token
+              mountPath: {{ .Values.permissionsToken.mountPath }}
               readOnly: true
             {{- end }}
             {{- if .Values.kubernetesReview.enabled }}
@@ -113,7 +136,7 @@ spec:
               readOnly: true
             {{- end }}
           {{- end }}
-      {{- if or .Values.groundsToken.enabled .Values.kubernetesReview.enabled }}
+      {{- if or .Values.groundsToken.enabled .Values.permissionsToken.enabled .Values.kubernetesReview.enabled }}
       volumes:
         {{- if .Values.groundsToken.enabled }}
         - name: grounds-sa-token
@@ -122,6 +145,15 @@ spec:
               - serviceAccountToken:
                   audience: {{ .Values.groundsToken.audience }}
                   expirationSeconds: {{ .Values.groundsToken.expirationSeconds }}
+                  path: token
+        {{- end }}
+        {{- if .Values.permissionsToken.enabled }}
+        - name: permissions-sa-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: service-permissions
+                  expirationSeconds: {{ .Values.permissionsToken.expirationSeconds }}
                   path: token
         {{- end }}
         {{- if .Values.kubernetesReview.enabled }}
