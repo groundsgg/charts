@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/groundsgg/charts/compare/service-notifications-v0.7.0...service-notifications-v0.7.1) (2026-10-22)
+
+
+### Bug Fixes
+
+* **service-notifications:** use shared API host with scoped routes ([#190](https://github.com/groundsgg/charts/issues/190)) ([e696445](https://github.com/groundsgg/charts/commit/e6964455ed89046fb45d1f3bb09ddef349263db8))
+
 ## [0.7.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.6.0...service-notifications-v0.7.0) (2026-09-15)
 
 
