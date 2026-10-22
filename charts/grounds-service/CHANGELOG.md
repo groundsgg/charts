@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.9.0...grounds-service-v0.10.0) (2026-10-22)
+
+
+### Features
+
+* **grounds-service:** add permissions audience token ([#192](https://github.com/groundsgg/charts/issues/192)) ([775f133](https://github.com/groundsgg/charts/commit/775f13392e9ef33fddee19f184edc586e6a3975b))
+
 ## [0.9.0](https://github.com/groundsgg/charts/compare/grounds-service-v0.8.0...grounds-service-v0.9.0) (2026-07-30)
 
 
