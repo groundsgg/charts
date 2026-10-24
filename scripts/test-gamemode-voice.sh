@@ -73,6 +73,9 @@ for file in fleet deployment; do
     "$(env_value VOICE_ROUTE_SUBJECT) == \"voice.routes.stage.de-nbg1\"" \
     "${file}: VOICE_ROUTE_SUBJECT disagrees with the relay's ROUTE_SUBJECT"
   assert_yq "${output_dir}/${file}.yaml" \
+    "$(env_value VOICE_PARTY_SUBJECT) == \"social.parties.stage\"" \
+    "${file}: VOICE_PARTY_SUBJECT disagrees with service-social's SOCIAL_PARTY_SUBJECT"
+  assert_yq "${output_dir}/${file}.yaml" \
     "$(env_value VOICE_BIND) == \":24460\"" \
     "${file}: VOICE_BIND is not the relay's POD_PORT"
   assert_yq "${output_dir}/${file}.yaml" \
