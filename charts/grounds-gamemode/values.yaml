@@ -48,6 +48,11 @@ global:
   # comma separated. Read for this continent's own entry point — it is the only
   # place that carries the node port the proxy is actually published on.
   regions: ""
+  # Which environment this release belongs to (`stage`, `prod`) and the internal
+  # DNS zone the region's names live in (`grnds.io`). Both are passed by the
+  # ApplicationSet to every component; only `voice` reads them.
+  environment: ""
+  domain: ""
 
 # Logical kind of the game-server. See note above.
 kind: "paper"
@@ -200,6 +205,32 @@ permissions:
     audience: service-permissions
     expirationSeconds: 3600
     mountPath: /var/run/secrets/grounds/permissions-token
+
+# Simple Voice Chat through the region's grounds-voice-relay.
+#
+# The pod has no public address, so the voice server binds a pod port (24460)
+# and the relay forwards players to it. Enabling does four things: the runtime
+# is told where to bind and which host to hand clients (VOICE_*), the port is
+# declared, the pod's own IP is exposed for the `bind` it announces on NATS, and
+# the route key the relay checks those announcements against is mounted.
+#
+# The host a client is sent to is `<region>.voice.<environment>.geo.<domain>`,
+# the name the region's Pulumi stack writes. Under `geo`, like the Bedrock
+# record, because that is the only delegated zone that actually resolves.
+#
+# Off by default; off renders nothing at all.
+voice:
+  enabled: false
+  # The public UDP port of this environment's voice Service, which is what the
+  # client dials — not the pod port. One per environment, because environments
+  # sharing a region share its node addresses: prod 24454, stage 24455 (the
+  # region's Pulumi stack owns the list).
+  port: 24454
+  # Provisioned per environment namespace by the region's Pulumi stack and
+  # mounted by the relay as well; the chart only references it.
+  routeKey:
+    secretName: "voice-route-key"
+    key: "route-key"
 
 # Durable server data for Deployment-mode Paper (buildserver). Off by default
 # so lobbies/games keep emptyDir behaviour. When enabled, the PVC is mounted at

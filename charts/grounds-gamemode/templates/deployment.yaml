@@ -9,7 +9,7 @@
 {{- $persistence := .Values.persistence | default dict -}}
 {{- $persistenceEnabled := and (not .Values.agones.enabled) ($persistence.enabled | default false) -}}
 {{- $persistenceClaim := default (printf "%s-data" .Release.Name) ($persistence.existingClaim | default "") -}}
-{{- $needsVolumes := or $groundsTokenEnabled .Values.permissions.enabled $persistenceEnabled -}}
+{{- $needsVolumes := or $groundsTokenEnabled .Values.permissions.enabled $persistenceEnabled .Values.voice.enabled -}}
 {{- if not .Values.agones.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -73,6 +73,11 @@ spec:
               containerPort: {{ .Values.containerPort }}
               protocol: TCP
             {{- include "grounds-gamemode.metricsPort" . | nindent 12 }}
+            {{- if .Values.voice.enabled }}
+            - name: voice
+              containerPort: 24460
+              protocol: UDP
+            {{- end }}
           env:
             {{- include "grounds-gamemode.env" . | nindent 12 }}
           {{- with .Values.resources }}
@@ -94,6 +99,11 @@ spec:
             {{- if $persistenceEnabled }}
             - name: data
               mountPath: {{ $persistence.mountPath | default "/data" }}
+            {{- end }}
+            {{- if .Values.voice.enabled }}
+            - name: voice-route-key
+              mountPath: /var/run/secrets/voice
+              readOnly: true
             {{- end }}
           {{- end }}
       {{- if $needsVolumes }}
@@ -126,6 +136,14 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: {{ $persistenceClaim | quote }}
+        {{- end }}
+        {{- if .Values.voice.enabled }}
+        - name: voice-route-key
+          secret:
+            secretName: {{ .Values.voice.routeKey.secretName }}
+            items:
+              - key: {{ .Values.voice.routeKey.key }}
+                path: {{ .Values.voice.routeKey.key }}
         {{- end }}
       {{- end }}
 {{- end }}
