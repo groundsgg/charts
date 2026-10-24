@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.14.0...grounds-gamemode-v0.15.0) (2026-10-24)
+
+
+### Features
+
+* **grounds-gamemode:** optional voice block for the voice relay ([#195](https://github.com/groundsgg/charts/issues/195)) ([6b35b6e](https://github.com/groundsgg/charts/commit/6b35b6e3a3a8d2bf32d09eb223921d1cc2d1cafc))
+
 ## [0.14.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.13.0...grounds-gamemode-v0.14.0) (2026-09-29)
 
 
