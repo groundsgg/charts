@@ -57,6 +57,10 @@ routeKey:
 # A packet forwarder with an in-memory route table. The CPU limit is generous
 # on purpose: throttling a UDP relay is heard as choppy voice, long before it
 # shows up as a metric.
+# UDP sockets per port, each with its own reader. Keep it at the CPU limit
+# below: more readers than CPUs only contend.
+sockets: 1
+
 resources:
   requests:
     cpu: "100m"

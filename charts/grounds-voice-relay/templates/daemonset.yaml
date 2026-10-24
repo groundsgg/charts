@@ -112,6 +112,11 @@ spec:
               value: ":24461"
             - name: ADMIN_ADDR
               value: ":8080"
+            {{/* One reader pair per CPU the pod may use. The relay's own
+                 default is the node's CPU count, which on a large node opens
+                 far more sockets than the CPU limit can serve. */}}
+            - name: SOCKETS
+              value: {{ .Values.sockets | quote }}
             {{/* The relay sends to pods from this address and accepts their
                  answers only on it. */}}
             - name: POD_IP
