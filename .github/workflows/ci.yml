@@ -10,6 +10,7 @@ on:
       - "scripts/test-grounds-service-probes.sh"
       - "scripts/test-static-servers.sh"
       - "scripts/test-floodgate-config.sh"
+      - "scripts/test-gamemode-voice.sh"
       - "scripts/check-pr-title-scope.sh"
       - "tests/permissions/**"
       - "tests/grounds-service/**"
@@ -23,6 +24,7 @@ on:
       - "scripts/test-grounds-service-probes.sh"
       - "scripts/test-static-servers.sh"
       - "scripts/test-floodgate-config.sh"
+      - "scripts/test-gamemode-voice.sh"
       - "scripts/check-pr-title-scope.sh"
       - "tests/permissions/**"
       - "tests/grounds-service/**"
@@ -68,6 +70,9 @@ jobs:
 
       - name: 📈 Test grounds-gamemode metrics contract
         run: bash scripts/test-gamemode-metrics.sh
+
+      - name: 🎙️ Test grounds-gamemode voice contract
+        run: bash scripts/test-gamemode-voice.sh
 
       - name: 📈 Test grounds-velocity metrics contract
         run: bash scripts/test-velocity-metrics.sh

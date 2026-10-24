@@ -108,13 +108,21 @@ spec:
                   protocol: TCP
                 {{- end }}
                 {{- include "grounds-gamemode.metricsPort" . | nindent 16 }}
+                {{- if .Values.voice.enabled }}
+                # Simple Voice Chat, reached only through the region's
+                # grounds-voice-relay — a plain container port on the PodIP, not
+                # an Agones game port, for the same reason minecraft has none.
+                - name: voice
+                  containerPort: 24460
+                  protocol: UDP
+                {{- end }}
               env:
                 {{- include "grounds-gamemode.env" . | nindent 16 }}
               {{- with .Values.resources }}
               resources:
                 {{- toYaml . | nindent 16 }}
               {{- end }}
-              {{- if or $groundsTokenEnabled .Values.permissions.enabled }}
+              {{- if or $groundsTokenEnabled .Values.permissions.enabled .Values.voice.enabled }}
               volumeMounts:
                 {{- if $groundsTokenEnabled }}
                 - name: grounds-sa-token
@@ -126,8 +134,13 @@ spec:
                   mountPath: {{ $permissionsTokenDirectory }}
                   readOnly: true
                 {{- end }}
+                {{- if .Values.voice.enabled }}
+                - name: voice-route-key
+                  mountPath: /var/run/secrets/voice
+                  readOnly: true
+                {{- end }}
               {{- end }}
-          {{- if or $groundsTokenEnabled .Values.permissions.enabled }}
+          {{- if or $groundsTokenEnabled .Values.permissions.enabled .Values.voice.enabled }}
           volumes:
             {{- if $groundsTokenEnabled }}
             - name: grounds-sa-token
@@ -152,6 +165,14 @@ spec:
                       audience: {{ .Values.permissions.token.audience }}
                       expirationSeconds: {{ .Values.permissions.token.expirationSeconds }}
                       path: {{ base $permissionsTokenPath }}
+            {{- end }}
+            {{- if .Values.voice.enabled }}
+            - name: voice-route-key
+              secret:
+                secretName: {{ .Values.voice.routeKey.secretName }}
+                items:
+                  - key: {{ .Values.voice.routeKey.key }}
+                    path: {{ .Values.voice.routeKey.key }}
             {{- end }}
           {{- end }}
 {{- end }}

@@ -78,6 +78,34 @@ Velocity forwarding env-vars for the engine.
 - name: PERMISSIONS_TOKEN_FILE
   value: {{ clean .Values.permissions.token.mountPath | quote }}
 {{- end }}
+{{- if .Values.voice.enabled }}
+{{- $environment := required "global.environment is required when voice is enabled" .Values.global.environment }}
+{{- $region := required "global.region is required when voice is enabled" .Values.global.region }}
+{{- /*
+  Built from the same globals grounds-voice-relay builds its own subject and the
+  region's Pulumi stack builds the DNS name from, rather than taken as values: a
+  subject that differs from the relay's by one character is a relay that never
+  hears this pod, and every voice packet is dropped as `no_route` while both
+  sides look healthy.
+*/}}
+- name: VOICE_HOST
+  value: {{ printf "%s.voice.%s.geo.%s:%v" $region $environment (required "global.domain is required when voice is enabled" .Values.global.domain) .Values.voice.port | quote }}
+- name: VOICE_ROUTE_SUBJECT
+  value: {{ printf "voice.routes.%s.%s" $environment $region | quote }}
+{{- /* Party membership from service-social, the same subject in every region. */}}
+- name: VOICE_PARTY_SUBJECT
+  value: {{ printf "social.parties.%s" $environment | quote }}
+- name: VOICE_ROUTE_KEY_FILE
+  value: /var/run/secrets/voice/{{ .Values.voice.routeKey.key }}
+- name: VOICE_BIND
+  value: ":24460"
+# The address announced in `bind`. The relay accepts a pod's answers only from
+# the address its route points at.
+- name: POD_IP
+  valueFrom:
+    fieldRef:
+      fieldPath: status.podIP
+{{- end }}
 {{- end -}}
 
 {{/*
