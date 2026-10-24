@@ -1,0 +1,73 @@
+# Default values for grounds-voice-relay.
+#
+# The Simple Voice Chat relay for one environment of one region. A voice client
+# sends UDP to a single public port; the relay reads the player UUID off each
+# datagram, forwards it to the game-server pod that holds that player's voice
+# secret, and forwards the pod's answers back. Game servers keep their PodIPs
+# and never get a public address.
+#
+# It never decrypts anything. Routing needs only the UUID, which a client
+# datagram carries in clear; the pod drops whatever does not decrypt with the
+# player's secret.
+#
+# The ports are not values. 24454 (public), 24461 (pod-facing) and 24460 (what
+# game pods bind) are a contract with the region's Pulumi stack, whose Service
+# targets 24454, and with grounds-gamemode, which binds 24460 — a value here
+# could only ever be changed in step with both, so it would be a way to break
+# them rather than a knob.
+
+global:
+  commonLabels: {}
+  commonAnnotations: {}
+  # Both passed by the ApplicationSet to every component, from the cluster's
+  # labels. Together they name the NATS subject routes travel on —
+  # voice.routes.<environment>.<region> — which grounds-gamemode builds from the
+  # same two values, so a relay and the pods it serves cannot be configured into
+  # disagreement. Required: an empty one would subscribe to a subject no pod
+  # publishes to, and every voice packet would be dropped as `no_route`.
+  environment: ""
+  region: ""
+
+image:
+  registry: "ghcr.io"
+  repository: "groundsgg/voice-relay"
+  # A moving default, pinned per environment — the same contract every other
+  # chart here has, and deploy's CI enforces it.
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# The region's NATS leaf, the same one the lobby talks to. Routes are announced
+# there by the game pods and kept on the leaf by the zone in the subject.
+natsUrl: "nats://nats.nats.svc.cluster.local:4222"
+
+# The pod CIDR(s) of this cluster, comma separated. The relay forwards only to
+# addresses inside them, so a forged `bind` cannot turn it into a UDP reflector
+# aimed at the internet. Required: a wrong value fails closed, every route is
+# refused, and there is no default that is right for every cluster.
+podCidrs: ""
+
+# The shared key that authenticates the routes game pods announce. Referenced,
+# never created: the region's Pulumi stack generates one per environment
+# namespace and both this chart and grounds-gamemode mount it — a chart that
+# generated its own would hold a key the game servers do not have.
+routeKey:
+  secretName: "voice-route-key"
+  key: "route-key"
+
+# A packet forwarder with an in-memory route table. The CPU limit is generous
+# on purpose: throttling a UDP relay is heard as choppy voice, long before it
+# shows up as a metric.
+# UDP sockets per port, each with its own reader. Keep it at the CPU limit
+# below: more readers than CPUs only contend.
+sockets: 1
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "64Mi"
+  limits:
+    cpu: "1"
+    memory: "256Mi"
+
+nodeSelector: {}
+tolerations: []

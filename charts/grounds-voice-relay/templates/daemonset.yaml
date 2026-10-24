@@ -1,0 +1,155 @@
+{{/*
+A DaemonSet, because the region's voice Service uses
+`externalTrafficPolicy: Local`.
+
+Local is what lets the relay see the player's real address — with Cluster,
+kube-proxy SNATs the datagram on its way to a pod on another node, every player
+arrives from a node IP, and the client address the relay hands the game server
+is wrong. The price of Local is that a node only answers if a relay pod runs on
+that node; the voice name resolves to every node's address, so one has to run
+on every node.
+*/}}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+    {{- with .Values.global.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.global.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{/* One node at a time. Routes are rebuilt from NATS on start (the relay
+       asks every pod to re-announce), so a replaced pod costs the players on
+       that node a moment of silence, not a reconnect. */}}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "common.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "common.podLabels" . | nindent 8 }}
+        {{- with .Values.global.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{/* What the satellite's metrics agent discovers on. It keeps only the
+             target whose declared containerPort equals prometheus.io/port, so
+             the admin port below is declared for that reason alone. */}}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: /metrics
+        {{- with .Values.global.commonAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{/* The image is distroless `nonroot`. Nothing here needs more than the
+           restricted PodSecurity profile allows, so the pod asks for no more. */}}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      {{- $imageRepo := .Values.image.repository }}
+      {{- if .Values.image.registry }}
+      {{- $imageRepo = printf "%s/%s" .Values.image.registry .Values.image.repository }}
+      {{- end }}
+      containers:
+        - name: relay
+          image: "{{ $imageRepo }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          {{/* No hostPort, for the same reason grounds-geyser has none: the
+               region's Pulumi stack owns a Service with `externalIPs` set to
+               the node addresses, and a hostPort would cost the namespace its
+               baseline PodSecurity level. */}}
+          ports:
+            - name: voice
+              containerPort: 24454
+              protocol: UDP
+            - name: voice-internal
+              containerPort: 24461
+              protocol: UDP
+            - name: admin
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: NATS_URL
+              value: {{ .Values.natsUrl | quote }}
+            - name: ROUTE_SUBJECT
+              value: {{ printf "voice.routes.%s.%s" (required "global.environment is required: it names the route subject" .Values.global.environment) (required "global.region is required: it names the route subject" .Values.global.region) | quote }}
+            - name: ROUTE_KEY_FILE
+              value: /var/run/secrets/voice/{{ .Values.routeKey.key }}
+            - name: POD_CIDRS
+              value: {{ required "podCidrs is required: the relay forwards only into the cluster's pod network" .Values.podCidrs | quote }}
+            - name: POD_PORT
+              value: "24460"
+            - name: PUBLIC_ADDR
+              value: ":24454"
+            - name: INTERNAL_ADDR
+              value: ":24461"
+            - name: ADMIN_ADDR
+              value: ":8080"
+            {{/* One reader pair per CPU the pod may use. The relay's own
+                 default is the node's CPU count, which on a large node opens
+                 far more sockets than the CPU limit can serve. */}}
+            - name: SOCKETS
+              value: {{ .Values.sockets | quote }}
+            {{/* The relay sends to pods from this address and accepts their
+                 answers only on it. */}}
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          {{/* /healthz is readiness only. It answers 503 while NATS is
+               disconnected, which is right for readiness — a relay without
+               routes should not take new players — and wrong for liveness:
+               a leaf restart would then kill every relay in the region at once,
+               and with it every route they still hold. Liveness asks only
+               whether the process is up. */}}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: admin
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: admin
+            periodSeconds: 10
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: route-key
+              mountPath: /var/run/secrets/voice
+              readOnly: true
+      volumes:
+        - name: route-key
+          secret:
+            secretName: {{ .Values.routeKey.secretName }}
+            items:
+              - key: {{ .Values.routeKey.key }}
+                path: {{ .Values.routeKey.key }}
