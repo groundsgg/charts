@@ -53,6 +53,11 @@
       "release-type": "helm",
       "initial-version": "0.1.0",
       "bump-minor-pre-major": true
+    },
+    "charts/grounds-voice-relay": {
+      "release-type": "helm",
+      "initial-version": "0.1.0",
+      "bump-minor-pre-major": true
     }
   }
 }
