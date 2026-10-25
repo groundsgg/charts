@@ -67,8 +67,8 @@ for file in fleet deployment; do
   }
 
   assert_yq "${output_dir}/${file}.yaml" \
-    "$(env_value VOICE_HOST) == \"de-nbg1.voice.stage.geo.grnds.io:24455\"" \
-    "${file}: VOICE_HOST is not the region's voice record on the environment's public port"
+    "$(env_value VOICE_HOST) == \"de-nbg1.stage.geo.grnds.io:24455\"" \
+    "${file}: VOICE_HOST is not the region's DNS name on the environment's public port"
   assert_yq "${output_dir}/${file}.yaml" \
     "$(env_value VOICE_ROUTE_SUBJECT) == \"voice.routes.stage.de-nbg1\"" \
     "${file}: VOICE_ROUTE_SUBJECT disagrees with the relay's ROUTE_SUBJECT"
