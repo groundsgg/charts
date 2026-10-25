@@ -214,9 +214,10 @@ permissions:
 # declared, the pod's own IP is exposed for the `bind` it announces on NATS, and
 # the route key the relay checks those announcements against is mounted.
 #
-# The host a client is sent to is `<region>.voice.<environment>.geo.<domain>`,
-# the name the region's Pulumi stack writes. Under `geo`, like the Bedrock
-# record, because that is the only delegated zone that actually resolves.
+# The host a client is sent to is `<region>.<environment>.geo.<domain>`, the
+# region's own name that its Pulumi stack writes (the relay runs on every node
+# behind it). Under `geo`, like the Bedrock record, because that is the only
+# delegated zone that actually resolves.
 #
 # Off by default; off renders nothing at all.
 voice:

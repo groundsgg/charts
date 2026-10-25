@@ -89,7 +89,7 @@ Velocity forwarding env-vars for the engine.
   sides look healthy.
 */}}
 - name: VOICE_HOST
-  value: {{ printf "%s.voice.%s.geo.%s:%v" $region $environment (required "global.domain is required when voice is enabled" .Values.global.domain) .Values.voice.port | quote }}
+  value: {{ printf "%s.%s.geo.%s:%v" $region $environment (required "global.domain is required when voice is enabled" .Values.global.domain) .Values.voice.port | quote }}
 - name: VOICE_ROUTE_SUBJECT
   value: {{ printf "voice.routes.%s.%s" $environment $region | quote }}
 {{- /* Party membership from service-social, the same subject in every region. */}}
