@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.15.0...grounds-gamemode-v0.16.0) (2026-10-25)
+
+
+### Features
+
+* **grounds-gamemode:** hand voice clients the region's DNS name ([#200](https://github.com/groundsgg/charts/issues/200)) ([0de86e5](https://github.com/groundsgg/charts/commit/0de86e516cab0c7e2747f90fca92c4bee97d23af))
+
 ## [0.15.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.14.0...grounds-gamemode-v0.15.0) (2026-10-24)
 
 
