@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.7.0...service-notifications-v0.8.0) (2026-10-26)
+
+
+### Features
+
+* **service-notifications:** render the JWT audience list when set ([#202](https://github.com/groundsgg/charts/issues/202)) ([8850698](https://github.com/groundsgg/charts/commit/88506988098167ab90788b41a631275e64d8e812))
+
+
+### Bug Fixes
+
+* **service-notifications:** use shared API host with scoped routes ([#190](https://github.com/groundsgg/charts/issues/190)) ([e696445](https://github.com/groundsgg/charts/commit/e6964455ed89046fb45d1f3bb09ddef349263db8))
+
 ## [0.7.0](https://github.com/groundsgg/charts/compare/service-notifications-v0.6.0...service-notifications-v0.7.0) (2026-09-15)
 
 
