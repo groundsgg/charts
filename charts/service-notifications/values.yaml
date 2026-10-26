@@ -16,6 +16,9 @@ config:
   jwtPublicKeyLocation: "https://account.grounds.gg/realms/grounds/protocol/openid-connect/certs"
   forgeBaseUrl: "http://grounds-forge.grounds-forge.svc.cluster.local:8080"
   moderationProjectorEnabled: false
+  # Audiences a user access token must carry one of (NOTIFICATIONS_JWT_AUDIENCES; needs an image that reads it).
+  # Empty skips the check; give every calling Keycloak client the audience mapper before setting it.
+  jwtAudiences: []
 
 existingSecret:
   name: "service-notifications"
