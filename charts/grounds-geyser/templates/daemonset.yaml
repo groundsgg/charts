@@ -36,6 +36,7 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 1
+      maxSurge: 0
   selector:
     matchLabels:
       {{- include "common.selectorLabels" . | nindent 6 }}
@@ -87,11 +88,37 @@ spec:
             - name: bedrock
               containerPort: {{ .Values.bedrock.port }}
               protocol: UDP
+            - name: signaling
+              containerPort: {{ .Values.bedrock.port }}
+              protocol: TCP
+          env:
+            # The region's published node IP is public. Paired with the
+            # Local ingress policy, both transports reach this node's Geyser.
+            - name: GROUNDS_GEYSER_ADVERTISE_ADDRESS
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            {{- if .Values.signalingIdentity.enabled }}
+            - name: GROUNDS_GEYSER_IDENTITY_FILE
+              value: /config/nethernet/identity.pem
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /v1/join
+              port: signaling
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
+            {{- if .Values.signalingIdentity.enabled }}
+            - name: signaling-identity
+              mountPath: /config/nethernet
+              readOnly: true
+            {{- end }}
             {{/* /config, not /opt/geyser/config.yml. Geyser does not just read
                  its config, it rewrites it: on startup it fills in every key it
                  has a default for and saves the result back atomically, temp
@@ -112,6 +139,14 @@ spec:
               readOnly: true
             {{- end }}
       volumes:
+        {{- if .Values.signalingIdentity.enabled }}
+        - name: signaling-identity
+          secret:
+            secretName: {{ .Values.signalingIdentity.secretName }}
+            items:
+              - key: {{ .Values.signalingIdentity.key }}
+                path: identity.pem
+        {{- end }}
         - name: config
           configMap:
             name: {{ .Release.Name }}

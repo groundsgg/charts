@@ -42,6 +42,8 @@ image:
 # belongs on the environment whose users are the team, not the one whose users
 # are players.
 bedrock:
+  # Bedrock 26.60+ uses TCP signaling and UDP/WebRTC on this same port.
+  transport: nethernet
   # A Bedrock client speaks RakNet over UDP, and the address it dials is the
   # only routing key that exists before the session is up — there is no
   # handshake hostname for anything to route on, the way mc-router does for
@@ -90,6 +92,13 @@ floodgateKey:
   enabled: true
   secretName: "floodgate-key"
   key: "key.pem"
+
+# Stable across pod replacements and all regions sharing this public name.
+# Without it, a client pins a different NetherNet operator on every restart.
+signalingIdentity:
+  enabled: true
+  secretName: "geyser-signaling-identity"
+  key: "identity.pem"
 
 # No DNS knob here on purpose.
 #

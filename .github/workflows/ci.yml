@@ -10,6 +10,7 @@ on:
       - "scripts/test-grounds-service-probes.sh"
       - "scripts/test-static-servers.sh"
       - "scripts/test-floodgate-config.sh"
+      - "scripts/test-geyser-nethernet.sh"
       - "scripts/test-gamemode-voice.sh"
       - "scripts/check-pr-title-scope.sh"
       - "tests/permissions/**"
@@ -24,6 +25,7 @@ on:
       - "scripts/test-grounds-service-probes.sh"
       - "scripts/test-static-servers.sh"
       - "scripts/test-floodgate-config.sh"
+      - "scripts/test-geyser-nethernet.sh"
       - "scripts/test-gamemode-voice.sh"
       - "scripts/check-pr-title-scope.sh"
       - "tests/permissions/**"
@@ -61,6 +63,7 @@ jobs:
           helm dependency update charts/grounds-gamemode
           helm dependency update charts/grounds-service
           helm dependency update charts/grounds-static-servers
+          helm dependency update charts/grounds-geyser
 
       - name: 🧪 Test permissions runtime contract
         run: bash scripts/test-permissions-runtime.sh
@@ -79,6 +82,9 @@ jobs:
 
       - name: 🔐 Test grounds-velocity Floodgate configuration
         run: bash scripts/test-floodgate-config.sh
+
+      - name: 🌐 Test Geyser NetherNet contract
+        run: bash scripts/test-geyser-nethernet.sh
 
       - name: 🧭 Test grounds-static-servers contract
         run: bash scripts/test-static-servers.sh
