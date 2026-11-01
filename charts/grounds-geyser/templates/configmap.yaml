@@ -25,6 +25,11 @@ data:
       # socket nothing is listening on.
       address: 0.0.0.0
       port: {{ .Values.bedrock.port }}
+      transport: {{ .Values.bedrock.transport | quote }}
+      signaling:
+        mode: builtin
+        port: {{ .Values.bedrock.port }}
+        stun-discovery: false
       # The port advertised to the client in the pong is this one, not the
       # remote's. Cloning the remote port would advertise Velocity's 25565 to a
       # Bedrock client, which then dials a port that speaks TCP.
