@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/groundsgg/charts/compare/grounds-geyser-v0.4.0...grounds-geyser-v0.5.0) (2026-11-01)
+
+
+### Features
+
+* **grounds-geyser:** support NetherNet with a durable operator identity ([#203](https://github.com/groundsgg/charts/issues/203)) ([ee23b35](https://github.com/groundsgg/charts/commit/ee23b3502c807bc46fe69da60bbf438156ec3714))
+
 ## [0.4.0](https://github.com/groundsgg/charts/compare/grounds-geyser-v0.3.0...grounds-geyser-v0.4.0) (2026-08-13)
 
 
