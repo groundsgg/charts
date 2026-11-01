@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/groundsgg/charts/compare/grounds-geyser-v0.5.0...grounds-geyser-v0.5.1) (2026-11-01)
+
+
+### Bug Fixes
+
+* **grounds-geyser:** keep readiness stable across Kubernetes port merges ([#205](https://github.com/groundsgg/charts/issues/205)) ([b84ec05](https://github.com/groundsgg/charts/commit/b84ec054162fa532543f9f302174da5ccfe78f52))
+
 ## [0.5.0](https://github.com/groundsgg/charts/compare/grounds-geyser-v0.4.0...grounds-geyser-v0.5.0) (2026-11-01)
 
 
