@@ -57,6 +57,9 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      # GEYSER_BEDROCK_PORT otherwise becomes a Kubernetes service URL and
+      # collides with Geyser's integer environment override. DNS is used instead.
+      enableServiceLinks: false
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -88,9 +91,6 @@ spec:
             - name: bedrock
               containerPort: {{ .Values.bedrock.port }}
               protocol: UDP
-            - name: signaling
-              containerPort: {{ .Values.bedrock.port }}
-              protocol: TCP
           env:
             # The region's published node IP is public. Paired with the
             # Local ingress policy, both transports reach this node's Geyser.
@@ -105,7 +105,10 @@ spec:
           readinessProbe:
             httpGet:
               path: /v1/join
-              port: signaling
+              # Client-side strategic merge keys containerPorts only by the
+              # number, losing same-number TCP/UDP declarations. The server
+              # binds TCP regardless; use its number directly for the probe.
+              port: {{ .Values.bedrock.port }}
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 2
