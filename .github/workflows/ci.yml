@@ -13,6 +13,7 @@ on:
       - "scripts/test-geyser-nethernet.sh"
       - "scripts/test-gamemode-voice.sh"
       - "scripts/check-pr-title-scope.sh"
+      - "tests/velocity/**"
       - "tests/permissions/**"
       - "tests/grounds-service/**"
       - ".github/workflows/ci.yml"
@@ -28,6 +29,7 @@ on:
       - "scripts/test-geyser-nethernet.sh"
       - "scripts/test-gamemode-voice.sh"
       - "scripts/check-pr-title-scope.sh"
+      - "tests/velocity/**"
       - "tests/permissions/**"
       - "tests/grounds-service/**"
       - ".github/workflows/ci.yml"
@@ -76,6 +78,9 @@ jobs:
 
       - name: 🎙️ Test grounds-gamemode voice contract
         run: bash scripts/test-gamemode-voice.sh
+
+      - name: 🔐 Test private plugin directory ownership
+        run: python3 tests/velocity/private-plugin-directory.py
 
       - name: 📈 Test grounds-velocity metrics contract
         run: bash scripts/test-velocity-metrics.sh
