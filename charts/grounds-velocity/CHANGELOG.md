@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.1](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.15.0...grounds-velocity-v0.15.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **grounds-velocity:** protect private plugin directories ([#207](https://github.com/groundsgg/charts/issues/207)) ([058aef1](https://github.com/groundsgg/charts/commit/058aef139190764e2a776c49faec6fbef3c00ccb))
+
 ## [0.15.0](https://github.com/groundsgg/charts/compare/grounds-velocity-v0.14.0...grounds-velocity-v0.15.0) (2026-10-17)
 
 
