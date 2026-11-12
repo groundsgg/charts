@@ -75,6 +75,29 @@ spec:
       {{- end }}
       {{- with .Values.plugins }}
       initContainers:
+        # emptyDir roots are root-owned and shared-writable. A sticky root keeps
+        # a different UID from replacing a plugin's private cache directory.
+        # Prepare only the mount; seed/fetch retain their existing image users.
+        - name: prepare-plugin-directory
+          image: "{{ $imageRepo }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ["sh", "-c", "chmod 1777 /plugins"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+            seccompProfile:
+              type: RuntimeDefault
+          {{- with $.Values.initResources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: plugins
+              mountPath: /plugins
         {{- /* The plugins emptyDir is mounted over /app/plugins, hiding the JARs
              baked into the velocity image (plugin-agones-velocity,
              plugin-grounds-runtime, plugin-grounds-platform). Seed the volume
