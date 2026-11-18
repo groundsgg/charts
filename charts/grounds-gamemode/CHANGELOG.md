@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.16.0...grounds-gamemode-v0.17.0) (2026-11-18)
+
+
+### Features
+
+* **grounds-gamemode:** add an ephemeral moderation cache for Minestom fleets ([#209](https://github.com/groundsgg/charts/issues/209)) ([0447c83](https://github.com/groundsgg/charts/commit/0447c83e64147e4552fbdb38b76b6242ea59d31a))
+
 ## [0.16.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.15.0...grounds-gamemode-v0.16.0) (2026-10-25)
 
 
