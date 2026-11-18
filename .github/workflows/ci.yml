@@ -12,6 +12,7 @@ on:
       - "scripts/test-floodgate-config.sh"
       - "scripts/test-geyser-nethernet.sh"
       - "scripts/test-gamemode-voice.sh"
+      - "scripts/test-gamemode-moderation-cache.sh"
       - "scripts/check-pr-title-scope.sh"
       - "tests/velocity/**"
       - "tests/permissions/**"
@@ -28,6 +29,7 @@ on:
       - "scripts/test-floodgate-config.sh"
       - "scripts/test-geyser-nethernet.sh"
       - "scripts/test-gamemode-voice.sh"
+      - "scripts/test-gamemode-moderation-cache.sh"
       - "scripts/check-pr-title-scope.sh"
       - "tests/velocity/**"
       - "tests/permissions/**"
@@ -78,6 +80,9 @@ jobs:
 
       - name: 🎙️ Test grounds-gamemode voice contract
         run: bash scripts/test-gamemode-voice.sh
+
+      - name: Test Minestom Fleet moderation cache
+        run: bash scripts/test-gamemode-moderation-cache.sh
 
       - name: 🔐 Test private plugin directory ownership
         run: python3 tests/velocity/private-plugin-directory.py

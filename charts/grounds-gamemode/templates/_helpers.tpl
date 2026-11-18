@@ -19,6 +19,43 @@ paper
 {{- end -}}
 {{- end -}}
 
+{{/* Return the canonical boolean only after checking the opt-in's preconditions. */}}
+{{- define "grounds-gamemode.moderationCacheEnabled" -}}
+{{- $moderation := .Values.moderation | default dict -}}
+{{- $policy := $moderation.backendPolicy | default dict -}}
+{{- if and (hasKey $policy "enabled") (not (kindIs "bool" $policy.enabled)) -}}
+{{- fail "moderation.backendPolicy.enabled must be a boolean" -}}
+{{- end -}}
+{{- if $policy.enabled -}}
+{{- if not (and (kindIs "bool" .Values.agones.enabled) .Values.agones.enabled (eq (include "grounds-gamemode.engine" .) "minestom")) -}}
+{{- fail "moderation.backendPolicy.enabled requires an Agones Minestom Fleet" -}}
+{{- end -}}
+{{- $key := "grounds.gg/moderation-policy-backend" -}}
+{{- range $labels := list (.Values.global.commonLabels | default dict) (.Values.podLabels | default dict) -}}
+{{- if and (hasKey $labels $key) (not (and (kindIs "string" (get $labels $key)) (eq (get $labels $key) "enabled"))) -}}
+{{- fail (printf "conflicting enrollment label %s" $key) -}}
+{{- end -}}
+{{- end -}}
+{{- $cache := "/minestom/data/grounds-chat/" -}}
+{{- $mounts := list -}}
+{{- if .Values.groundsToken.enabled -}}
+{{- $mounts = append $mounts (clean .Values.groundsToken.mountPath) -}}
+{{- end -}}
+{{- if .Values.permissions.enabled -}}
+{{- $mounts = append $mounts (dir (clean .Values.permissions.token.mountPath)) -}}
+{{- end -}}
+{{- range $mount := $mounts -}}
+{{- $directory := printf "%s/" (trimSuffix "/" $mount) -}}
+{{- if or (hasPrefix $directory $cache) (hasPrefix $cache $directory) -}}
+{{- fail (printf "token mount %s overlaps the moderation cache" $mount) -}}
+{{- end -}}
+{{- end -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
 {{/*
 Returns the env block for the game-server container, picking the right
 Velocity forwarding env-vars for the engine.

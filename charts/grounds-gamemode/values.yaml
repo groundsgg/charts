@@ -29,6 +29,12 @@
 # the single field used to do.
 engine: ""
 
+# Enroll an Agones Minestom Fleet in moderation policy control. The cache is
+# ephemeral and writable by the image's existing non-root game process.
+moderation:
+  backendPolicy:
+    enabled: false
+
 global:
   commonLabels: {}
   commonAnnotations: {}
