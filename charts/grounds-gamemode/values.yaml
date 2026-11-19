@@ -173,6 +173,13 @@ args: []
 # extraEnv merges into env after the kind-specific velocity-secret.
 extraEnv: []
 
+# Mount externally provisioned content without embedding it in the server image.
+# These standard Kubernetes volumes/mounts are appended to the game container
+# in both Deployment and Agones Fleet mode. Use distinct names and mount paths;
+# preserve token, voice, policy-cache and application directories.
+extraVolumes: []
+extraVolumeMounts: []
+
 resources:
   requests:
     cpu: "500m"
