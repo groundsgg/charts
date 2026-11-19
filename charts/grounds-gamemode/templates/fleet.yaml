@@ -137,7 +137,7 @@ spec:
               resources:
                 {{- toYaml . | nindent 16 }}
               {{- end }}
-              {{- if or $groundsTokenEnabled .Values.permissions.enabled .Values.voice.enabled $moderationCache }}
+              {{- if or $groundsTokenEnabled .Values.permissions.enabled .Values.voice.enabled $moderationCache .Values.extraVolumes .Values.extraVolumeMounts }}
               volumeMounts:
                 {{- if $groundsTokenEnabled }}
                 - name: grounds-sa-token
@@ -158,8 +158,11 @@ spec:
                 - name: moderation-policy-cache
                   mountPath: /minestom/data/grounds-chat
                 {{- end }}
+                {{- with .Values.extraVolumeMounts }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
               {{- end }}
-          {{- if or $groundsTokenEnabled .Values.permissions.enabled .Values.voice.enabled $moderationCache }}
+          {{- if or $groundsTokenEnabled .Values.permissions.enabled .Values.voice.enabled $moderationCache .Values.extraVolumes .Values.extraVolumeMounts }}
           volumes:
             {{- if $groundsTokenEnabled }}
             - name: grounds-sa-token
@@ -197,6 +200,9 @@ spec:
             - name: moderation-policy-cache
               emptyDir:
                 sizeLimit: 8Mi
+            {{- end }}
+            {{- with .Values.extraVolumes }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- end }}
 {{- end }}

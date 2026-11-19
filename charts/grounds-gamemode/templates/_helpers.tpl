@@ -19,6 +19,17 @@ paper
 {{- end -}}
 {{- end -}}
 
+{{/* Content volumes do not provide an alternative workload identity configuration. */}}
+{{- define "grounds-gamemode.validateExtraContent" -}}
+{{- range $volume := .Values.extraVolumes -}}
+{{- range $source := (($volume.projected | default dict).sources | default list) -}}
+{{- if hasKey $source "serviceAccountToken" -}}
+{{- fail "extraVolumes must not project service-account tokens; use groundsToken or permissions.token" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
 {{/* Return the canonical boolean only after checking the opt-in's preconditions. */}}
 {{- define "grounds-gamemode.moderationCacheEnabled" -}}
 {{- $moderation := .Values.moderation | default dict -}}
@@ -44,6 +55,9 @@ paper
 {{- if .Values.permissions.enabled -}}
 {{- $mounts = append $mounts (dir (clean .Values.permissions.token.mountPath)) -}}
 {{- end -}}
+{{- range $mount := .Values.extraVolumeMounts -}}
+{{- $mounts = append $mounts (clean $mount.mountPath) -}}
+{{- end -}}
 {{- range $mount := $mounts -}}
 {{- $directory := printf "%s/" (trimSuffix "/" $mount) -}}
 {{- if or (hasPrefix $directory $cache) (hasPrefix $cache $directory) -}}
@@ -62,6 +76,7 @@ Velocity forwarding env-vars for the engine.
 */}}
 {{- define "grounds-gamemode.env" -}}
 {{- include "grounds-gamemode.validateTokenPaths" . -}}
+{{- include "grounds-gamemode.validateExtraContent" . -}}
 {{- $groundsToken := .Values.groundsToken | default dict -}}
 {{- $groundsTokenEnabled := $groundsToken.enabled | default false -}}
 {{- if eq (include "grounds-gamemode.engine" .) "minestom" -}}
