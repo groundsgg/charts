@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.17.0...grounds-gamemode-v0.18.0) (2026-11-19)
+
+
+### Features
+
+* **grounds-gamemode:** mount external runtime content ([#211](https://github.com/groundsgg/charts/issues/211)) ([1b1759a](https://github.com/groundsgg/charts/commit/1b1759afe56a89a15d8b4314c148443fd9019c5c))
+
 ## [0.17.0](https://github.com/groundsgg/charts/compare/grounds-gamemode-v0.16.0...grounds-gamemode-v0.17.0) (2026-11-18)
 
 
