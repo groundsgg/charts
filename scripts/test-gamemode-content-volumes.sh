@@ -44,3 +44,28 @@ for agones in false true; do
   done
 done
 printf '%s\n' 'External content volumes: Fleet and Deployment preserve every other rendered field, with and without existing runtime controls.'
+
+errors=0
+reject() {
+  local expected="$1"
+  shift
+  if helm template game "$chart" --namespace stage "$@" >"$scratch/unexpected.yaml" 2>"$scratch/error"; then
+    printf '%s\n' "Expected rejection: $expected" >&2
+    errors=$((errors + 1))
+  elif ! grep -Fq "$expected" "$scratch/error"; then
+    cat "$scratch/error" >&2
+    errors=$((errors + 1))
+  fi
+}
+for agones in false true; do
+  reject 'extraVolumes must not project service-account tokens' --set "agones.enabled=$agones" \
+    --set 'extraVolumes[0].name=unexpected-identity' \
+    --set 'extraVolumes[0].projected.sources[0].serviceAccountToken.audience=grounds-services' \
+    --set 'extraVolumes[0].projected.sources[0].serviceAccountToken.path=token'
+done
+for mount in / /minestom/data /minestom/data/grounds-chat /minestom/data/grounds-chat/backend-policy-cache.json /minestom/tmp/../data/grounds-chat; do
+  reject 'overlaps the moderation cache' --set agones.enabled=true --set kind=lobby \
+    --set moderation.backendPolicy.enabled=true -f "$scratch/content.yaml" \
+    --set "extraVolumeMounts[0].mountPath=$mount"
+done
+[[ "$errors" == 0 ]]
