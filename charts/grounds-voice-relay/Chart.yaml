@@ -3,7 +3,7 @@ name: grounds-voice-relay
 description: Simple Voice Chat UDP relay — the region's one public voice port,
   forwarding to game-server pods that have no public address
 type: application
-version: 0.1.0
+version: 0.2.0
 
 dependencies:
   - name: common
